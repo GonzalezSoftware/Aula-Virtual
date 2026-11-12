@@ -29,6 +29,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Si intentan colocar el usuario admin_oculto en el login de estudiantes, los mandamos a su login especial
+        if ($request->input('email') === 'admin_oculto') {
+            return redirect()->route('admin.login');
+        }
+
         $request->authenticate();
 
         $request->session()->regenerate();

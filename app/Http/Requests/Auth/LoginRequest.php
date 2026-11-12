@@ -28,11 +28,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'], // Cambiado de 'email' a 'string' para aceptar 'admin_oculto'
             'password' => ['required', 'string'],
         ];
     }
-
     /**
      * Attempt to authenticate the request's credentials.
      *
