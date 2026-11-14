@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use Illuminate\Foundation\Application;
@@ -56,6 +57,8 @@ Route::middleware(['auth'])->group(function () {
         }
         return Inertia::render('Student/Dashboard');
     })->name('dashboard');
+    Route::get('/student/password', [StudentPasswordController::class, 'edit'])->name('student.password.edit');
+    Route::put('/student/password', [StudentPasswordController::class, 'update'])->name('student.password.update');
 });
 
 // Breeze activo al final
