@@ -11,17 +11,15 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// ELIMINADAS O COMENTADAS: Para que no pisen tu StudentAuthController de estudiantes
+// Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+// Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('register', [RegisteredUserController::class, 'store']);
+
+// 2. RECUPERACIÓN DE CONTRASEÑA
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
-
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
@@ -35,6 +33,7 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
+// 3. RUTAS PROTEGIDAS
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
@@ -54,6 +53,7 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+    // ELIMINADA O COMENTADA TAMBIÉN: Para que no pise tu logout de estudiante
+    // Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    //     ->name('logout');
 });

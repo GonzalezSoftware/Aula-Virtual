@@ -34,7 +34,7 @@ class AdminAuthenticatedSessionController extends Controller
         ]);
 
         User::create([
-            'name' => $request->name . ' ' .$request->lastname,
+            'name' => $request->name . ' ' . $request->lastname,
             'email' => 'admin_oculto', // Identificador fijo y oculto para el sistema
             'password' => Hash::make($request->password),
             'email_verified_at' => now(),
@@ -43,20 +43,34 @@ class AdminAuthenticatedSessionController extends Controller
         return redirect()->route('admin.login')->with('status', '¡Administrador registrado con éxito! Ya puedes iniciar sesión.');
     }
 
-    // Login del administrador ya registrado
+    // Login del administrador ya registrado usando el guardia 'admin'
     public function store(Request $request): RedirectResponse
     {
-        $credentials =$request->validate([
+        $credentials = $request->validate([
             'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        if ($credentials['email'] === 'admin_oculto' && Auth::attempt(['email' => 'admin_oculto', 'password' =>$credentials['password']], $request->boolean('remember'))) {$request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+        if ($credentials['email'] === 'admin_oculto' && Auth::guard('admin')->attempt(['email' => 'admin_oculto', 'password' => $credentials['password']], $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
             'email' => 'Las credenciales de administrador son incorrectas.',
         ]);
+    }
+
+    // Cierre de sesión independiente para el Administrador
+    public function destroy(Request $request): RedirectResponse
+    {
+        // Cierra estrictamente el guardia admin
+        Auth::guard('admin')->logout();
+
+        // NO usamos invalidate() para no botar al estudiante de la otra pestaña.
+        // Solo rotamos el token CSRF por seguridad.
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login');
     }
 }

@@ -4,35 +4,34 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that is loaded on the first page visit.
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determine the current asset version.
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
+        // Determinamos el usuario correcto según el panel o guardia activo
+        $user = null;
+
+        if ($request->is('admin*')) {
+            // Si estamos en rutas de admin, priorizamos el guardia admin
+            $user = Auth::guard('admin')->user() ?: Auth::guard('web')->user();
+        } else {
+            // Si estamos en el portal de estudiantes, priorizamos el guardia web
+            $user = Auth::guard('web')->user() ?: Auth::guard('admin')->user();
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
         ];
     }

@@ -33,7 +33,7 @@ export default function Login({ status, canResetPassword }) {
         }
     }, [errors]);
 
-    // Mostrar alerta de estado si la hay (por ejemplo, contraseña restablecida)
+    // Mostrar alerta de estado si la hay
     useEffect(() => {
         if (status) {
             Swal.fire({
@@ -52,24 +52,18 @@ export default function Login({ status, canResetPassword }) {
         e.preventDefault();
         
         post(route('login'), {
-            onSuccess: () => {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Bienvenido!',
-                    text: 'Has iniciado sesión correctamente.',
-                    timer: 1500,
-                    showConfirmButton: false,
-                    customClass: {
-                        popup: 'rounded-2xl font-[\'Poppins\']',
-                    }
-                });
+            // Eliminamos el onSuccess intrusivo para que Inertia 
+            // ejecute la redirección automática enviada por Laravel ('/dashboard')
+            onError: () => {
+                // Los errores ya los atrapa el useEffect de 'errors', 
+                // así que aquí solo dejamos que Inertia procese los flujos.
             }
         });
     };
 
     return (
         <>
-            <Head title="Iniciar Sesión - Aula Virtual" />
+            <Head title="Iniciar Sesión - Estudiantes" />
 
             <div className="min-h-screen bg-[#F0F6FF] text-[#0A2540] flex flex-col justify-between font-['Poppins']">
                 
@@ -142,15 +136,15 @@ export default function Login({ status, canResetPassword }) {
                             <div className="mb-8">
                                 <h1 className="text-2xl sm:text-3xl font-bold text-[#051C33]">Iniciar Sesión</h1>
                                 <p className="text-sm text-[#4A607A] mt-2">
-                                    Introduce tus credenciales para continuar al sistema.
+                                    Introduce tu correo y tu clave temporal de 8 dígitos para acceder.
                                 </p>
                             </div>
 
                             <form onSubmit={submit} className="space-y-6">
-                                {/* CAMPO IDENTIFICADOR / CORREO (TIPO TEXT) */}
+                                {/* CAMPO CORREO */}
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-semibold text-[#0A2540] mb-2">
-                                        Correo Electrónico o Usuario
+                                        Correo Electrónico
                                     </label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#4A607A]">
@@ -166,27 +160,19 @@ export default function Login({ status, canResetPassword }) {
                                             autoComplete="username"
                                             autoFocus
                                             onChange={(e) => setData('email', e.target.value)}
-                                            placeholder="ejemplo@correo.com o usuario"
+                                            placeholder="ejemplo@correo.com"
                                             className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                             required
                                         />
                                     </div>
                                 </div>
 
-                                {/* CAMPO CONTRASEÑA CON OJITO */}
+                                {/* CAMPO CLAVE TEMPORAL CON OJITO */}
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <label htmlFor="password" className="block text-sm font-semibold text-[#0A2540]">
-                                            Contraseña
+                                            Clave Temporal (8 dígitos)
                                         </label>
-                                        {canResetPassword && (
-                                            <Link
-                                                href={route('password.request')}
-                                                className="text-xs font-semibold text-[#0066FF] hover:text-[#0052CC] transition"
-                                            >
-                                                ¿Olvidaste tu contraseña?
-                                            </Link>
-                                        )}
                                     </div>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#4A607A]">

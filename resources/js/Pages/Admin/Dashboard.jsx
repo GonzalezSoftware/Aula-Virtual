@@ -35,6 +35,7 @@ export default function Dashboard({ auth }) {
                                 {sidebarOpen && <span>Dashboard</span>}
                             </Link>
 
+                            {/* OPCIÓN 1: ESTUDIANTES GENERALES/ACTIVOS */}
                             <Link
                                 href={route('admin.students.index')}
                                 className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white font-medium text-sm transition"
@@ -43,6 +44,17 @@ export default function Dashboard({ auth }) {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
                                 {sidebarOpen && <span>Estudiantes</span>}
+                            </Link>
+
+                            {/* OPCIÓN 2: ESTUDIANTES EN ESPERA (SEPARADA) */}
+                            <Link
+                                href={route('admin.students.pending')}
+                                className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white font-medium text-sm transition"
+                            >
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {sidebarOpen && <span>Estudiantes en Espera</span>}
                             </Link>
                         </nav>
                     </div>
@@ -60,7 +72,7 @@ export default function Dashboard({ auth }) {
                 {/* CONTENEDOR PRINCIPAL */}
                 <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
                     
-                    {/* BARRA SUPERIOR CON EL TÍTULO "Dashboard Admin" */}
+                    {/* BARRA SUPERIOR */}
                     <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
                         <div className="flex items-center gap-3">
                             <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
@@ -75,7 +87,7 @@ export default function Dashboard({ auth }) {
                             </div>
 
                             <Link
-                                href={route('logout')}
+                                href={route('admin.logout')}
                                 method="post"
                                 as="button"
                                 className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"

@@ -14,7 +14,13 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('lastname')->nullable(); // Ahora permite nulos para el admin
+            $table->string('cedula')->unique()->nullable(); // Permite nulos para el admin
+            $table->string('phone')->nullable(); // Permite nulos para el admin
             $table->string('email')->unique();
+            $table->string('cedula_image')->nullable(); // Permite nulos para el admin
+            $table->string('verification_code')->nullable();
+            $table->boolean('en_espera')->default(1);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

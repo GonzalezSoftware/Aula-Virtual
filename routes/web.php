@@ -1,9 +1,9 @@
 <?php
-use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
-use App\Http\Controllers\Admin\AdminStudentController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 
+use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+use App\Http\Controllers\Auth\StudentAuthController;
+use App\Http\Controllers\Admin\AdminStudentController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,23 +17,46 @@ Route::get('/', function () {
     ]);
 });
 
+// Rutas de autenticación para el Administrador
 Route::get('/admin/login', [AdminAuthenticatedSessionController::class, 'create'])->name('admin.login');
 Route::post('/admin/register', [AdminAuthenticatedSessionController::class, 'storeRegister'])->name('admin.register');
 Route::post('/admin/login', [AdminAuthenticatedSessionController::class, 'store'])->name('admin.store');
-Route::get('/admin/students', [AdminStudentController::class, 'index'])->name('admin.students.index');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware(['auth'])->group(function () {
+// Grupo protegido estrictamente para el panel de administración con el guardia 'admin'
+Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
-        // Aseguramos que solo el admin oculto pueda entrar aquí por seguridad
-        if (Auth::user()->email !== 'admin_oculto') {
-            abort(403, 'Acceso no autorizado.');
-        }
         return Inertia::render('Admin/Dashboard');
     })->name('admin.dashboard');
+
+    Route::get('/admin/students', [AdminStudentController::class, 'index'])->name('admin.students.index');
+    Route::get('/admin/students/pending', [AdminStudentController::class, 'pending'])->name('admin.students.pending');
+    Route::post('/admin/students/{id}/approve', [AdminStudentController::class, 'approve'])->name('admin.students.approve');
+    Route::delete('/admin/students/{id}/reject', [AdminStudentController::class, 'reject'])->name('admin.students.reject');
+    
+    // Ruta de cierre de sesión independiente para el Admin
+    Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
 });
 
+// Rutas para el registro y validación por código de 6 dígitos de estudiantes
+Route::post('/register/send-code', [StudentAuthController::class, 'sendCode'])->name('register.send-code');
+Route::post('/register/verify-code', [StudentAuthController::class, 'verifyCode'])->name('register.verify-code');
+
+// Rutas de Login y Logout para Estudiantes
+Route::get('/login', [StudentAuthController::class, 'create'])->name('login');
+Route::post('/login', [StudentAuthController::class, 'store'])->name('student.login');
+Route::post('/logout', [StudentAuthController::class, 'destroy'])->name('logout');
+Route::post('/student/logout', [StudentAuthController::class, 'destroy'])->name('student.logout');
+
+// Dashboard general de estudiantes (Protegido por el guardia 'web')
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::guard('web')->user();
+        if ($user && $user->email === 'admin_oculto') {
+            return redirect()->route('admin.dashboard');
+        }
+        return Inertia::render('Student/Dashboard');
+    })->name('dashboard');
+});
+
+// Breeze activo al final
 require __DIR__.'/auth.php';

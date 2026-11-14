@@ -1,6 +1,6 @@
 import { Link, Head } from '@inertiajs/react';
 
-export default ({ auth }) => {
+export default () => {
     return (
         <>
             <Head title="Aula Virtual Académica" />
@@ -21,31 +21,20 @@ export default ({ auth }) => {
                             </span>
                         </div>
 
-                        {/* Enlaces de Autenticación */}
+                        {/* Enlaces de Autenticación (Siempre Muestra Login y Registro Públicos) */}
                         <nav className="flex items-center gap-5">
-                            {auth.user ? (
-                                <Link
-                                    href={route('dashboard')}
-                                    className="px-6 py-2.5 rounded-xl bg-[#0066FF] text-white font-medium hover:bg-[#0052CC] transition shadow-md shadow-blue-600/30"
-                                >
-                                    Ir al Panel
-                                </Link>
-                            ) : (
-                                <>
-                                    <Link
-                                        href={route('login')}
-                                        className="px-5 py-2.5 text-[#0066FF] font-semibold hover:text-[#0052CC] transition"
-                                    >
-                                        Iniciar Sesión
-                                    </Link>
-                                    <Link
-                                        href={route('register')}
-                                        className="px-6 py-2.5 rounded-xl bg-[#0066FF] text-white font-medium hover:bg-[#0052CC] transition shadow-md shadow-blue-600/30"
-                                    >
-                                        Registrarse
-                                    </Link>
-                                </>
-                            )}
+                            <Link
+                                href={route('login')}
+                                className="px-5 py-2.5 text-[#0066FF] font-semibold hover:text-[#0052CC] transition"
+                            >
+                                Iniciar Sesión
+                            </Link>
+                            <Link
+                                href={route('register')}
+                                className="px-6 py-2.5 rounded-xl bg-[#0066FF] text-white font-medium hover:bg-[#0052CC] transition shadow-md shadow-blue-600/30"
+                            >
+                                Registrarse
+                            </Link>
                         </nav>
                     </div>
                 </header>
@@ -54,7 +43,6 @@ export default ({ auth }) => {
                 <main className="flex-grow pt-20">
                     <div className="relative bg-[#051C33] text-white overflow-hidden py-28 lg:py-36">
                         
-                        {/* Imagen de banner personalizada */}
                         <div className="absolute inset-0 z-0 opacity-25 mix-blend-overlay">
                             <img 
                                 src="https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=1200&auto=format&fit=crop&q=80" 
@@ -63,7 +51,6 @@ export default ({ auth }) => {
                             />
                         </div>
                         
-                        {/* Gradiente basado en la paleta azul */}
                         <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#0A3266]/90 to-transparent z-0"></div>
 
                         <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -78,14 +65,12 @@ export default ({ auth }) => {
                                     Un entorno virtual moderno e intuitivo diseñado para gestionar asignaturas, contenido académico y un seguimiento detallado del rendimiento de los estudiantes.
                                 </p>
                                 <div className="flex flex-wrap gap-4 pt-4">
-                                    {!auth.user && (
-                                        <Link
-                                            href={route('register')}
-                                            className="px-8 py-4 rounded-xl bg-[#0066FF] text-white font-semibold hover:bg-[#0052CC] transition shadow-lg shadow-blue-500/40 text-center"
-                                        >
-                                            Comenzar Ahora
-                                        </Link>
-                                    )}
+                                    <Link
+                                        href={route('register')}
+                                        className="px-8 py-4 rounded-xl bg-[#0066FF] text-white font-semibold hover:bg-[#0052CC] transition shadow-lg shadow-blue-500/40 text-center"
+                                    >
+                                        Comenzar Ahora
+                                    </Link>
                                     <a
                                         href="#cursos"
                                         className="px-8 py-4 rounded-xl bg-white/10 backdrop-blur-md text-white border border-white/20 font-semibold hover:bg-white/20 transition text-center"
@@ -97,7 +82,7 @@ export default ({ auth }) => {
                         </div>
                     </div>
 
-                    {/* 3. SECCIÓN DE INFORMACIÓN Y CURSOS (CON ICONOS SVG REALES) */}
+                    {/* 3. SECCIÓN DE INFORMACIÓN Y CURSOS */}
                     <section id="cursos" className="py-24 max-w-7xl mx-auto px-6">
                         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
                             <h2 className="text-3xl font-bold text-[#051C33]">Módulos Académicos Principales</h2>
@@ -108,10 +93,8 @@ export default ({ auth }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             
-                            {/* Tarjeta 1: Gestión de Cursos */}
                             <div className="bg-white p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
                                 <div className="w-14 h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    {/* Icono SVG real de Libro / Curso */}
                                     <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
@@ -122,10 +105,8 @@ export default ({ auth }) => {
                                 </p>
                             </div>
 
-                            {/* Tarjeta 2: Progreso y Evaluaciones */}
                             <div className="bg-white p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
                                 <div className="w-14 h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    {/* Icono SVG real de Gráfica / Progreso */}
                                     <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                     </svg>
@@ -136,10 +117,8 @@ export default ({ auth }) => {
                                 </p>
                             </div>
 
-                            {/* Tarjeta 3: Seguridad y Roles */}
                             <div className="bg-white p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
                                 <div className="w-14 h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    {/* Icono SVG real de Usuarios / Roles */}
                                     <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
@@ -158,7 +137,7 @@ export default ({ auth }) => {
                 <footer className="bg-[#051C33] text-[#90caf9] py-8 border-t border-blue-900">
                     <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
                         <p>© 2026 Aula Virtual Académica. Todos los derechos reservados.</p>
-                        <p className="font-medium text-[#E3F2FD]">Diseñado con tipografía Poppins y paleta azul institucional</p>
+                        <p className="font-medium text-[#E3F2FD]">Plataforma Educativa Oficial</p>
                     </div>
                 </footer>
 
