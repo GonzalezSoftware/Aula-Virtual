@@ -86,34 +86,35 @@ export default function CourseShow({ auth, course }) {
                     {/* CONTENIDO */}
                     <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-grow space-y-8">
 
-                        {/* Tarjeta Superior del Curso (Idéntica al estilo de las tarjetas del Dashboard) */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 overflow-hidden">
-                            {course.image ? (
-                                <img 
-                                    src={`/storage/${course.image}`} 
-                                    alt={course.title} 
-                                    className="w-full h-56 object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-56 bg-gradient-to-tr from-[#051C33] to-[#0066FF] flex items-center justify-center text-white font-bold text-2xl px-4 text-center">
-                                    {course.title}
-                                </div>
-                            )}
-
-                            <div className="p-8 space-y-3">
+                        {/* Tarjeta Superior con Imagen Pequeña y Estilizada */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8 flex flex-col md:flex-row gap-8 items-center justify-between">
+                            <div className="space-y-3 flex-1">
                                 <span className="inline-block px-3.5 py-1 bg-blue-50 text-[#0066FF] text-xs font-bold rounded-full uppercase tracking-wider">
                                     Curso Activo
                                 </span>
-                                <h1 className="text-2xl font-extrabold text-[#051C33]">{course.title}</h1>
-                                <p className="text-sm text-[#4A607A] leading-relaxed">{course.description || "Sin descripción detallada para este curso."}</p>
-                                
+                                <h1 className="text-2xl md:text-3xl font-extrabold text-[#051C33]">{course.title}</h1>
+                                <p className="text-sm text-[#4A607A] leading-relaxed">
+                                    {course.description || "Sin descripción detallada para este curso."}
+                                </p>
                                 {course.start_date && (
-                                    <div className="text-xs text-[#4A607A] font-medium pt-2 border-t border-slate-100 flex items-center gap-2">
+                                    <div className="text-xs text-[#4A607A] font-medium pt-2 flex items-center gap-2">
                                         <span>📅 Vigencia:</span>
                                         <span className="text-[#051C33] font-bold">{course.start_date} {course.end_date ? ` al ${course.end_date}` : ''}</span>
                                     </div>
                                 )}
                             </div>
+
+                            {course.image ? (
+                                <img 
+                                    src={`/storage/${course.image}`} 
+                                    alt={course.title} 
+                                    className="w-full md:w-52 h-36 object-cover rounded-2xl shadow-md border border-blue-50 shrink-0"
+                                />
+                            ) : (
+                                <div className="w-full md:w-52 h-36 bg-gradient-to-tr from-[#051C33] to-[#0066FF] rounded-2xl flex items-center justify-center text-white font-bold text-lg px-4 text-center shrink-0 shadow-md">
+                                    {course.title}
+                                </div>
+                            )}
                         </div>
 
                         {/* Sección de Módulos */}
