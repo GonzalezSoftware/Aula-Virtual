@@ -7,6 +7,7 @@ use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class CourseController extends Controller
 {
@@ -124,5 +125,25 @@ class CourseController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    // Muestra la vista para gestionar y eliminar cursos
+    public function manage()
+    {
+        $courses = Course::latest()->get();
+
+        return Inertia::render('Admin/ManageCourses', [
+            'courses' => $courses
+        ]);
+    }
+
+    // Elimina el curso de la base de datos
+    public function destroy($id) // O puedes poner destroy(int $id)
+    {
+        $course = Course::findOrFail($id);
+        
+        $course->delete();
+
+        return redirect()->route('admin.courses.manage')->with('status', '¡Curso eliminado con éxito!');
     }
 }

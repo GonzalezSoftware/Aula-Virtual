@@ -38,15 +38,18 @@ Route::middleware(['auth:admin'])->group(function () {
     // RUTA POST PARA GUARDAR EL CURSO
     Route::post('/admin/courses', [CourseController::class, 'store'])->name('admin.courses.store');
 
+    Route::get('/admin/courses/manage', [CourseController::class, 'manage'])->name('admin.courses.manage');
+    Route::delete('/admin/courses/{id}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
+
     Route::get('/admin/students', [AdminStudentController::class, 'index'])->name('admin.students.index');
-    
+
     // RUTA NUEVA PARA ASIGNAR CURSOS A ESTUDIANTES
     Route::post('/admin/students/{id}/assign-courses', [AdminStudentController::class, 'assignCourses'])->name('admin.students.assign-courses');
 
     Route::get('/admin/students/pending', [AdminStudentController::class, 'pending'])->name('admin.students.pending');
     Route::post('/admin/students/{id}/approve', [AdminStudentController::class, 'approve'])->name('admin.students.approve');
     Route::delete('/admin/students/{id}/reject', [AdminStudentController::class, 'reject'])->name('admin.students.reject');
-    
+
     // Ruta de cierre de sesión independiente para el Admin
     Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');
 });
@@ -82,4 +85,4 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Breeze activo al final
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
