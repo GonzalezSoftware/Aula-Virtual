@@ -12,7 +12,7 @@ return new class extends Migration {
             // Relación con la tabla modules
             $table->foreignId('module_id')->constrained()->onDelete('cascade');
             $table->text('question'); // Enunciado de la pregunta
-            $table->json('options');  // Almacenará las 4 opciones y su indicador de respuesta correcta en formato JSON
+            $table->text('options');  // Almacenará las 4 opciones y su indicador de respuesta correcta en formato JSON
             $table->timestamps();
         });
     }
