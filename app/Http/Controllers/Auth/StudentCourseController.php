@@ -58,8 +58,9 @@ class StudentCourseController extends Controller
     {
         $student = auth()->user();
         
-        // Validar que el estudiante esté inscrito en el curso
+        // Validar que el estudiante esté inscrito en el curso y cargar sus módulos
         $course = $student->courses()
+            ->with(['modules'])
             ->where('courses.id', $courseId)
             ->first();
 
@@ -68,7 +69,7 @@ class StudentCourseController extends Controller
                 ->withErrors(['error' => 'No tienes acceso a este curso.']);
         }
 
-        // Buscar el módulo y sus relaciones
+        // Buscar el módulo y sus relaciones asegurando pertenencia al curso
         $module = Module::where('course_id', $course->id)
             ->with(['contents', 'exams'])
             ->where('id', $moduleId)
