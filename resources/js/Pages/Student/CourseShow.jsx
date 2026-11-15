@@ -1,12 +1,16 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function CourseShow({ course }) {
+    // Obtenemos el usuario autenticado de forma segura mediante usePage de Inertia
+    const { auth } = usePage().props;
+    const studentName = auth?.user?.name || 'Estudiante';
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <Head title={course.title} />
 
-            {/* Barra lateral de navegación idéntica a tu Portal Estudiantil */}
+            {/* Barra lateral de navegación */}
             <aside className="w-64 bg-[#0a192f] text-white flex flex-col justify-between hidden md:flex shrink-0">
                 <div>
                     <div className="p-6 flex items-center space-x-3 border-b border-white/10">
@@ -54,7 +58,7 @@ export default function CourseShow({ course }) {
                     <div className="flex items-center space-x-4">
                         <div className="text-right">
                             <span className="block text-xs text-gray-400 font-medium">Estudiante Activo</span>
-                            <span className="text-sm font-bold text-gray-800">{auth?.user?.name || 'Estudiante'}</span>
+                            <span className="text-sm font-bold text-gray-800">{studentName}</span>
                         </div>
                         <Link
                             href={route('logout')}
