@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\CourseController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,14 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return Inertia::render('Admin/Dashboard');
     })->name('admin.dashboard');
+
+    // Rutas de Cursos del Administrador
+    Route::get('/admin/courses/create', function () {
+        return Inertia::render('Admin/CreateCourse');
+    })->name('admin.courses.create');
+
+    // RUTA POST PARA GUARDAR EL CURSO (CORREGIDO EL 404)
+    Route::post('/admin/courses', [CourseController::class, 'store'])->name('admin.courses.store');
 
     Route::get('/admin/students', [AdminStudentController::class, 'index'])->name('admin.students.index');
     Route::get('/admin/students/pending', [AdminStudentController::class, 'pending'])->name('admin.students.pending');
