@@ -62,11 +62,9 @@ export default function ModuleView({ auth, course, module }) {
 
                     {/* BARRA SUPERIOR */}
                     <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
-                                Contenido del Módulo
-                            </h2>
-                        </div>
+                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
+                            Contenido del Módulo
+                        </h2>
 
                         <div className="flex items-center gap-5">
                             <div className="text-right hidden sm:block">
@@ -102,24 +100,24 @@ export default function ModuleView({ auth, course, module }) {
                         </div>
 
                         {/* Cabecera del Módulo */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
                             <span className="inline-block px-3.5 py-1 bg-blue-50 text-[#0066FF] text-xs font-bold rounded-full uppercase tracking-wider mb-3">
                                 Módulo Académico
                             </span>
-                            <h1 className="text-2xl md:text-3xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
+                            <h1 className="text-2xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
                             <p className="text-sm text-[#4A607A] leading-relaxed">
-                                {module.description || "Revisa los materiales teóricos y completa las pruebas asignadas para este módulo."}
+                                {module.description || "Revisa los materiales de lectura y completa las evaluaciones correspondientes a este módulo."}
                             </p>
                         </div>
 
-                        {/* Sección de Contenidos Teóricos */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                        {/* Contenidos del Módulo */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos</h2>
 
                             {module.contents && module.contents.length > 0 ? (
                                 <div className="space-y-4">
                                     {module.contents.map((content) => (
-                                        <div key={content.id} className="p-5 rounded-2xl border border-blue-50 bg-[#F8FAFC] hover:bg-white hover:border-blue-200 transition">
+                                        <div key={content.id} className="p-5 rounded-2xl border border-blue-50 bg-[#F8FAFC] hover:bg-white transition">
                                             <h3 className="font-extrabold text-[#051C33] text-base mb-1">{content.title}</h3>
                                             <p className="text-sm text-[#4A607A] mb-4 leading-relaxed">{content.body || content.description}</p>
                                             
@@ -146,8 +144,8 @@ export default function ModuleView({ auth, course, module }) {
                             )}
                         </div>
 
-                        {/* Sección de Exámenes y Evaluaciones */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                        {/* Exámenes y Evaluaciones */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluaciones y Pruebas</h2>
 
                             {module.exams && module.exams.length > 0 ? (

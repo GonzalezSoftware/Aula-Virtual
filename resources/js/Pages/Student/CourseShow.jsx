@@ -62,11 +62,9 @@ export default function CourseShow({ auth, course }) {
 
                     {/* BARRA SUPERIOR */}
                     <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
-                                Detalle del Curso
-                            </h2>
-                        </div>
+                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
+                            Detalles del Curso
+                        </h2>
 
                         <div className="flex items-center gap-5">
                             <div className="text-right hidden sm:block">
@@ -88,37 +86,41 @@ export default function CourseShow({ auth, course }) {
                     {/* CONTENIDO */}
                     <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-grow space-y-8">
 
-                        {/* Banner / Info del Curso */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8 flex flex-col md:flex-row gap-8 items-center justify-between">
-                            <div className="space-y-3">
-                                <span className="inline-block px-3.5 py-1 bg-blue-50 text-[#0066FF] text-xs font-bold rounded-full uppercase tracking-wider">
-                                    Curso Académico
-                                </span>
-                                <h1 className="text-2xl md:text-3xl font-extrabold text-[#051C33]">{course.title}</h1>
-                                <p className="text-sm text-[#4A607A] max-w-2xl leading-relaxed">
-                                    {course.description || "Explora los módulos, clases interactivas y evaluaciones programadas en esta asignatura."}
-                                </p>
-                                {course.start_date && (
-                                    <div className="text-xs text-[#4A607A] font-medium pt-1">
-                                        📅 Vigencia: <span className="text-[#051C33] font-bold">{course.start_date} {course.end_date ? ` al ${course.end_date}` : ''}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {course.image && (
+                        {/* Tarjeta Superior del Curso (Idéntica al estilo de las tarjetas del Dashboard) */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 overflow-hidden">
+                            {course.image ? (
                                 <img 
                                     src={`/storage/${course.image}`} 
                                     alt={course.title} 
-                                    className="w-full md:w-64 h-40 object-cover rounded-2xl shadow-md border border-blue-50 shrink-0"
+                                    className="w-full h-56 object-cover"
                                 />
+                            ) : (
+                                <div className="w-full h-56 bg-gradient-to-tr from-[#051C33] to-[#0066FF] flex items-center justify-center text-white font-bold text-2xl px-4 text-center">
+                                    {course.title}
+                                </div>
                             )}
+
+                            <div className="p-8 space-y-3">
+                                <span className="inline-block px-3.5 py-1 bg-blue-50 text-[#0066FF] text-xs font-bold rounded-full uppercase tracking-wider">
+                                    Curso Activo
+                                </span>
+                                <h1 className="text-2xl font-extrabold text-[#051C33]">{course.title}</h1>
+                                <p className="text-sm text-[#4A607A] leading-relaxed">{course.description || "Sin descripción detallada para este curso."}</p>
+                                
+                                {course.start_date && (
+                                    <div className="text-xs text-[#4A607A] font-medium pt-2 border-t border-slate-100 flex items-center gap-2">
+                                        <span>📅 Vigencia:</span>
+                                        <span className="text-[#051C33] font-bold">{course.start_date} {course.end_date ? ` al ${course.end_date}` : ''}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        {/* Listado de Módulos */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                        {/* Sección de Módulos */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
                             <div className="mb-6">
-                                <h2 className="text-xl font-extrabold text-[#051C33]">Módulos de Estudio</h2>
-                                <p className="text-sm text-[#4A607A] mt-1">Selecciona un módulo para acceder al contenido y exámenes.</p>
+                                <h2 className="text-xl font-extrabold text-[#051C33]">Módulos de Estudio Disponibles</h2>
+                                <p className="text-sm text-[#4A607A] mt-1">Selecciona un módulo para visualizar sus clases, recursos teóricos y evaluaciones.</p>
                             </div>
 
                             {course.modules && course.modules.length > 0 ? (
@@ -126,25 +128,21 @@ export default function CourseShow({ auth, course }) {
                                     {course.modules.map((module, index) => (
                                         <div 
                                             key={module.id} 
-                                            className="bg-[#F8FAFC] rounded-2xl p-5 border border-blue-50 hover:border-blue-200 hover:bg-white hover:shadow-lg transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group"
+                                            className="bg-[#F8FAFC] rounded-2xl p-6 border border-blue-50 hover:border-blue-200 hover:bg-white transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                                         >
                                             <div className="flex items-start space-x-4">
                                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#051C33] to-[#0066FF] text-white font-extrabold flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/25">
                                                     0{index + 1}
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-base font-extrabold text-[#051C33] group-hover:text-[#0066FF] transition-colors">
-                                                        {module.title}
-                                                    </h3>
-                                                    <p className="text-xs text-[#4A607A] mt-1 line-clamp-2">
-                                                        {module.description || "Material teórico y evaluaciones interactivas disponibles."}
-                                                    </p>
+                                                    <h3 className="text-base font-extrabold text-[#051C33]">{module.title}</h3>
+                                                    <p className="text-xs text-[#4A607A] mt-1">{module.description || "Material de contenido y evaluaciones interactivas."}</p>
                                                 </div>
                                             </div>
 
                                             <Link 
                                                 href={route('student.courses.modules.show', [course.id, module.id])}
-                                                className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap"
+                                                className="w-full sm:w-auto text-center px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap"
                                             >
                                                 Ingresar al Módulo
                                             </Link>
@@ -153,7 +151,7 @@ export default function CourseShow({ auth, course }) {
                                 </div>
                             ) : (
                                 <div className="text-center py-12 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
-                                    <p className="text-sm text-[#4A607A] font-medium">No hay módulos habilitados en este curso por el momento.</p>
+                                    <p className="text-sm text-[#4A607A] font-medium">No hay módulos registrados en este curso actualmente.</p>
                                 </div>
                             )}
                         </div>
