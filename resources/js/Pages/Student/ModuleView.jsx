@@ -1,168 +1,184 @@
-import React from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
 
-export default function ModuleView({ course, module }) {
-    const { auth } = usePage().props;
-    const studentName = auth?.user?.name || 'Estudiante';
+export default function ModuleView({ auth, course, module }) {
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <>
             <Head title={`${module.title} - ${course.title}`} />
 
-            {/* Sidebar lateral idéntico */}
-            <aside className="w-64 bg-[#0a192f] text-white flex flex-col justify-between hidden md:flex shrink-0 shadow-lg">
-                <div>
-                    <div className="p-6 flex items-center space-x-3 border-b border-white/10">
-                        <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center font-extrabold text-white shadow-md shadow-blue-600/40">
-                            E
-                        </div>
-                        <span className="font-bold text-lg tracking-wide text-white">Portal Estudiante</span>
-                    </div>
+            <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
 
-                    <nav className="p-4 space-y-2">
-                        <Link
-                            href={route('dashboard')}
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/30 transition-all"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            <span>Inicio / Cursos</span>
-                        </Link>
-
-                        <Link
-                            href={route('student.password.edit')}
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-all font-medium"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                            </svg>
-                            <span>Cambiar Contraseña</span>
-                        </Link>
-                    </nav>
-                </div>
-
-                <div className="p-4 border-t border-white/10">
-                    <button className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white text-sm transition-all font-medium">
-                        <span>◀ Ocultar</span>
-                    </button>
-                </div>
-            </aside>
-
-            {/* Contenido Principal */}
-            <main className="flex-1 min-w-0 overflow-y-auto">
-                <header className="bg-white border-b border-gray-100 px-8 py-5 flex justify-between items-center shadow-sm">
-                    <h1 className="text-xl font-bold text-gray-900 tracking-tight">Contenido del Módulo</h1>
-                    <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                            <span className="block text-xs text-gray-400 font-medium">Estudiante Activo</span>
-                            <span className="text-sm font-bold text-gray-800">{studentName}</span>
-                        </div>
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-sm rounded-xl transition-colors border border-red-100"
-                        >
-                            Cerrar Sesión
-                        </Link>
-                    </div>
-                </header>
-
-                <div className="p-8 max-w-5xl mx-auto space-y-6">
-                    {/* Botón de retorno al curso */}
+                {/* SIDEBAR */}
+                <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#051C33] text-white border-r border-slate-800 transition-all duration-300 flex flex-col justify-between sticky top-0 h-screen z-20 shadow-xl shrink-0`}>
                     <div>
-                        <Link
-                            href={route('student.courses.show', course.id)}
-                            className="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-800 bg-white px-4 py-2.5 rounded-xl shadow-sm border border-gray-100 transition-all"
+                        <div className="h-20 px-6 flex items-center gap-3 border-b border-white/10">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/25 shrink-0">
+                                E
+                            </div>
+                            {sidebarOpen && (
+                                <span className="text-base font-bold tracking-tight text-white whitespace-nowrap">
+                                    Portal <span className="text-[#3385FF]">Estudiante</span>
+                                </span>
+                            )}
+                        </div>
+
+                        <nav className="p-4 space-y-2">
+                            <Link
+                                href={route('dashboard')}
+                                className="flex items-center gap-3.5 px-4 py-3 rounded-xl bg-[#0066FF] text-white font-medium text-sm transition shadow-md shadow-blue-600/20"
+                            >
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                {sidebarOpen && <span>Inicio / Cursos</span>}
+                            </Link>
+
+                            <Link
+                                href={route('student.password.edit')}
+                                className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 font-medium text-sm transition"
+                            >
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                                {sidebarOpen && <span>Cambiar Contraseña</span>}
+                            </Link>
+                        </nav>
+                    </div>
+
+                    <div className="p-4 border-t border-white/10">
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 text-xs font-semibold flex items-center justify-center gap-2 transition"
                         >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Volver al curso: {course.title}
-                        </Link>
+                            <span>{sidebarOpen ? '◀ Ocultar' : '▶'}</span>
+                        </button>
                     </div>
+                </aside>
 
-                    {/* Cabecera del Módulo */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-                        <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wider mb-3">
-                            Módulo de Estudio
-                        </span>
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
-                            {module.title}
-                        </h2>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                            {module.description || "Revisa los materiales de lectura y completa las evaluaciones correspondientes a este módulo."}
-                        </p>
-                    </div>
+                {/* CONTENEDOR PRINCIPAL */}
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
 
-                    {/* Sección de Contenidos Teóricos */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-                        <h3 className="text-xl font-bold text-gray-900 tracking-tight mb-6 flex items-center">
-                            <span>Materiales y Contenidos</span>
-                        </h3>
+                    {/* BARRA SUPERIOR */}
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
+                                Contenido del Módulo
+                            </h2>
+                        </div>
 
-                        {module.contents && module.contents.length > 0 ? (
-                            <div className="space-y-4">
-                                {module.contents.map((content) => (
-                                    <div key={content.id} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-blue-200 transition-all">
-                                        <h4 className="font-bold text-gray-900 text-base mb-1">{content.title}</h4>
-                                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">{content.body || content.description}</p>
-                                        
-                                        {content.file_url && (
-                                            <a
-                                                href={content.file_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 bg-blue-50/80 px-4 py-2 rounded-xl border border-blue-100 transition-colors"
-                                            >
-                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                Descargar / Ver Recurso Adjunto
-                                            </a>
-                                        )}
-                                    </div>
-                                ))}
+                        <div className="flex items-center gap-5">
+                            <div className="text-right hidden sm:block">
+                                <span className="text-xs text-[#4A607A] block">Estudiante Activo</span>
+                                <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Estudiante'}</span>
                             </div>
-                        ) : (
-                            <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                <p className="text-gray-500 font-medium text-sm">No hay contenidos teóricos cargados en este módulo todavía.</p>
-                            </div>
-                        )}
-                    </div>
 
-                    {/* Sección de Exámenes y Evaluaciones */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-                        <h3 className="text-xl font-bold text-gray-900 tracking-tight mb-6 flex items-center">
-                            <span>Evaluaciones y Pruebas</span>
-                        </h3>
+                            <Link
+                                href={route('student.logout')}
+                                method="post"
+                                as="button"
+                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                            >
+                                <span>Cerrar Sesión</span>
+                            </Link>
+                        </div>
+                    </header>
 
-                        {module.exams && module.exams.length > 0 ? (
-                            <div className="space-y-4">
-                                {module.exams.map((exam) => (
-                                    <div key={exam.id} className="p-5 rounded-2xl border border-amber-100 bg-amber-50/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                        <div>
-                                            <h4 className="font-bold text-gray-900 text-base">{exam.title}</h4>
-                                            <p className="text-sm text-gray-600 mt-0.5">{exam.description || "Completa esta evaluación para validar los conocimientos adquiridos."}</p>
+                    {/* CONTENIDO */}
+                    <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-grow space-y-8">
+
+                        {/* Botón de Retorno */}
+                        <div>
+                            <Link
+                                href={route('student.courses.show', course.id)}
+                                className="inline-flex items-center gap-2 text-xs font-bold text-[#0066FF] hover:text-[#0052CC] bg-white px-4 py-2.5 rounded-xl shadow-sm border border-blue-100 transition"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Volver al curso: {course.title}
+                            </Link>
+                        </div>
+
+                        {/* Cabecera del Módulo */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                            <span className="inline-block px-3.5 py-1 bg-blue-50 text-[#0066FF] text-xs font-bold rounded-full uppercase tracking-wider mb-3">
+                                Módulo Académico
+                            </span>
+                            <h1 className="text-2xl md:text-3xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
+                            <p className="text-sm text-[#4A607A] leading-relaxed">
+                                {module.description || "Revisa los materiales teóricos y completa las pruebas asignadas para este módulo."}
+                            </p>
+                        </div>
+
+                        {/* Sección de Contenidos Teóricos */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos</h2>
+
+                            {module.contents && module.contents.length > 0 ? (
+                                <div className="space-y-4">
+                                    {module.contents.map((content) => (
+                                        <div key={content.id} className="p-5 rounded-2xl border border-blue-50 bg-[#F8FAFC] hover:bg-white hover:border-blue-200 transition">
+                                            <h3 className="font-extrabold text-[#051C33] text-base mb-1">{content.title}</h3>
+                                            <p className="text-sm text-[#4A607A] mb-4 leading-relaxed">{content.body || content.description}</p>
+                                            
+                                            {content.file_url && (
+                                                <a
+                                                    href={content.file_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#0066FF] hover:text-[#0052CC] bg-blue-50 px-4 py-2.5 rounded-xl border border-blue-100 transition"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    Descargar / Ver Recurso Adjunto
+                                                </a>
+                                            )}
                                         </div>
-                                        <button 
-                                            onClick={() => alert('Próximamente interfaz interactiva de exámenes')}
-                                            className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-600/30 transition-all whitespace-nowrap active:scale-95"
-                                        >
-                                            Presentar Examen
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                <p className="text-gray-500 font-medium text-sm">No hay evaluaciones pendientes en este módulo.</p>
-                            </div>
-                        )}
-                    </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-10 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
+                                    <p className="text-sm text-[#4A607A] font-medium">No hay contenidos teóricos cargados en este módulo todavía.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sección de Exámenes y Evaluaciones */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
+                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluaciones y Pruebas</h2>
+
+                            {module.exams && module.exams.length > 0 ? (
+                                <div className="space-y-4">
+                                    {module.exams.map((exam) => (
+                                        <div key={exam.id} className="p-5 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                            <div>
+                                                <h3 className="font-extrabold text-[#051C33] text-base">{exam.title}</h3>
+                                                <p className="text-xs text-[#4A607A] mt-0.5">{exam.description || "Completa esta evaluación para validar tus conocimientos."}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => alert('Próximamente interfaz interactiva de exámenes')}
+                                                className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap"
+                                            >
+                                                Presentar Examen
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-10 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
+                                    <p className="text-sm text-[#4A607A] font-medium">No hay evaluaciones pendientes en este módulo.</p>
+                                </div>
+                            )}
+                        </div>
+
+                    </main>
+
+                    <footer className="h-12 bg-white border-t border-slate-100"></footer>
                 </div>
-            </main>
-        </div>
+            </div>
+        </>
     );
 }
