@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
@@ -34,10 +35,14 @@ Route::middleware(['auth:admin'])->group(function () {
         return Inertia::render('Admin/CreateCourse');
     })->name('admin.courses.create');
 
-    // RUTA POST PARA GUARDAR EL CURSO (CORREGIDO EL 404)
+    // RUTA POST PARA GUARDAR EL CURSO
     Route::post('/admin/courses', [CourseController::class, 'store'])->name('admin.courses.store');
 
     Route::get('/admin/students', [AdminStudentController::class, 'index'])->name('admin.students.index');
+    
+    // RUTA NUEVA PARA ASIGNAR CURSOS A ESTUDIANTES
+    Route::post('/admin/students/{id}/assign-courses', [AdminStudentController::class, 'assignCourses'])->name('admin.students.assign-courses');
+
     Route::get('/admin/students/pending', [AdminStudentController::class, 'pending'])->name('admin.students.pending');
     Route::post('/admin/students/{id}/approve', [AdminStudentController::class, 'approve'])->name('admin.students.approve');
     Route::delete('/admin/students/{id}/reject', [AdminStudentController::class, 'reject'])->name('admin.students.reject');
@@ -63,8 +68,17 @@ Route::middleware(['auth'])->group(function () {
         if ($user && $user->email === 'admin_oculto') {
             return redirect()->route('admin.dashboard');
         }
-        return Inertia::render('Student/Dashboard');
+
+        // Cargamos los cursos asociados al estudiante autenticado
+        $user->load('courses');
+
+        return Inertia::render('Student/Dashboard', [
+            'courses' => $user->courses
+        ]);
     })->name('dashboard');
+
+    Route::get('/student/password', [StudentPasswordController::class, 'edit'])->name('student.password.edit');
+    Route::put('/student/password', [StudentPasswordController::class, 'update'])->name('student.password.update');
 });
 
 // Breeze activo al final

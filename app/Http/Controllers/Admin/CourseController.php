@@ -20,7 +20,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Almacena un nuevo curso completo con módulos, contenidos y evaluaciones.
+     * Almacena un nuevo curso completo con módulos, contenidos y evaluaciones (con fechas).
      */
     public function store(Request $request)
     {
@@ -28,15 +28,10 @@ class CourseController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'modules' => 'required|array|min:1',
-            'modules.*.title' => 'required|string|max:255',
-            'modules.*.contents' => 'nullable|array',
-            'modules.*.contents.*.title' => 'required_with:modules.*.contents|string|max:255',
-            'modules.*.contents.*.type' => 'required_with:modules.*.contents|in:pdf,video',
-            'modules.*.exams' => 'nullable|array',
-            'modules.*.exams.*.question' => 'required_with:modules.*.exams|string',
-            'modules.*.exams.*.options' => 'required_with:modules.*.exams|array|min:4',
         ]);
 
         if ($validator->fails()) {
@@ -52,34 +47,42 @@ class CourseController extends Controller
                 $imagePath = $request->file('image')->store('courses/images', 'public');
             }
 
-            // Crear el Curso principal
+            // Crear el Curso principal con sus fechas de inicio y culminación
             $course = Course::create([
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
                 'image' => $imagePath,
             ]);
 
-            // Recorrer y guardar cada Módulo
-            foreach ($request->input('modules', []) as $modIndex => $modData) {
+            $modulesData = $request->input('modules', []);
+
+            // Recorrer y guardar cada Módulo con sus respectivas fechas y validación de nulos
+            foreach ($modulesData as $modIndex => $modData) {
                 $module = $course->modules()->create([
-                    'title' => $modData['title'],
+                    'title' => $modData['title'] ?? 'Módulo sin título',
+                    'start_date' => !empty($modData['start_date']) ? $modData['start_date'] : null,
+                    'end_date' => !empty($modData['end_date']) ? $modData['end_date'] : null,
+                    'exam_start_date' => !empty($modData['exam_start_date']) ? $modData['exam_start_date'] : null,
+                    'exam_end_date' => !empty($modData['exam_end_date']) ? $modData['exam_end_date'] : null,
                     'order' => $modIndex + 1,
                 ]);
 
                 // Guardar Contenidos (PDFs o Videos) del módulo
-                if (!empty($modData['contents'])) {
+                if (!empty($modData['contents']) && is_array($modData['contents'])) {
                     foreach ($modData['contents'] as $contIndex => $contData) {
                         $filePath = null;
                         $fileKey = "modules.{$modIndex}.contents.{$contIndex}.file";
 
                         if ($request->hasFile($fileKey)) {
-                            $folder = $contData['type'] === 'pdf' ? 'courses/pdfs' : 'courses/videos';
+                            $folder = ($contData['type'] ?? '') === 'pdf' ? 'courses/pdfs' : 'courses/videos';
                             $filePath = $request->file($fileKey)->store($folder, 'public');
                         }
 
                         $module->contents()->create([
-                            'title' => $contData['title'],
-                            'type' => $contData['type'],
+                            'title' => $contData['title'] ?? 'Sin título',
+                            'type' => $contData['type'] ?? 'video',
                             'file_path' => $filePath,
                             'url' => $contData['url'] ?? null,
                             'order' => $contIndex + 1,
@@ -88,18 +91,17 @@ class CourseController extends Controller
                 }
 
                 // Guardar Evaluaciones (Preguntas y opciones) del módulo
-                if (!empty($modData['exams'])) {
+                if (!empty($modData['exams']) && is_array($modData['exams'])) {
                     foreach ($modData['exams'] as $examData) {
-                        // Limpiar y estructurar las opciones en formato JSON
-                        $options = collect($examData['options'])->map(function ($opt) {
+                        $options = collect($examData['options'] ?? [])->map(function ($opt) {
                             return [
-                                'text' => $opt['text'],
+                                'text' => $opt['text'] ?? '',
                                 'is_correct' => filter_var($opt['is_correct'] ?? false, FILTER_VALIDATE_BOOLEAN),
                             ];
                         })->values()->all();
 
                         $module->exams()->create([
-                            'question' => $examData['question'],
+                            'question' => $examData['question'] ?? 'Pregunta sin texto',
                             'options' => $options,
                         ]);
                     }
@@ -110,7 +112,7 @@ class CourseController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => '¡Curso creado correctamente con todos sus módulos y evaluaciones!',
+                'message' => '¡Curso creado correctamente con todos sus módulos, fechas y evaluaciones!',
                 'course' => $course->load(['modules.contents', 'modules.exams']),
             ], 201);
 

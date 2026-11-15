@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Module extends Model
 {
-    protected $fillable = ['course_id', 'title', 'order'];
+    protected $fillable = [
+    'course_id', 
+    'title', 
+    'start_date', 
+    'end_date', 
+    'exam_start_date', 
+    'exam_end_date', 
+    'order'
+  ];
 
     // Relación: Un módulo pertenece a un curso
     public function course(): BelongsTo

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Course; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -17,13 +18,26 @@ class AdminStudentController extends Controller
     /**
      * Listado general de estudiantes aprobados o activos.
      */
-    public function index(): Response
+    public function index()
     {
-        $students = User::where('email', '!=', 'admin_oculto')->get();
+        $students = User::with('courses')->where('en_espera', 0)->get();
+        $courses = Course::all(); // Todos los cursos creados
 
         return Inertia::render('Admin/Students', [
             'students' => $students,
+            'courses' => $courses
         ]);
+    }
+
+    // Método para asignar o actualizar los cursos de un estudiante
+    public function assignCourses(Request $request, $id)
+    {
+        $student = User::findOrFail($id);
+        
+        // Sincroniza los cursos seleccionados (guarda los IDs enviados desde el frontend)
+        $student->courses()->sync($request->input('courses', []));
+
+        return back()->with('success', 'Cursos asignados correctamente.');
     }
 
     /**

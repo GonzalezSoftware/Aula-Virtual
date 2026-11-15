@@ -2,9 +2,14 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 
-export default function Students({ auth, students }) {
+export default function Students({ auth, students, courses = [] }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [search, setSearch] = useState('');
+    
+    // Estados para el Modal de Asignación de Cursos
+    const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [assignedCourseIds, setAssignedCourseIds] = useState([]);
 
     // Filtrar estudiantes activos (en_espera === 0) que coincidan con la búsqueda
     const filteredStudents = students.filter(student => {
@@ -18,17 +23,56 @@ export default function Students({ auth, students }) {
         return isActive && matchesSearch;
     });
 
+    const openCourseModal = (student) => {
+        setSelectedStudent(student);
+        // Cargamos los IDs de los cursos que el estudiante ya tiene asignados previamente
+        const currentCourses = student.courses ? student.courses.map(c => c.id) : [];
+        setAssignedCourseIds(currentCourses);
+        setIsCourseModalOpen(true);
+    };
+
+    const closeCourseModal = () => {
+        setIsCourseModalOpen(false);
+        setSelectedStudent(null);
+        setAssignedCourseIds([]);
+    };
+
+    const handleCheckboxChange = (courseId) => {
+        if (assignedCourseIds.includes(courseId)) {
+            setAssignedCourseIds(assignedCourseIds.filter(id => id !== courseId));
+        } else {
+            setAssignedCourseIds([...assignedCourseIds, courseId]);
+        }
+    };
+
+    const saveAssignedCourses = () => {
+        router.post(route('admin.students.assign-courses', selectedStudent.id), {
+            courses: assignedCourseIds
+        }, {
+            onSuccess: () => {
+                closeCourseModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Cursos actualizados!',
+                    text: 'Los permisos de acceso a los cursos se han guardado correctamente.',
+                    confirmButtonColor: '#0066FF',
+                    customClass: { popup: 'rounded-3xl font-[\'Poppins\']' }
+                });
+            }
+        });
+    };
+
     const handleDelete = (id, studentName) => {
         Swal.fire({
             title: '¿Eliminar estudiante?',
-            text: `¿Estás seguro de eliminar a ${studentName}? Esta acción borrará su cuenta y sus archivos permanentemente.`,
+            text: `¿Estás seguro de eliminar a ${studentName}? Esta acción borrará su cuenta y sus datos permanentemente.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#4A607A',
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar',
-            customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
+            customClass: { popup: 'rounded-3xl font-[\'Poppins\']' }
         }).then((result) => {
             if (result.isConfirmed) {
                 router.delete(route('admin.students.reject', id), {
@@ -38,7 +82,7 @@ export default function Students({ auth, students }) {
                             title: '¡Estudiante Eliminado!',
                             text: 'El registro ha sido removido del sistema exitosamente.',
                             confirmButtonColor: '#0066FF',
-                            customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
+                            customClass: { popup: 'rounded-3xl font-[\'Poppins\']' }
                         });
                     }
                 });
@@ -53,7 +97,7 @@ export default function Students({ auth, students }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 
                 {/* SIDEBAR FIJO */}
-                <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#051C33] text-white border-r border-slate-800 transition-all duration-300 flex flex-col justify-between z-20 shadow-xl`}>
+                <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#051C33] text-white border-r border-slate-800 transition-all duration-300 flex flex-col justify-between sticky top-0 h-screen z-30 shadow-xl shrink-0`}>
                     <div>
                         <div className="h-20 px-6 flex items-center gap-3 border-b border-white/10">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/25 shrink-0">
@@ -77,7 +121,6 @@ export default function Students({ auth, students }) {
                                 {sidebarOpen && <span>Dashboard</span>}
                             </Link>
 
-                            {/* ESTUDIANTES ACTIVOS (ACTIVO EN ESTA VISTA) */}
                             <Link
                                 href={route('admin.students.index')}
                                 className="flex items-center gap-3.5 px-4 py-3 rounded-xl bg-[#0066FF] text-white font-medium text-sm transition shadow-md shadow-blue-600/20"
@@ -88,7 +131,6 @@ export default function Students({ auth, students }) {
                                 {sidebarOpen && <span>Estudiantes</span>}
                             </Link>
 
-                            {/* ESTUDIANTES EN ESPERA */}
                             <Link
                                 href={route('admin.students.pending')}
                                 className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white font-medium text-sm transition"
@@ -99,7 +141,6 @@ export default function Students({ auth, students }) {
                                 {sidebarOpen && <span>Estudiantes en Espera</span>}
                             </Link>
 
-                            {/* NUEVA OPCIÓN: CREAR CURSO */}
                             <Link
                                 href={route('admin.courses.create')}
                                 className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white font-medium text-sm transition"
@@ -125,7 +166,7 @@ export default function Students({ auth, students }) {
                 {/* CONTENEDOR PRINCIPAL */}
                 <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
                     
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-20 shadow-sm">
                         <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">
                             Gestión de Estudiantes
                         </h2>
@@ -137,7 +178,7 @@ export default function Students({ auth, students }) {
                             </div>
 
                             <Link
-                                href={route('logout')}
+                                href={route('admin.logout')}
                                 method="post"
                                 as="button"
                                 className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
@@ -152,10 +193,9 @@ export default function Students({ auth, students }) {
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                             <div>
                                 <h1 className="text-2xl font-extrabold text-[#051C33]">Lista General de Alumnos</h1>
-                                <p className="text-sm text-[#4A607A] mt-1">Estudiantes registrados y activos en la plataforma.</p>
+                                <p className="text-sm text-[#4A607A] mt-1">Estudiantes activos y control de acceso a cursos.</p>
                             </div>
 
-                            {/* BARRA DE BÚSQUEDA */}
                             <div className="w-full sm:w-72">
                                 <input
                                     type="text"
@@ -167,7 +207,6 @@ export default function Students({ auth, students }) {
                             </div>
                         </div>
 
-                        {/* CONTENEDOR DE LA TABLA GENERAL */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-6 overflow-hidden">
                             {filteredStudents.length === 0 ? (
                                 <div className="text-center space-y-3 py-16">
@@ -187,8 +226,7 @@ export default function Students({ auth, students }) {
                                                 <th className="py-3 px-4">Estudiante</th>
                                                 <th className="py-3 px-4">Cédula</th>
                                                 <th className="py-3 px-4">Correo</th>
-                                                <th className="py-3 px-4">Teléfono</th>
-                                                <th className="py-3 px-4 text-center">Estado</th>
+                                                <th className="py-3 px-4 text-center">Cursos Asignados</th>
                                                 <th className="py-3 px-4 text-center">Acciones</th>
                                             </tr>
                                         </thead>
@@ -200,16 +238,21 @@ export default function Students({ auth, students }) {
                                                     </td>
                                                     <td className="py-4 px-4 text-[#4A607A]">{student.cedula}</td>
                                                     <td className="py-4 px-4 text-[#4A607A]">{student.email}</td>
-                                                    <td className="py-4 px-4 text-[#4A607A]">{student.phone}</td>
                                                     <td className="py-4 px-4 text-center">
-                                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                                            Activo
+                                                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#E3F2FD] text-[#0066FF] border border-blue-200">
+                                                            {student.courses ? student.courses.length : 0} Cursos
                                                         </span>
                                                     </td>
-                                                    <td className="py-4 px-4 text-center">
+                                                    <td className="py-4 px-4 text-center flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => openCourseModal(student)}
+                                                            className="px-3 py-1.5 rounded-xl bg-[#0066FF] text-white text-xs font-semibold hover:bg-[#0052CC] transition shadow-sm"
+                                                        >
+                                                            Asignar Cursos
+                                                        </button>
                                                         <button
                                                             onClick={() => handleDelete(student.id, `${student.name} ${student.lastname}`)}
-                                                            className="px-3.5 py-1.5 rounded-xl bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-600 hover:text-white transition shadow-sm border border-red-200"
+                                                            className="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-600 hover:text-white transition shadow-sm border border-red-200"
                                                         >
                                                             Eliminar
                                                         </button>
@@ -226,6 +269,82 @@ export default function Students({ auth, students }) {
 
                     <footer className="h-12 bg-white border-t border-slate-100"></footer>
                 </div>
+
+                {/* MODAL PARA ASIGNAR CURSOS */}
+                {isCourseModalOpen && selectedStudent && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                        <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-blue-100 overflow-hidden transform transition-all">
+                            
+                            <div className="bg-[#051C33] text-white px-6 py-5 flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold">Asignar Cursos al Estudiante</h3>
+                                    <p className="text-xs text-slate-300">{selectedStudent.name} {selectedStudent.lastname}</p>
+                                </div>
+                                <button 
+                                    onClick={closeCourseModal}
+                                    className="text-slate-300 hover:text-white text-lg font-bold px-2 py-1 outline-none"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                                <p className="text-xs text-[#4A607A]">
+                                    Selecciona los cursos a los que este estudiante tendrá acceso. Si desmarcas un curso, perderá acceso al mismo.
+                                </p>
+
+                                {courses.length === 0 ? (
+                                    <div className="text-center py-8 text-slate-400 text-sm">
+                                        No hay cursos creados en el sistema todavía.
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2.5">
+                                        {courses.map((course) => {
+                                            const isChecked = assignedCourseIds.includes(course.id);
+                                            return (
+                                                <label 
+                                                    key={course.id}
+                                                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition cursor-pointer ${
+                                                        isChecked ? 'bg-blue-50/70 border-[#0066FF]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <input 
+                                                            type="checkbox"
+                                                            checked={isChecked}
+                                                            onChange={() => handleCheckboxChange(course.id)}
+                                                            className="w-4 h-4 text-[#0066FF] rounded focus:ring-[#0066FF] cursor-pointer"
+                                                        />
+                                                        <div>
+                                                            <span className="block text-sm font-bold text-[#051C33]">{course.title}</span>
+                                                            <span className="text-xs text-[#4A607A] line-clamp-1">{course.description}</span>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                                <button
+                                    onClick={closeCourseModal}
+                                    className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-100 transition shadow-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={saveAssignedCourses}
+                                    className="px-5 py-2.5 rounded-xl bg-[#0066FF] text-white text-sm font-semibold hover:bg-[#0052CC] transition shadow-md shadow-blue-600/20"
+                                >
+                                    Guardar Cambios
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
 
             </div>
         </>

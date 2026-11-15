@@ -4,15 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
-            // Relación con la tabla courses. Si se borra el curso, se borran sus módulos en cascada.
             $table->foreignId('course_id')->constrained()->onDelete('cascade');
             $table->string('title');
-            $table->integer('order')->default(1); // Para ordenar los módulos secuencialmente
+            
+            // NUEVAS FECHAS PARA EL MÓDULO Y LAS EVALUACIONES
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->date('exam_start_date')->nullable();
+            $table->date('exam_end_date')->nullable();
+
             $table->timestamps();
         });
     }

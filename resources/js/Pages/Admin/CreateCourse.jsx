@@ -6,8 +6,13 @@ import Swal from 'sweetalert2';
 export default function CreateCourse({ auth }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
+    // Obtener la fecha actual en formato YYYY-MM-DD para bloquear fechas pasadas
+    const today = new Date().toISOString().split('T')[0];
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -17,6 +22,10 @@ export default function CreateCourse({ auth }) {
     const [modules, setModules] = useState([
         {
             title: '',
+            start_date: '',
+            end_date: '',
+            exam_start_date: '',
+            exam_end_date: '',
             contents: [],
             exams: [
                 {
@@ -45,6 +54,10 @@ export default function CreateCourse({ auth }) {
             ...modules,
             {
                 title: '',
+                start_date: startDate || '',
+                end_date: endDate || '',
+                exam_start_date: startDate || '',
+                exam_end_date: endDate || '',
                 contents: [],
                 exams: [
                     {
@@ -79,6 +92,12 @@ export default function CreateCourse({ auth }) {
     const updateModuleTitle = (value) => {
         const updated = [...modules];
         updated[activeModuleIndex].title = value;
+        setModules(updated);
+    };
+
+    const updateModuleField = (field, value) => {
+        const updated = [...modules];
+        updated[activeModuleIndex][field] = value;
         setModules(updated);
     };
 
@@ -152,9 +171,78 @@ export default function CreateCourse({ auth }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // 1. Validar fechas generales del curso
+        if (startDate && endDate && endDate < startDate) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Fechas incorrectas',
+                text: 'La fecha de culminación del curso no puede ser anterior a la fecha de inicio.'
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // 2. Validar fechas de los módulos y evaluaciones (rango y coherencia)
         for (let m = 0; m < modules.length; m++) {
-            for (let ex = 0; ex < modules[m].exams.length; ex++) {
-                const exam = modules[m].exams[ex];
+            const mod = modules[m];
+
+            // Validar coherencia básica de módulo
+            if (mod.start_date && mod.end_date && mod.end_date < mod.start_date) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Fechas de módulo incorrectas',
+                    text: `En el Módulo ${m + 1}, la fecha de culminación no puede ser anterior a la de inicio.`
+                });
+                setActiveModuleIndex(m);
+                window.scrollTo({ top: 350, behavior: 'smooth' });
+                return;
+            }
+
+            // Validar que el módulo esté dentro del rango del curso
+            if (startDate && endDate) {
+                if ((mod.start_date && (mod.start_date < startDate || mod.start_date > endDate)) ||
+                    (mod.end_date && (mod.end_date < startDate || mod.end_date > endDate))) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Fuera de rango',
+                        text: `Las fechas del Módulo ${m + 1} deben estar dentro del rango del curso (${startDate} al ${endDate}).`
+                    });
+                    setActiveModuleIndex(m);
+                    window.scrollTo({ top: 350, behavior: 'smooth' });
+                    return;
+                }
+            }
+
+            // Validar coherencia de evaluación
+            if (mod.exam_start_date && mod.exam_end_date && mod.exam_end_date < mod.exam_start_date) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Fechas de evaluación incorrectas',
+                    text: `En el Módulo ${m + 1}, la fecha de culminación de la evaluación no puede ser anterior a su fecha de inicio.`
+                });
+                setActiveModuleIndex(m);
+                window.scrollTo({ top: 350, behavior: 'smooth' });
+                return;
+            }
+
+            // Validar que la evaluación esté dentro del rango del módulo
+            if (mod.start_date && mod.end_date) {
+                if ((mod.exam_start_date && (mod.exam_start_date < mod.start_date || mod.exam_start_date > mod.end_date)) ||
+                    (mod.exam_end_date && (mod.exam_end_date < mod.start_date || mod.exam_end_date > mod.end_date))) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Evaluación fuera de rango',
+                        text: `Las fechas de la evaluación del Módulo ${m + 1} deben estar dentro del rango de su propio módulo (${mod.start_date} al ${mod.end_date}).`
+                    });
+                    setActiveModuleIndex(m);
+                    window.scrollTo({ top: 350, behavior: 'smooth' });
+                    return;
+                }
+            }
+
+            // 3. Validar preguntas y opciones
+            for (let ex = 0; ex < mod.exams.length; ex++) {
+                const exam = mod.exams[ex];
                 const hasCorrect = exam.options.some((o) => o.is_correct);
                 const emptyOption = exam.options.some((o) => !o.text.trim());
                 if (!hasCorrect || emptyOption || exam.options.length < 4) {
@@ -164,7 +252,7 @@ export default function CreateCourse({ auth }) {
                         text: `Verifica que la pregunta ${ex + 1} del Módulo ${m + 1} tenga sus 4 respuestas redactadas y una marcada como correcta.`
                     });
                     setActiveModuleIndex(m);
-                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                    window.scrollTo({ top: 350, behavior: 'smooth' });
                     return;
                 }
             }
@@ -174,10 +262,16 @@ export default function CreateCourse({ auth }) {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
+        if (startDate) formData.append('start_date', startDate);
+        if (endDate) formData.append('end_date', endDate);
         if (image) formData.append('image', image);
 
         modules.forEach((mod, modIndex) => {
             formData.append(`modules[${modIndex}][title]`, mod.title);
+            if (mod.start_date) formData.append(`modules[${modIndex}][start_date]`, mod.start_date);
+            if (mod.end_date) formData.append(`modules[${modIndex}][end_date]`, mod.end_date);
+            if (mod.exam_start_date) formData.append(`modules[${modIndex}][exam_start_date]`, mod.exam_start_date);
+            if (mod.exam_end_date) formData.append(`modules[${modIndex}][exam_end_date]`, mod.exam_end_date);
 
             mod.contents.forEach((cont, contIndex) => {
                 formData.append(`modules[${modIndex}][contents][${contIndex}][title]`, cont.title);
@@ -200,7 +294,6 @@ export default function CreateCourse({ auth }) {
         });
 
         try {
-            // RUTA CORREGIDA A /admin/courses (coincide con web.php)
             await axios.post('/admin/courses', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
@@ -208,16 +301,22 @@ export default function CreateCourse({ auth }) {
             Swal.fire({
                 icon: 'success',
                 title: '¡Curso Creado!',
-                text: 'El curso y todos sus componentes se han guardado con éxito.'
+                text: 'El curso, sus módulos y su cronograma se han guardado con éxito.'
             });
 
             setTitle('');
             setDescription('');
+            setStartDate('');
+            setEndDate('');
             setImage(null);
             setImagePreview(null);
             setActiveModuleIndex(0);
             setModules([{
                 title: '',
+                start_date: '',
+                end_date: '',
+                exam_start_date: '',
+                exam_end_date: '',
                 contents: [],
                 exams: [{
                     question: '',
@@ -348,11 +447,11 @@ export default function CreateCourse({ auth }) {
                     <main className="max-w-5xl mx-auto px-8 py-10 w-full flex-grow">
                         <div className="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100">
                             <h1 className="text-2xl font-extrabold text-[#051C33] mb-6 border-b border-blue-100 pb-4">
-                                Crear Nuevo Curso y Módulos
+                                Crear Nuevo Curso y Módulos con Cronograma
                             </h1>
 
                             <form onSubmit={handleSubmit} className="space-y-8">
-                                {/* INFORMACIÓN GENERAL */}
+                                {/* INFORMACIÓN GENERAL Y FECHAS DEL CURSO */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#F8FAFC] p-6 rounded-2xl border border-blue-100/80">
                                     <div className="md:col-span-2 space-y-4">
                                         <div>
@@ -369,13 +468,45 @@ export default function CreateCourse({ auth }) {
                                             />
                                         </div>
 
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-semibold text-[#051C33] mb-1">
+                                                    Fecha de Inicio del Curso
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    min={today}
+                                                    value={startDate}
+                                                    onChange={(e) => {
+                                                        setStartDate(e.target.value);
+                                                        if (endDate && endDate < e.target.value) {
+                                                            setEndDate('');
+                                                        }
+                                                    }}
+                                                    className="w-full border border-blue-200/80 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#0066FF]/25 focus:border-[#0066FF] outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-[#051C33] mb-1">
+                                                    Fecha de Culminación del Curso
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    min={startDate || today}
+                                                    value={endDate}
+                                                    onChange={(e) => setEndDate(e.target.value)}
+                                                    className="w-full border border-blue-200/80 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#0066FF]/25 focus:border-[#0066FF] outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                        </div>
+
                                         <div>
                                             <label className="block text-sm font-semibold text-[#051C33] mb-1.5">
                                                 Descripción *
                                             </label>
                                             <textarea
                                                 required
-                                                rows="4"
+                                                rows="3"
                                                 value={description}
                                                 onChange={(e) => setDescription(e.target.value)}
                                                 placeholder="Detalles generales del curso..."
@@ -474,6 +605,75 @@ export default function CreateCourse({ auth }) {
                                                     Eliminar este Módulo
                                                 </button>
                                             )}
+                                        </div>
+
+                                        {/* CRONOGRAMA DE FECHAS DEL MÓDULO Y EVALUACIÓN (Validado dentro del rango del curso) */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#F8FAFC] p-4 rounded-2xl border border-blue-100">
+                                            <div>
+                                                <label className="block text-xs font-semibold text-[#051C33] mb-1">
+                                                    Fecha de Inicio del Módulo
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    min={startDate || today}
+                                                    max={endDate || undefined}
+                                                    value={currentModule.start_date}
+                                                    onChange={(e) => {
+                                                        updateModuleField('start_date', e.target.value);
+                                                        if (currentModule.end_date && currentModule.end_date < e.target.value) {
+                                                            updateModuleField('end_date', '');
+                                                        }
+                                                        if (currentModule.exam_start_date && currentModule.exam_start_date < e.target.value) {
+                                                            updateModuleField('exam_start_date', '');
+                                                        }
+                                                    }}
+                                                    className="w-full border border-blue-200 rounded-xl px-3 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-[#051C33] mb-1">
+                                                    Fecha de Culminación del Módulo
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    min={currentModule.start_date || startDate || today}
+                                                    max={endDate || undefined}
+                                                    value={currentModule.end_date}
+                                                    onChange={(e) => updateModuleField('end_date', e.target.value)}
+                                                    className="w-full border border-blue-200 rounded-xl px-3 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-[#051C33] mb-1">
+                                                    Inicio de Evaluación del Módulo
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    min={currentModule.start_date || startDate || today}
+                                                    max={currentModule.end_date || endDate || undefined}
+                                                    value={currentModule.exam_start_date}
+                                                    onChange={(e) => {
+                                                        updateModuleField('exam_start_date', e.target.value);
+                                                        if (currentModule.exam_end_date && currentModule.exam_end_date < e.target.value) {
+                                                            updateModuleField('exam_end_date', '');
+                                                        }
+                                                    }}
+                                                    className="w-full border border-blue-200 rounded-xl px-3 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-[#051C33] mb-1">
+                                                    Culminación de Evaluación del Módulo
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    min={currentModule.exam_start_date || currentModule.start_date || startDate || today}
+                                                    max={currentModule.end_date || endDate || undefined}
+                                                    value={currentModule.exam_end_date}
+                                                    onChange={(e) => updateModuleField('exam_end_date', e.target.value)}
+                                                    className="w-full border border-blue-200 rounded-xl px-3 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
                                         </div>
 
                                         <div className="flex flex-wrap gap-3">
