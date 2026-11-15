@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
+use App\Http\Controllers\Auth\StudentCourseController; // <-- IMPORTANTE: Añadimos el controlador del estudiante
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use Illuminate\Foundation\Application;
@@ -64,7 +65,7 @@ Route::post('/login', [StudentAuthController::class, 'store'])->name('student.lo
 Route::post('/logout', [StudentAuthController::class, 'destroy'])->name('logout');
 Route::post('/student/logout', [StudentAuthController::class, 'destroy'])->name('student.logout');
 
-// Dashboard general de estudiantes (Protegido por el guardia 'web')
+// Dashboard general de estudiantes y gestión de contenidos (Protegido por el guardia 'web')
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::guard('web')->user();
@@ -80,6 +81,13 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('dashboard');
 
+    // ==========================================
+    // RUTAS PARA CURSOS Y MÓDULOS DEL ESTUDIANTE
+    // ==========================================
+    Route::get('/student/courses/{id}', [StudentCourseController::class, 'showCourse'])->name('student.courses.show');
+    Route::get('/student/courses/{courseId}/modules/{moduleId}', [StudentCourseController::class, 'showModule'])->name('student.courses.modules.show');
+
+    // Gestión de contraseña del estudiante
     Route::get('/student/password', [StudentPasswordController::class, 'edit'])->name('student.password.edit');
     Route::put('/student/password', [StudentPasswordController::class, 'update'])->name('student.password.update');
 });
