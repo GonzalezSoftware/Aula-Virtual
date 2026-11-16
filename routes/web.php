@@ -4,7 +4,8 @@ use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\StudentCourseController;
-use App\Http\Controllers\StudentExamController; // <-- NUEVO: Importamos el controlador de exámenes del estudiante
+use App\Http\Controllers\Auth\StudentContentController; // <-- NUEVO: Importamos el controlador ubicado en Auth
+use App\Http\Controllers\StudentExamController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use Illuminate\Foundation\Application;
@@ -93,6 +94,11 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/student/courses/{course}/modules/{module}/exam', [StudentExamController::class, 'showExam'])->name('student.courses.modules.exam');
     Route::post('/student/courses/{course}/modules/{module}/exam/submit', [StudentExamController::class, 'submitExam'])->name('student.exams.submit');
+
+    // ==========================================
+    // NUEVA RUTA PARA VISUALIZACIÓN SEGURA DE PDFs
+    // ==========================================
+    Route::get('/student/contents/{content}/view-pdf', [StudentContentController::class, 'viewPdf'])->name('student.contents.view-pdf');
 
     // Gestión de contraseña del estudiante
     Route::get('/student/password', [StudentPasswordController::class, 'edit'])->name('student.password.edit');

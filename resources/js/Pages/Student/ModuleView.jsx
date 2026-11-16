@@ -1,9 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import StudentSidebar from '@/Components/StudentSidebar';
+import PdfViewerModal from '@/Components/PdfViewerModal';
 
 export default function ModuleView({ auth, course, module }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    // Estado para controlar el PDF activo en el visor protegido
+    const [activePdf, setActivePdf] = useState(null);
 
     return (
         <>
@@ -59,9 +62,15 @@ export default function ModuleView({ auth, course, module }) {
                                                 </div>
                                                 <div className="flex gap-3">
                                                     {fileResource && (
-                                                        <a href={fileResource.startsWith('http') ? fileResource : `/storage/${fileResource}`} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-[#0066FF] text-white text-xs font-semibold">
-                                                            Ver PDF
-                                                        </a>
+                                                        <button
+                                                            onClick={() => setActivePdf({
+                                                                url: route('student.contents.view-pdf', content.id),
+                                                                title: content.title
+                                                            })}
+                                                            className="px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition shadow-sm"
+                                                        >
+                                                            Ver PDF Seguro
+                                                        </button>
                                                     )}
                                                     {videoResource && (
                                                         <a href={videoResource} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-slate-100 text-[#051C33] text-xs font-semibold">
@@ -96,6 +105,16 @@ export default function ModuleView({ auth, course, module }) {
                         </div>
 
                     </main>
+
+                    {/* Renderizar el Visor Protegido si hay un PDF activo */}
+                    {activePdf && (
+                        <PdfViewerModal 
+                            pdfUrl={activePdf.url} 
+                            title={activePdf.title} 
+                            onClose={() => setActivePdf(null)} 
+                        />
+                    )}
+
                     <footer className="h-12 bg-white border-t border-slate-100"></footer>
                 </div>
             </div>
