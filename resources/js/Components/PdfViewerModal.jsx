@@ -40,15 +40,19 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                     </button>
                 </div>
 
-                {/* Contenedor del Visor */}
-                <div 
-                    className="flex-1 bg-slate-100 relative select-none overflow-auto"
-                    onContextMenu={(e) => e.preventDefault()}
-                    onCopy={(e) => e.preventDefault()}
-                >
+                {/* Contenedor del Visor con inyección de CSS para bloquear selección en iframes */}
+                <div className="flex-1 bg-slate-100 relative overflow-y-auto select-none">
+                    <style>{`
+                        iframe {
+                            -webkit-user-select: none;
+                            -moz-user-select: none;
+                            -ms-user-select: none;
+                            user-select: none;
+                        }
+                    `}</style>
                     <iframe 
                         src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`} 
-                        className="w-full h-full border-none select-none"
+                        className="w-full h-full border-none select-none pointer-events-auto"
                         title={title}
                     />
                 </div>
