@@ -92,7 +92,7 @@ class StudentExamController extends Controller
             }
         }
 
-        // Calcular la nota en base a una escala de 0 a 20 (puedes ajustarla a 100 si prefieres)
+        // Calcular la nota en base a una escala de 0 a 20
         $score = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 20 : 0;
 
         // Guardar el registro en la tabla de notas e historial de avance
