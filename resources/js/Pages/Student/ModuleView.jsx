@@ -110,58 +110,68 @@ export default function ModuleView({ auth, course, module }) {
                             </p>
                         </div>
 
-                        {/* Contenidos del Módulo */}
+                        {/* Contenidos del Módulo con Contenedores Rediseñados */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
-                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos Académicos</h2>
+                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6 flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-[#0066FF]"></span>
+                                Materiales y Recursos Académicos
+                            </h2>
 
                             {module.contents && module.contents.length > 0 ? (
                                 <div className="space-y-6">
                                     {module.contents.map((content) => {
-                                        // Detecta cualquier nombre posible de columna para archivos y videos en la BD
                                         const fileResource = content.file_url || content.file || content.path || content.file_path;
                                         const videoResource = content.video_url || content.url || content.link;
 
                                         return (
-                                            <div key={content.id} className="p-6 rounded-2xl border border-blue-50 bg-[#F8FAFC] space-y-4">
-                                                <div>
-                                                    <h3 className="font-extrabold text-[#051C33] text-lg">{content.title}</h3>
-                                                    <p className="text-sm text-[#4A607A] mt-1 leading-relaxed">{content.body || content.description}</p>
+                                            <div 
+                                                key={content.id} 
+                                                className="bg-white rounded-2xl border border-blue-100/80 shadow-md shadow-blue-950/5 p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+                                            >
+                                                {/* Información del recurso */}
+                                                <div className="flex items-start gap-4 flex-1">
+                                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold shrink-0 shadow-inner">
+                                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h3 className="font-extrabold text-[#051C33] text-lg">{content.title}</h3>
+                                                        <p className="text-sm text-[#4A607A] leading-relaxed">{content.body || content.description}</p>
+                                                    </div>
                                                 </div>
-                                                
-                                                {/* Botón para Archivo / PDF */}
-                                                {fileResource && (
-                                                    <div className="pt-2">
+
+                                                {/* Botones de Acción Estilizados */}
+                                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                                                    {fileResource && (
                                                         <a
                                                             href={fileResource.startsWith('http') ? fileResource : `/storage/${fileResource}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#0066FF] hover:bg-[#0052CC] px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition"
+                                                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold shadow-md shadow-blue-600/25 transition-all transform active:scale-95 whitespace-nowrap"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                             </svg>
-                                                            Ver / Descargar Archivo (PDF)
+                                                            Ver PDF
                                                         </a>
-                                                    </div>
-                                                )}
+                                                    )}
 
-                                                {/* Botón para Video */}
-                                                {videoResource && (
-                                                    <div className="pt-2">
+                                                    {videoResource && (
                                                         <a
                                                             href={videoResource}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-2 text-xs font-semibold text-[#051C33] bg-white border border-blue-200 hover:bg-blue-50 px-4 py-2.5 rounded-xl shadow-sm transition"
+                                                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-[#051C33] hover:bg-slate-200 text-xs font-semibold shadow-sm transition-all transform active:scale-95 whitespace-nowrap"
                                                         >
                                                             <svg className="w-4 h-4 text-[#0066FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                             </svg>
-                                                            Reproducir Video de la Clase
+                                                            Ver Video
                                                         </a>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                </div>
                                             </div>
                                         );
                                     })}
@@ -175,12 +185,15 @@ export default function ModuleView({ auth, course, module }) {
 
                         {/* Exámenes y Evaluaciones */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
-                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluaciones y Pruebas</h2>
+                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6 flex items-center gap-3">
+                                <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+                                Evaluaciones y Pruebas
+                            </h2>
 
                             {module.exams && module.exams.length > 0 ? (
                                 <div className="space-y-4">
                                     {module.exams.map((exam) => (
-                                        <div key={exam.id} className="p-5 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                        <div key={exam.id} className="p-6 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                             <div>
                                                 <h3 className="font-extrabold text-[#051C33] text-base">{exam.title}</h3>
                                                 <p className="text-xs text-[#4A607A] mt-0.5">{exam.description || "Completa esta evaluación para validar tus conocimientos."}</p>
