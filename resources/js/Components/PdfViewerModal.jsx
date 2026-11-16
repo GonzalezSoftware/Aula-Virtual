@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PdfViewerModal({ pdfUrl, title, onClose }) {
-    const containerRef = useRef(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = 10; // ⚠️ Puedes ajustar o hacer dinámico el total de páginas si tu backend lo provee
 
     // Bloquear clic derecho, atajos de teclado y copiado
     useEffect(() => {
@@ -24,22 +25,46 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
         };
     }, []);
 
-    // Manejar el desplazamiento vertical con la rueda del ratón de forma fluida
-    const handleWheel = (e) => {
-        if (containerRef.current) {
-            containerRef.current.scrollTop += e.deltaY;
-        }
+    // Funciones para cambiar de página usando los parámetros de URL del visor del navegador (#page=N)
+    const nextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
+
+    const prevPage = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 select-none">
-            <div className="bg-white w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-blue-100">
+            <div className="bg-white w-full max-w-5xl h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-blue-100">
                 
-                {/* Header corporativo */}
-                <div className="px-6 py-4 bg-[#051C33] text-white flex justify-between items-center select-none">
-                    <h3 className="font-extrabold text-base tracking-tight truncate max-w-2xl text-white">
-                        📖 {title} <span className="text-xs text-blue-300 font-normal ml-2">(Blindado contra copia)</span>
+                {/* Header corporativo con Paginación Integrada */}
+                <div className="px-6 py-3.5 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-center gap-3 select-none">
+                    <h3 className="font-extrabold text-sm tracking-tight truncate max-w-md text-white">
+                        📖 {title}
                     </h3>
+
+                    {/* Controles de Paginación Centrales */}
+                    <div className="flex items-center gap-3 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <button 
+                            onClick={prevPage}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition"
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-xs font-medium text-slate-200">
+                            Página <strong className="text-white">{currentPage}</strong>
+                        </span>
+                        <button 
+                            onClick={nextPage}
+                            disabled={currentPage >= totalPages}
+                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+
                     <button 
                         onClick={onClose}
                         className="px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition"
@@ -48,34 +73,24 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                     </button>
                 </div>
 
-                {/* Contenedor con barra de desplazamiento única y capa de bloqueo de eventos */}
-                <div 
-                    ref={containerRef}
-                    onWheel={handleWheel}
-                    className="flex-1 bg-slate-900 relative overflow-y-auto select-none"
-                    style={{ scrollbarWidth: 'thin' }}
-                >
-                    {/* Contenedor interno extendido para permitir el scroll del sistema */}
-                    <div className="w-full h-[140%] relative select-none">
-                        
-                        {/* 🛡️ CAPA INVISIBLE ANTIRROBO ABSOLUTA (z-20): 
-                            Se ubica encima del iframe con 'pointer-events-auto' para atrapar 
-                            cualquier intento de clic, arrastre o selección de texto con el mouse. */}
-                        <div 
-                            className="absolute inset-0 z-20 bg-transparent cursor-default"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onSelectStart={(e) => e.preventDefault()}
-                            onContextMenu={(e) => e.preventDefault()}
-                        />
+                {/* Contenedor principal con visor paginado y capa de seguridad absoluta */}
+                <div className="flex-1 bg-slate-900 relative overflow-hidden select-none flex items-center justify-center">
+                    
+                    {/* 🛡️ CAPA INVISIBLE ANTIRROBO ABSOLUTA (z-20): 
+                        Bloquea cualquier intento de clic, arrastre o selección de texto sobre el documento. */}
+                    <div 
+                        className="absolute inset-0 z-20 bg-transparent cursor-default"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onSelectStart={(e) => e.preventDefault()}
+                        onContextMenu={(e) => e.preventDefault()}
+                    />
 
-                        {/* El iframe del PDF se encuentra debajo con los eventos de puntero desactivados 
-                            para que no interfiera con el bloqueo de selección del navegador. */}
-                        <iframe 
-                            src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
-                            className="w-full h-full border-none select-none pointer-events-none"
-                            title={title}
-                        />
-                    </div>
+                    {/* Iframe apuntando a la página exacta mediante el parámetro #page=N y #view=FitH */}
+                    <iframe 
+                        src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&page=${currentPage}`} 
+                        className="w-full h-full border-none select-none pointer-events-none"
+                        title={title}
+                    />
                 </div>
 
             </div>
