@@ -10,7 +10,7 @@ class ExamOption extends Model
     protected $table = 'exam_options';
 
     protected $fillable = [
-        'module_exam_id', // O cámbialo si tu columna se llama distinto en MySQL (ej. 'exam_id' o 'question_id')
+        'module_exam_id', 
         'text',
         'is_correct',
     ];
@@ -22,7 +22,10 @@ class ExamOption extends Model
     // Relación: Una opción pertenece a una pregunta (ModuleExam)
     public function exam(): BelongsTo
     {
-        // Asegúrate de pasar el segundo parámetro con el nombre exacto de la columna en tu tabla 'exam_options'
-        return $this->belongsTo(ModuleExam::class, 'module_exam_id');
+        // Primer parámetro: Modelo relacionado
+        // Segundo parámetro: Nombre de la llave foránea en la tabla 'exam_options' 
+        // (Si en tu base de datos se llama 'exam_id' o 'question_id', cámbialo aquí abajo)
+        // Tercer parámetro: Clave primaria en la tabla 'module_exams' ('id')
+        return $this->belongsTo(ModuleExam::class, 'module_exam_id', 'id');
     }
 }
