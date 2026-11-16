@@ -19,8 +19,8 @@ class ModuleExam extends Model
     // Relación: Una evaluación (pregunta) tiene muchas opciones de respuesta
     public function options(): HasMany
     {
-        // NOTA: Si en tu base de datos la columna se llama 'exam_id' o 'question_id', 
-        // reemplaza 'module_exam_id' por el nombre correcto de tu columna.
-        return $this->hasMany(ExamOption::class, 'module_exam_id'); 
+        // Cambia 'module_exam_id' por el nombre real de la columna en tu tabla 'exam_options' 
+        // si en tu base de datos se llama distinto (ej. 'module_exams_id' o 'exam_id')
+        return $this->hasMany(ExamOption::class, 'module_exam_id', 'id');
     }
 }
