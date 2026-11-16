@@ -110,55 +110,61 @@ export default function ModuleView({ auth, course, module }) {
                             </p>
                         </div>
 
-                        {/* Contenidos Dinámicos de la Base de Datos */}
+                        {/* Contenidos del Módulo */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos Académicos</h2>
 
                             {module.contents && module.contents.length > 0 ? (
                                 <div className="space-y-6">
-                                    {module.contents.map((content) => (
-                                        <div key={content.id} className="p-6 rounded-2xl border border-blue-50 bg-[#F8FAFC] space-y-4">
-                                            <div>
-                                                <h3 className="font-extrabold text-[#051C33] text-lg">{content.title}</h3>
-                                                <p className="text-sm text-[#4A607A] mt-1 leading-relaxed">{content.body || content.description}</p>
-                                            </div>
-                                            
-                                            {/* Archivo / PDF cargado */}
-                                            {content.file_url && (
-                                                <div className="pt-2">
-                                                    <a
-                                                        href={`/storage/${content.file_url}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#0066FF] hover:bg-[#0052CC] px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                        </svg>
-                                                        Ver / Descargar Archivo (PDF)
-                                                    </a>
-                                                </div>
-                                            )}
+                                    {module.contents.map((content) => {
+                                        // Detecta cualquier nombre posible de columna para archivos y videos en la BD
+                                        const fileResource = content.file_url || content.file || content.path || content.file_path;
+                                        const videoResource = content.video_url || content.url || content.link;
 
-                                            {/* Video cargado */}
-                                            {content.video_url && (
-                                                <div className="pt-2">
-                                                    <a
-                                                        href={content.video_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-2 text-xs font-semibold text-[#051C33] bg-white border border-blue-200 hover:bg-blue-50 px-4 py-2.5 rounded-xl shadow-sm transition"
-                                                    >
-                                                        <svg className="w-4 h-4 text-[#0066FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        Reproducir Video de la Clase
-                                                    </a>
+                                        return (
+                                            <div key={content.id} className="p-6 rounded-2xl border border-blue-50 bg-[#F8FAFC] space-y-4">
+                                                <div>
+                                                    <h3 className="font-extrabold text-[#051C33] text-lg">{content.title}</h3>
+                                                    <p className="text-sm text-[#4A607A] mt-1 leading-relaxed">{content.body || content.description}</p>
                                                 </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                
+                                                {/* Botón para Archivo / PDF */}
+                                                {fileResource && (
+                                                    <div className="pt-2">
+                                                        <a
+                                                            href={fileResource.startsWith('http') ? fileResource : `/storage/${fileResource}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#0066FF] hover:bg-[#0052CC] px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            </svg>
+                                                            Ver / Descargar Archivo (PDF)
+                                                        </a>
+                                                    </div>
+                                                )}
+
+                                                {/* Botón para Video */}
+                                                {videoResource && (
+                                                    <div className="pt-2">
+                                                        <a
+                                                            href={videoResource}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 text-xs font-semibold text-[#051C33] bg-white border border-blue-200 hover:bg-blue-50 px-4 py-2.5 rounded-xl shadow-sm transition"
+                                                        >
+                                                            <svg className="w-4 h-4 text-[#0066FF]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            Reproducir Video de la Clase
+                                                        </a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="text-center py-10 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
@@ -167,7 +173,7 @@ export default function ModuleView({ auth, course, module }) {
                             )}
                         </div>
 
-                        {/* Evaluaciones de la Base de Datos */}
+                        {/* Exámenes y Evaluaciones */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-950/5 p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluaciones y Pruebas</h2>
 
