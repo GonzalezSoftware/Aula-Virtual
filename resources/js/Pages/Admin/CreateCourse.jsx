@@ -288,7 +288,7 @@ export default function CreateCourse({ auth }) {
                     <main className="max-w-5xl mx-auto px-8 py-10 w-full flex-grow">
                         <div className="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100">
                             <h1 className="text-2xl font-extrabold text-[#051C33] mb-6 border-b border-blue-100 pb-4">
-                                Crear Nuevo Curso y Módulos con Cronograma ISAIAS
+                                Crear Nuevo Curso y Módulos con Cronograma
                             </h1>
 
                             <form onSubmit={handleSubmit} className="space-y-8">
