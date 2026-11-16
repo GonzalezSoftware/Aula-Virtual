@@ -43,10 +43,9 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado y se encuentra cerrado.']);
         }
 
-        // 1. Mezclar las preguntas de forma aleatoria
-        // 2. Para cada pregunta, mezclar sus opciones de respuesta aleatoriamente
-        $exams = $module->exams->shuffle()->map(function ($exam) {
-            $exam->setRelation('options', $exam->options->shuffle());
+        // 🛡️ Solución: Convertimos explícitamente a colección de Laravel con collect() para evitar errores de tipo string/relación
+        $exams = collect($module->exams)->shuffle()->map(function ($exam) {
+            $exam->setRelation('options', collect($exam->options)->shuffle());
             return $exam;
         });
 
@@ -84,8 +83,8 @@ class StudentExamController extends Controller
             $selectedOptionId = $answers[$exam->id] ?? null;
 
             if ($selectedOptionId) {
-                // Buscar cuál es la opción correcta de esta pregunta en la base de datos
-                $correctOption = $exam->options->where('is_correct', true)->first();
+                // Buscar cuál es la opción correcta de esta pregunta asegurando colección
+                $correctOption = collect($exam->options)->where('is_correct', true)->first();
 
                 if ($correctOption && $correctOption->id == $selectedOptionId) {
                     $correctAnswers++;
