@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import StudentSidebar from '@/Components/StudentSidebar';
 import PdfViewerModal from '@/Components/PdfViewerModal';
+import VideoPlayerModal from '@/Components/VideoPlayerModal';
 
 export default function ModuleView({ auth, course, module }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
