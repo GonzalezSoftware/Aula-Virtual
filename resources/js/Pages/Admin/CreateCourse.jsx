@@ -388,12 +388,215 @@ export default function CreateCourse({ auth }) {
                                                 placeholder="Nombre del módulo"
                                                 className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-sm font-medium outline-none bg-white text-[#051C33]"
                                             />
+                                            {modules.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeModule(activeModuleIndex)}
+                                                    className="px-3.5 py-1.5 bg-red-50 text-red-600 rounded-xl text-xs font-semibold hover:bg-red-600 hover:text-white transition whitespace-nowrap"
+                                                >
+                                                    Eliminar Módulo
+                                                </button>
+                                            )}
                                         </div>
+
+                                        {/* VALIDACIONES Y SELECTORES DE FECHAS DE LOS MÓDULOS Y EXÁMENES RESTAURADOS */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#F8FAFC] p-4 rounded-2xl border border-blue-100">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-[#4A607A] mb-1">Inicio del Módulo</label>
+                                                <input
+                                                    type="date"
+                                                    min={startDate || today}
+                                                    max={endDate}
+                                                    value={currentModule.start_date}
+                                                    onChange={(e) => updateModuleField('start_date', e.target.value)}
+                                                    className="w-full border border-blue-200/80 rounded-xl px-3 py-1.5 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-[#4A607A] mb-1">Fin del Módulo</label>
+                                                <input
+                                                    type="date"
+                                                    min={currentModule.start_date || startDate || today}
+                                                    max={endDate}
+                                                    value={currentModule.end_date}
+                                                    onChange={(e) => updateModuleField('end_date', e.target.value)}
+                                                    className="w-full border border-blue-200/80 rounded-xl px-3 py-1.5 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-[#4A607A] mb-1">Inicio de la Evaluación</label>
+                                                <input
+                                                    type="date"
+                                                    min={currentModule.start_date || startDate || today}
+                                                    max={currentModule.end_date || endDate}
+                                                    value={currentModule.exam_start_date}
+                                                    onChange={(e) => updateModuleField('exam_start_date', e.target.value)}
+                                                    className="w-full border border-blue-200/80 rounded-xl px-3 py-1.5 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-[#4A607A] mb-1">Fin de la Evaluación</label>
+                                                <input
+                                                    type="date"
+                                                    min={currentModule.exam_start_date || currentModule.start_date || startDate || today}
+                                                    max={currentModule.end_date || endDate}
+                                                    value={currentModule.exam_end_date}
+                                                    onChange={(e) => updateModuleField('exam_end_date', e.target.value)}
+                                                    className="w-full border border-blue-200/80 rounded-xl px-3 py-1.5 text-xs outline-none bg-white text-[#051C33]"
+                                                />
+                                            </div>
+                                        </div>
+
                                         <div className="flex gap-3">
                                             <button type="button" onClick={() => addContent('pdf')} className="bg-[#E3F2FD] text-[#0066FF] px-3.5 py-2 rounded-xl text-xs font-semibold">+ Agregar PDF</button>
                                             <button type="button" onClick={() => addContent('video')} className="bg-[#E3F2FD] text-[#0066FF] px-3.5 py-2 rounded-xl text-xs font-semibold">+ Agregar Video</button>
                                             <button type="button" onClick={addExam} className="bg-blue-50 text-[#051C33] px-3.5 py-2 rounded-xl text-xs font-semibold">+ Agregar Pregunta de Examen</button>
                                         </div>
+
+                                        {/* CONTENIDOS (PDF / Video) */}
+                                        {currentModule.contents.length > 0 && (
+                                            <div className="space-y-4 pt-4 border-t border-blue-100">
+                                                <h4 className="text-xs font-bold text-[#051C33] uppercase tracking-wider">Contenidos del Módulo</h4>
+                                                {currentModule.contents.map((content, contIndex) => (
+                                                    <div key={contIndex} className="p-4 bg-[#F8FAFC] rounded-2xl border border-blue-100 space-y-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-lg uppercase">
+                                                                {content.type}
+                                                            </span>
+                                                            <input
+                                                                type="text"
+                                                                required
+                                                                value={content.title}
+                                                                onChange={(e) => updateContentField(contIndex, 'title', e.target.value)}
+                                                                placeholder={`Título del ${content.type}`}
+                                                                className="flex-1 border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33] font-medium"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeContent(contIndex)}
+                                                                className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+
+                                                        {content.type === 'pdf' && (
+                                                            <div>
+                                                                <input
+                                                                    type="file"
+                                                                    accept="application/pdf"
+                                                                    onChange={(e) => updateContentField(contIndex, 'file', e.target.files[0])}
+                                                                    className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 cursor-pointer"
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {content.type === 'video' && (
+                                                            <div className="space-y-3">
+                                                                <div className="flex gap-4">
+                                                                    <label className="flex items-center gap-2 text-xs cursor-pointer font-medium text-[#051C33]">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`videoSource_${activeModuleIndex}_${contIndex}`}
+                                                                            checked={content.videoSource === 'url'}
+                                                                            onChange={() => updateContentField(contIndex, 'videoSource', 'url')}
+                                                                        />
+                                                                        Enlace (URL / YouTube)
+                                                                    </label>
+                                                                    <label className="flex items-center gap-2 text-xs cursor-pointer font-medium text-[#051C33]">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`videoSource_${activeModuleIndex}_${contIndex}`}
+                                                                            checked={content.videoSource === 'file'}
+                                                                            onChange={() => updateContentField(contIndex, 'videoSource', 'file')}
+                                                                        />
+                                                                        Subir Archivo (.mp4)
+                                                                    </label>
+                                                                </div>
+                                                                {content.videoSource === 'url' ? (
+                                                                    <input
+                                                                        type="url"
+                                                                        value={content.url || ''}
+                                                                        onChange={(e) => updateContentField(contIndex, 'url', e.target.value)}
+                                                                        placeholder="https://www.youtube.com/watch?v=..."
+                                                                        className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                                    />
+                                                                ) : (
+                                                                    <input
+                                                                        type="file"
+                                                                        accept="video/mp4,video/webm"
+                                                                        onChange={(e) => updateContentField(contIndex, 'file', e.target.files[0])}
+                                                                        className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 cursor-pointer"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* PREGUNTAS Y OPCIONES DE EXAMEN */}
+                                        {currentModule.exams.length > 0 && (
+                                            <div className="space-y-4 pt-4 border-t border-blue-100">
+                                                <h4 className="text-xs font-bold text-[#051C33] uppercase tracking-wider">Preguntas del Examen</h4>
+                                                {currentModule.exams.map((exam, examIndex) => (
+                                                    <div key={examIndex} className="p-5 bg-[#F8FAFC] rounded-2xl border border-blue-100 space-y-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-lg">
+                                                                P{examIndex + 1}
+                                                            </span>
+                                                            <input
+                                                                type="text"
+                                                                required
+                                                                value={exam.question}
+                                                                onChange={(e) => updateExamQuestion(examIndex, e.target.value)}
+                                                                placeholder="Escribe la pregunta del examen aquí..."
+                                                                className="flex-1 border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33] font-medium"
+                                                            />
+                                                            {currentModule.exams.length > 1 && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => removeExam(examIndex)}
+                                                                    className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1"
+                                                                >
+                                                                    ✕
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Opciones de respuesta */}
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-8">
+                                                            {exam.options.map((option, optIndex) => (
+                                                                <div key={optIndex} className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-blue-100 shadow-sm">
+                                                                    <input
+                                                                        type="radio"
+                                                                        name={`correct_opt_${activeModuleIndex}_${examIndex}`}
+                                                                        checked={option.is_correct}
+                                                                        onChange={() => setCorrectOption(examIndex, optIndex)}
+                                                                        title="Marcar como opción correcta"
+                                                                        className="w-4 h-4 text-blue-600 cursor-pointer"
+                                                                    />
+                                                                    <input
+                                                                        type="text"
+                                                                        required
+                                                                        value={option.text}
+                                                                        onChange={(e) => updateOptionText(examIndex, optIndex, e.target.value)}
+                                                                        placeholder={`Opción ${optIndex + 1}`}
+                                                                        className="w-full border-none outline-none text-xs text-[#051C33] bg-transparent"
+                                                                    />
+                                                                    {option.is_correct && (
+                                                                        <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">
+                                                                            Correcta
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

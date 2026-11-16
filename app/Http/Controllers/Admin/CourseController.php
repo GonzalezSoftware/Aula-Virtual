@@ -16,7 +16,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with(['modules.contents', 'modules.exams'])->latest()->get();
+        $courses = Course::with(['modules.contents', 'modules.exams.options'])->latest()->get();
         return response()->json($courses);
     }
 
@@ -91,22 +91,26 @@ class CourseController extends Controller
                     }
                 }
 
-                // Guardar Evaluaciones (Preguntas y opciones) del módulo
-                if (!empty($modData['exams']) && is_array($modData['exams'])) {
-                    foreach ($modData['exams'] as $examData) {
-                        $options = collect($examData['options'] ?? [])->map(function ($opt) {
-                            return [
-                                'text' => $opt['text'] ?? '',
-                                'is_correct' => filter_var($opt['is_correct'] ?? false, FILTER_VALIDATE_BOOLEAN),
-                            ];
-                        })->values()->all();
+// Guardar Evaluaciones (Preguntas y opciones) del módulo
+if (!empty($modData['exams']) && is_array($modData['exams'])) {
+    foreach ($modData['exams'] as $examData) {
+        $exam = $module->exams()->create([
+            'question' => $examData['question'] ?? 'Pregunta sin texto',
+        ]);
 
-                        $module->exams()->create([
-                            'question' => $examData['question'] ?? 'Pregunta sin texto',
-                            'options' => $options,
-                        ]);
-                    }
-                }
+        if (!empty($examData['options']) && is_array($examData['options'])) {
+            foreach ($examData['options'] as $optData) {
+                // Aseguramos que is_correct se evalúe correctamente como booleano (1 o 0)
+                $isCorrect = isset($optData['is_correct']) && ($optData['is_correct'] == '1' || $optData['is_correct'] === true);
+                
+                $exam->options()->create([
+                    'text' => $optData['text'] ?? '',
+                    'is_correct' => $isCorrect,
+                ]);
+            }
+        }
+    }
+}
             }
 
             // Confirmar transacción si todo salió bien
@@ -114,15 +118,17 @@ class CourseController extends Controller
 
             return response()->json([
                 'message' => '¡Curso creado correctamente con todos sus módulos, fechas y evaluaciones!',
-                'course' => $course->load(['modules.contents', 'modules.exams']),
+                'course' => $course->load(['modules.contents', 'modules.exams.options']),
             ], 201);
 
-        } catch (\Exception $e) {
+} catch (\Exception $e) {
             // Revertir cambios si ocurre algún error
             DB::rollBack();
             return response()->json([
-                'message' => 'Error interno al guardar el curso.',
+                'message' => 'Error interno detallado',
                 'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ], 500);
         }
     }
@@ -138,7 +144,7 @@ class CourseController extends Controller
     }
 
     // Elimina el curso de la base de datos
-    public function destroy($id) // O puedes poner destroy(int $id)
+    public function destroy($id)
     {
         $course = Course::findOrFail($id);
         
