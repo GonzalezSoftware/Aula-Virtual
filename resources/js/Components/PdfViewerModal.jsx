@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 export default function PdfViewerModal({ pdfUrl, title, onClose }) {
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = 10; // ⚠️ Puedes ajustar o hacer dinámico el total de páginas si tu backend lo provee
+    const totalPages = 15; // ⚠️ Puedes ajustar o dejar un número estándar de páginas estimado del documento
 
     // Bloquear clic derecho, atajos de teclado y copiado
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
         };
     }, []);
 
-    // Funciones para cambiar de página usando los parámetros de URL del visor del navegador (#page=N)
+    // Funciones para cambiar de página de manera limpia
     const nextPage = () => {
         if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
     };
@@ -33,6 +33,9 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
     const prevPage = () => {
         if (currentPage > 1) setCurrentPage(prev => prev - 1);
     };
+
+    // Construimos la URL dinámica asegurando que el visor renderice la página solicitada y se ajuste a la vista completa
+    const securePdfSrc = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=FitH,top`;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 select-none">
@@ -49,17 +52,17 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                         <button 
                             onClick={prevPage}
                             disabled={currentPage === 1}
-                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition"
+                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer"
                         >
                             Anterior
                         </button>
                         <span className="text-xs font-medium text-slate-200">
-                            Página <strong className="text-white">{currentPage}</strong>
+                            Página <strong className="text-white">{currentPage}</strong> de <strong className="text-white">{totalPages}</strong>
                         </span>
                         <button 
                             onClick={nextPage}
                             disabled={currentPage >= totalPages}
-                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition"
+                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer"
                         >
                             Siguiente
                         </button>
@@ -67,7 +70,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
 
                     <button 
                         onClick={onClose}
-                        className="px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition"
+                        className="px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer"
                     >
                         Cerrar Visor
                     </button>
@@ -85,10 +88,11 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                         onContextMenu={(e) => e.preventDefault()}
                     />
 
-                    {/* Iframe apuntando a la página exacta mediante el parámetro #page=N y #view=FitH */}
+                    {/* Iframe actualizado reactivamente con la URL y la página actual */}
                     <iframe 
-                        src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&page=${currentPage}`} 
-                        className="w-full h-full border-none select-none pointer-events-none"
+                        key={currentPage} 
+                        src={securePdfSrc} 
+                        className="w-full h-full border-none select-none pointer-events-none bg-slate-800"
                         title={title}
                     />
                 </div>
