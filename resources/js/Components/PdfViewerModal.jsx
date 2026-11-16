@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 export default function PdfViewerModal({ pdfUrl, title, onClose }) {
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = 15; // ⚠️ Puedes ajustar o dejar un número estándar de páginas estimado del documento
+    const totalPages = 15; // ⚠️ Puedes ajustar el total de páginas estimado del documento
 
     // Bloquear clic derecho, atajos de teclado y copiado
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
         };
     }, []);
 
-    // Funciones para cambiar de página de manera limpia
+    // Funciones para cambiar de página
     const nextPage = () => {
         if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
     };
@@ -34,8 +34,8 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
         if (currentPage > 1) setCurrentPage(prev => prev - 1);
     };
 
-    // Construimos la URL dinámica asegurando que el visor renderice la página solicitada y se ajuste a la vista completa
-    const securePdfSrc = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=FitH,top`;
+    // 🛡️ Ajuste clave: Usamos view=Fit o view=page-fit para forzar al navegador a mostrar la página entera en pantalla
+    const securePdfSrc = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=Fit,top`;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 select-none">
@@ -77,7 +77,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                 </div>
 
                 {/* Contenedor principal con visor paginado y capa de seguridad absoluta */}
-                <div className="flex-1 bg-slate-900 relative overflow-hidden select-none flex items-center justify-center">
+                <div className="flex-1 bg-slate-950 relative overflow-hidden select-none flex items-center justify-center p-2">
                     
                     {/* 🛡️ CAPA INVISIBLE ANTIRROBO ABSOLUTA (z-20): 
                         Bloquea cualquier intento de clic, arrastre o selección de texto sobre el documento. */}
@@ -88,11 +88,11 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                         onContextMenu={(e) => e.preventDefault()}
                     />
 
-                    {/* Iframe actualizado reactivamente con la URL y la página actual */}
+                    {/* Iframe con ajuste completo de página */}
                     <iframe 
                         key={currentPage} 
                         src={securePdfSrc} 
-                        className="w-full h-full border-none select-none pointer-events-none bg-slate-800"
+                        className="w-full h-full border-none select-none pointer-events-none bg-slate-900 rounded-xl"
                         title={title}
                     />
                 </div>
