@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\StudentCourseController;
 use App\Http\Controllers\Auth\StudentContentController; // <-- NUEVO: Importamos el controlador ubicado en Auth
-use App\Http\Controllers\StudentExamController;
+use App\Http\Controllers\Auth\StudentExamController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use Illuminate\Foundation\Application;
