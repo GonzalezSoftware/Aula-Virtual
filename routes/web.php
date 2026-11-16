@@ -3,7 +3,8 @@
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
-use App\Http\Controllers\Auth\StudentCourseController; // <-- IMPORTANTE: Añadimos el controlador del estudiante
+use App\Http\Controllers\Auth\StudentCourseController;
+use App\Http\Controllers\StudentExamController; // <-- NUEVO: Importamos el controlador de exámenes del estudiante
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use Illuminate\Foundation\Application;
@@ -86,6 +87,12 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/student/courses/{id}', [StudentCourseController::class, 'showCourse'])->name('student.courses.show');
     Route::get('/student/courses/{courseId}/modules/{moduleId}', [StudentCourseController::class, 'showModule'])->name('student.courses.modules.show');
+
+    // ==========================================
+    // NUEVAS RUTAS PARA EXÁMENES Y EVALUACIONES
+    // ==========================================
+    Route::get('/student/courses/{course}/modules/{module}/exam', [StudentExamController::class, 'showExam'])->name('student.courses.modules.exam');
+    Route::post('/student/courses/{course}/modules/{module}/exam/submit', [StudentExamController::class, 'submitExam'])->name('student.exams.submit');
 
     // Gestión de contraseña del estudiante
     Route::get('/student/password', [StudentPasswordController::class, 'edit'])->name('student.password.edit');

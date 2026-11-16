@@ -43,6 +43,7 @@ export default function ModuleView({ auth, course, module }) {
                             <p className="text-sm text-[#4A607A]">{module.description}</p>
                         </div>
 
+                        {/* Materiales y Recursos Académicos */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos Académicos</h2>
                             {module.contents && module.contents.length > 0 ? (
@@ -76,6 +77,24 @@ export default function ModuleView({ auth, course, module }) {
                                 <p className="text-sm text-[#4A607A]">No hay contenidos cargados.</p>
                             )}
                         </div>
+
+                        {/* Sección de Exámenes y Evaluaciones */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
+                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluación del Módulo</h2>
+                            <div className="p-6 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 className="font-extrabold text-[#051C33] text-base">Prueba Interactiva</h3>
+                                    <p className="text-xs text-[#4A607A] mt-0.5">Presenta tu evaluación con preguntas aleatorias y cronómetro.</p>
+                                </div>
+                                <Link 
+                                    href={route('student.courses.modules.exam', [course.id, module.id])}
+                                    className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap text-center"
+                                >
+                                    Presentar Examen
+                                </Link>
+                            </div>
+                        </div>
+
                     </main>
                     <footer className="h-12 bg-white border-t border-slate-100"></footer>
                 </div>
