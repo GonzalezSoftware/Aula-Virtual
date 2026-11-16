@@ -8,6 +8,8 @@ export default function ModuleView({ auth, course, module }) {
     // Estado para controlar el PDF activo en el visor protegido
     const [activePdf, setActivePdf] = useState(null);
 
+    const [activeVideo, setActiveVideo] = useState(null);
+
     return (
         <>
             <Head title={`${module.title} - ${course.title}`} />
@@ -73,9 +75,15 @@ export default function ModuleView({ auth, course, module }) {
                                                         </button>
                                                     )}
                                                     {videoResource && (
-                                                        <a href={videoResource} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 rounded-xl bg-slate-100 text-[#051C33] text-xs font-semibold">
-                                                            Ver Video
-                                                        </a>
+                                                        <button
+                                                            onClick={() => setActiveVideo({
+                                                                url: videoResource, // <-- Aquí pasa la URL directa que viene de tu base de datos
+                                                                title: content.title
+                                                            })}
+                                                            className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#051C33] text-xs font-semibold transition cursor-pointer"
+                                                        >
+                                                            Ver Video Seguro
+                                                        </button>
                                                     )}
                                                 </div>
                                             </div>
@@ -95,7 +103,7 @@ export default function ModuleView({ auth, course, module }) {
                                     <h3 className="font-extrabold text-[#051C33] text-base">Prueba Interactiva</h3>
                                     <p className="text-xs text-[#4A607A] mt-0.5">Presenta tu evaluación con preguntas aleatorias y cronómetro.</p>
                                 </div>
-                                <Link 
+                                <Link
                                     href={route('student.courses.modules.exam', [course.id, module.id])}
                                     className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap text-center"
                                 >
@@ -108,10 +116,19 @@ export default function ModuleView({ auth, course, module }) {
 
                     {/* Renderizar el Visor Protegido si hay un PDF activo */}
                     {activePdf && (
-                        <PdfViewerModal 
-                            pdfUrl={activePdf.url} 
-                            title={activePdf.title} 
-                            onClose={() => setActivePdf(null)} 
+                        <PdfViewerModal
+                            pdfUrl={activePdf.url}
+                            title={activePdf.title}
+                            onClose={() => setActivePdf(null)}
+                        />
+                    )}
+
+                    {/* Renderizar el Reproductor de Video Protegido */}
+                    {activeVideo && (
+                        <VideoPlayerModal
+                            videoUrl={activeVideo.url}
+                            title={activeVideo.title}
+                            onClose={() => setActiveVideo(null)}
                         />
                     )}
 
