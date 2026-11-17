@@ -54,42 +54,41 @@ class StudentCourseController extends Controller
         ]);
     }
 
-    public function showModule($courseId, $moduleId)
+    // CORREGIDO: Se reciben directamente los modelos Course y Module gracias a Route Model Binding
+    public function showModule(Course $course, Module $module)
     {
         $student = auth()->user();
         
-        // Validar que el estudiante esté inscrito en el curso y cargar sus módulos
-        $course = $student->courses()
-            ->with(['modules'])
-            ->where('courses.id', $courseId)
-            ->first();
+        // Validar que el estudiante esté inscrito en el curso
+        $isEnrolled = $student->courses()->where('courses.id', $course->id)->exists();
 
-        if (!$course) {
+        if (!$isEnrolled) {
             return redirect()->route('dashboard')
                 ->withErrors(['error' => 'No tienes acceso a este curso.']);
         }
 
-        // Buscar el módulo y sus relaciones asegurando pertenencia al curso
-        $module = Module::where('course_id', $course->id)
-            ->with(['contents', 'exams'])
-            ->where('id', $moduleId)
-            ->first();
-
-        if (!$module) {
-            return redirect()->route('student.courses.show', $courseId)
-                ->withErrors(['error' => 'El módulo solicitado no existe.']);
+        // Asegurar que el módulo pertenezca al curso actual
+        if ($module->course_id !== $course->id) {
+            return redirect()->route('student.courses.show', $course->id)
+                ->withErrors(['error' => 'El módulo solicitado no pertenece a este curso.']);
         }
+
+        // Cargar relaciones necesarias del módulo
+        $module->load(['contents', 'exams']);
+
+        // Opcional: cargar también los módulos del curso si los necesita la vista o el layout
+        $course->load('modules');
         
         // Validar fechas del módulo
         $today = Carbon::today();
 
         if ($module->start_date && $today->lt(Carbon::parse($module->start_date)->startOfDay())) {
-            return redirect()->route('student.courses.show', $courseId)
+            return redirect()->route('student.courses.show', $course->id)
                 ->withErrors(['error' => 'Este módulo aún no está disponible temporalmente.']);
         }
 
         if ($module->end_date && $today->gt(Carbon::parse($module->end_date)->endOfDay())) {
-            return redirect()->route('student.courses.show', $courseId)
+            return redirect()->route('student.courses.show', $course->id)
                 ->withErrors(['error' => 'El periodo de este módulo ya ha finalizado.']);
         }
 
