@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\StudentCourseController;
-use App\Http\Controllers\Auth\StudentContentController; // <-- NUEVO: Importamos el controlador ubicado en Auth
+use App\Http\Controllers\Auth\StudentContentController; 
 use App\Http\Controllers\Auth\StudentExamController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
@@ -87,7 +87,9 @@ Route::middleware(['auth'])->group(function () {
     // RUTAS PARA CURSOS Y MÓDULOS DEL ESTUDIANTE
     // ==========================================
     Route::get('/student/courses/{id}', [StudentCourseController::class, 'showCourse'])->name('student.courses.show');
-    Route::get('/student/courses/{courseId}/modules/{moduleId}', [StudentCourseController::class, 'showModule'])->name('student.courses.modules.show');
+    
+    // CORREGIDO: Se cambia {courseId} y {moduleId} por {course} y {module}
+    Route::get('/student/courses/{course}/modules/{module}', [StudentCourseController::class, 'showModule'])->name('student.courses.modules.show');
 
     // ==========================================
     // NUEVAS RUTAS PARA EXÁMENES Y EVALUACIONES
