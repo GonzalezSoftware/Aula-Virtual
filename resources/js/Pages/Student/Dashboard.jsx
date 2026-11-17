@@ -12,7 +12,7 @@ export default function StudentDashboard({ auth, courses = [] }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 <StudentSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="dashboard" />
 
-                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
                     <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
                         <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Dashboard Académico</h2>
                         <div className="flex items-center gap-5">
