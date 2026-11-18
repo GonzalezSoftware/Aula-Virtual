@@ -6,7 +6,6 @@ import AdminSidebar from '@/Components/AdminSidebar';
 
 export default function EditCourse({ auth, course }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const today = new Date().toISOString().split('T')[0];
 
     const [title, setTitle] = useState(course.title || '');
     const [description, setDescription] = useState(course.description || '');
@@ -17,7 +16,6 @@ export default function EditCourse({ auth, course }) {
     const [loading, setLoading] = useState(false);
     const [activeModuleIndex, setActiveModuleIndex] = useState(0);
 
-    // Precargamos los módulos existentes del curso
     const [modules, setModules] = useState(
         course.modules && course.modules.length > 0 
             ? course.modules.map(mod => ({
@@ -285,10 +283,23 @@ export default function EditCourse({ auth, course }) {
                 <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="edit-courses" />
 
                 <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
+                    
+                    {/* HEADER ESTANDARIZADO */}
                     <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-20 shadow-sm">
                         <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Panel de Administración</h2>
                         <div className="flex items-center gap-5">
-                            <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Administrador'}</span>
+                            <div className="text-right hidden sm:block">
+                                <span className="text-xs text-[#4A607A] block">Administrador Maestro</span>
+                                <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Administrador'}</span>
+                            </div>
+                            <Link
+                                href={route('admin.logout')}
+                                method="post"
+                                as="button"
+                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                            >
+                                <span>Cerrar Sesión</span>
+                            </Link>
                         </div>
                     </header>
 
@@ -496,13 +507,45 @@ export default function EditCourse({ auth, course }) {
 
                                                         {content.type === 'video' && (
                                                             <div className="space-y-3">
-                                                                <input
-                                                                    type="url"
-                                                                    value={content.url || ''}
-                                                                    onChange={(e) => updateContentField(contIndex, 'url', e.target.value)}
-                                                                    placeholder="https://www.youtube.com/watch?v=..."
-                                                                    className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
-                                                                />
+                                                                <div className="flex gap-4">
+                                                                    <label className="flex items-center gap-2 text-xs cursor-pointer font-medium text-[#051C33]">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`videoSource_${activeModuleIndex}_${contIndex}`}
+                                                                            checked={content.videoSource === 'url'}
+                                                                            onChange={() => updateContentField(contIndex, 'videoSource', 'url')}
+                                                                        />
+                                                                        Enlace (URL / YouTube)
+                                                                    </label>
+                                                                    <label className="flex items-center gap-2 text-xs cursor-pointer font-medium text-[#051C33]">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`videoSource_${activeModuleIndex}_${contIndex}`}
+                                                                            checked={content.videoSource === 'file'}
+                                                                            onChange={() => updateContentField(contIndex, 'videoSource', 'file')}
+                                                                        />
+                                                                        Subir Archivo (.mp4)
+                                                                    </label>
+                                                                </div>
+                                                                {content.videoSource === 'url' ? (
+                                                                    <input
+                                                                        type="url"
+                                                                        value={content.url || ''}
+                                                                        onChange={(e) => updateContentField(contIndex, 'url', e.target.value)}
+                                                                        placeholder="https://www.youtube.com/watch?v=..."
+                                                                        className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                                    />
+                                                                ) : (
+                                                                    <div>
+                                                                        {content.file_path && <p className="text-[11px] text-emerald-600 mb-1">Video actual guardado.</p>}
+                                                                        <input
+                                                                            type="file"
+                                                                            accept="video/mp4,video/webm"
+                                                                            onChange={(e) => updateContentField(contIndex, 'file', e.target.files[0])}
+                                                                            className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] cursor-pointer"
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>
