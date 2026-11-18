@@ -8,8 +8,11 @@ export default function ExamView({ courseId, module, exams, attemptNumber }) {
     const [timeLeft, setTimeLeft] = useState(45); // 45 segundos por pregunta
 
     const currentExam = exams[currentQuestionIndex];
-    // Aseguramos que las opciones existan y sean un arreglo barajado
-    const currentOptions = currentExam?.options || [];
+    
+    // Convertimos de forma segura a arreglo por si acaso
+    const currentOptions = Array.isArray(currentExam?.options) 
+        ? currentExam.options 
+        : Object.values(currentExam?.options || {});
 
     useEffect(() => {
         if (timeLeft <= 0) {

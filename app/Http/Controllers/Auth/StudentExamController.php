@@ -44,11 +44,12 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado.']);
         }
 
-        // Barajar preguntas y barajar aleatoriamente sus 4 opciones de respuesta
+        // 🛡️ Solución clave: Usar ->values() para asegurar que JSON reciba un arreglo indexado [0, 1, 2...] y no un objeto asociativo
         $exams = collect($module->exams)->shuffle()->map(function ($exam) {
-            $exam->setRelation('options', collect($exam->options)->shuffle());
+            $shuffledOptions = collect($exam->options)->shuffle()->values();
+            $exam->setRelation('options', $shuffledOptions);
             return $exam;
-        });
+        })->values();
 
         return Inertia::render('Student/ExamView', [
             'courseId' => $courseId,
