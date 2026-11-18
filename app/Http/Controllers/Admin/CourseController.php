@@ -91,26 +91,25 @@ class CourseController extends Controller
                     }
                 }
 
-// Guardar Evaluaciones (Preguntas y opciones) del módulo
-if (!empty($modData['exams']) && is_array($modData['exams'])) {
-    foreach ($modData['exams'] as $examData) {
-        $exam = $module->exams()->create([
-            'question' => $examData['question'] ?? 'Pregunta sin texto',
-        ]);
+                // Guardar Evaluaciones (Preguntas y opciones) del módulo
+                if (!empty($modData['exams']) && is_array($modData['exams'])) {
+                    foreach ($modData['exams'] as $examData) {
+                        $exam = $module->exams()->create([
+                            'question' => $examData['question'] ?? 'Pregunta sin texto',
+                        ]);
 
-        if (!empty($examData['options']) && is_array($examData['options'])) {
-            foreach ($examData['options'] as $optData) {
-                // Aseguramos que is_correct se evalúe correctamente como booleano (1 o 0)
-                $isCorrect = isset($optData['is_correct']) && ($optData['is_correct'] == '1' || $optData['is_correct'] === true);
-                
-                $exam->options()->create([
-                    'text' => $optData['text'] ?? '',
-                    'is_correct' => $isCorrect,
-                ]);
-            }
-        }
-    }
-}
+                        if (!empty($examData['options']) && is_array($examData['options'])) {
+                            foreach ($examData['options'] as $optData) {
+                                $isCorrect = isset($optData['is_correct']) && ($optData['is_correct'] == '1' || $optData['is_correct'] === true);
+                                
+                                $exam->options()->create([
+                                    'text' => $optData['text'] ?? '',
+                                    'is_correct' => $isCorrect,
+                                ]);
+                            }
+                        }
+                    }
+                }
             }
 
             // Confirmar transacción si todo salió bien
@@ -121,14 +120,151 @@ if (!empty($modData['exams']) && is_array($modData['exams'])) {
                 'course' => $course->load(['modules.contents', 'modules.exams.options']),
             ], 201);
 
-} catch (\Exception $e) {
-            // Revertir cambios si ocurre algún error
+        } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Error interno detallado',
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Muestra la lista de cursos para seleccionar cuál editar.
+     */
+    public function editList()
+    {
+        $courses = Course::with('modules')->latest()->get();
+
+        return Inertia::render('Admin/EditCourseList', [
+            'courses' => $courses
+        ]);
+    }
+
+    /**
+     * Muestra el formulario de edición con todos los datos del curso, módulos y exámenes.
+     */
+    public function edit($id)
+    {
+        $course = Course::with(['modules.contents', 'modules.exams.options'])->findOrFail($id);
+
+        return Inertia::render('Admin/EditCourse', [
+            'course' => $course
+        ]);
+    }
+
+    /**
+     * Actualiza un curso existente, sincronizando módulos, contenidos y evaluaciones.
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'modules' => 'required|array|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $course = Course::findOrFail($id);
+
+            $imagePath = $course->image;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('courses/images', 'public');
+            }
+
+            $course->update([
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
+                'image' => $imagePath,
+            ]);
+
+            // Limpiar módulos y relaciones anteriores para sincronizar los nuevos datos
+            $course->modules()->each(function ($module) {
+                $module->contents()->delete();
+                foreach($module->exams as $exam) {
+                    $exam->options()->delete();
+                }
+                $module->exams()->delete();
+                $module->delete();
+            });
+
+            $modulesData = $request->input('modules', []);
+
+            foreach ($modulesData as $modIndex => $modData) {
+                $module = $course->modules()->create([
+                    'title' => $modData['title'] ?? 'Módulo sin título',
+                    'start_date' => !empty($modData['start_date']) ? $modData['start_date'] : null,
+                    'end_date' => !empty($modData['end_date']) ? $modData['end_date'] : null,
+                    'exam_start_date' => !empty($modData['exam_start_date']) ? $modData['exam_start_date'] : null,
+                    'exam_end_date' => !empty($modData['exam_end_date']) ? $modData['exam_end_date'] : null,
+                    'order' => $modIndex + 1,
+                ]);
+
+                if (!empty($modData['contents']) && is_array($modData['contents'])) {
+                    foreach ($modData['contents'] as $contIndex => $contData) {
+                        $filePath = $contData['file_path'] ?? null;
+                        $fileKey = "modules.{$modIndex}.contents.{$contIndex}.file";
+
+                        if ($request->hasFile($fileKey)) {
+                            $folder = ($contData['type'] ?? '') === 'pdf' ? 'courses/pdfs' : 'courses/videos';
+                            $filePath = $request->file($fileKey)->store($folder, 'public');
+                        }
+
+                        $module->contents()->create([
+                            'title' => $contData['title'] ?? 'Sin título',
+                            'type' => $contData['type'] ?? 'video',
+                            'file_path' => $filePath,
+                            'url' => $contData['url'] ?? null,
+                            'order' => $contIndex + 1,
+                        ]);
+                    }
+                }
+
+                if (!empty($modData['exams']) && is_array($modData['exams'])) {
+                    foreach ($modData['exams'] as $examData) {
+                        $exam = $module->exams()->create([
+                            'question' => $examData['question'] ?? 'Pregunta sin texto',
+                        ]);
+
+                        if (!empty($examData['options']) && is_array($examData['options'])) {
+                            foreach ($examData['options'] as $optData) {
+                                $isCorrect = isset($optData['is_correct']) && ($optData['is_correct'] == '1' || $optData['is_correct'] === true);
+                                
+                                $exam->options()->create([
+                                    'text' => $optData['text'] ?? '',
+                                    'is_correct' => $isCorrect,
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => '¡Curso actualizado correctamente con sus módulos y evaluaciones!',
+                'course' => $course->load(['modules.contents', 'modules.exams.options']),
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error al actualizar',
+                'error' => $e->getMessage(),
+                'line' => $e->getLine()
             ], 500);
         }
     }

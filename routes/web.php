@@ -41,6 +41,13 @@ Route::middleware(['auth:admin'])->group(function () {
     // RUTA POST PARA GUARDAR EL CURSO
     Route::post('/admin/courses', [CourseController::class, 'store'])->name('admin.courses.store');
 
+    // ==========================================
+    // RUTAS NUEVAS PARA EDITAR CURSOS
+    // ==========================================
+    Route::get('/admin/courses/edit-list', [CourseController::class, 'editList'])->name('admin.courses.edit.list');
+    Route::get('/admin/courses/{id}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
+    Route::post('/admin/courses/{id}/update', [CourseController::class, 'update'])->name('admin.courses.update');
+
     Route::get('/admin/courses/manage', [CourseController::class, 'manage'])->name('admin.courses.manage');
     Route::delete('/admin/courses/{id}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
 
@@ -88,7 +95,6 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/student/courses/{id}', [StudentCourseController::class, 'showCourse'])->name('student.courses.show');
     
-    // CORREGIDO: Se cambia {courseId} y {moduleId} por {course} y {module}
     Route::get('/student/courses/{course}/modules/{module}', [StudentCourseController::class, 'showModule'])->name('student.courses.modules.show');
 
     // ==========================================
