@@ -14,25 +14,21 @@ class StudentExamController extends Controller
     /**
      * Muestra el examen del módulo con preguntas y respuestas barajadas aleatoriamente.
      */
-    public function showExam($courseId, $moduleId)
+     public function showExam($courseId, $moduleId)
     {
         $userId = auth()->id();
 
-        // Contar cuántos intentos lleva el estudiante en este módulo
         $attemptsCount = StudentModuleProgress::where('user_id', $userId)
             ->where('module_id', $moduleId)
             ->count();
 
-        // Permitir hasta 3 intentos
         if ($attemptsCount >= 3) {
             return redirect()->route('student.courses.show', $courseId)
                 ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
         }
 
-        // Buscar el módulo con sus exámenes y opciones
         $module = Module::with(['exams.options'])->findOrFail($moduleId);
 
-        // Validar fechas de la evaluación del módulo (si están definidas)
         $now = Carbon::now();
         if ($module->exam_start_date && $now->lt(Carbon::parse($module->exam_start_date)->startOfDay())) {
             return redirect()->route('student.courses.show', $courseId)
@@ -44,7 +40,7 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado.']);
         }
 
-        // 🛡️ Solución clave: Usar ->values() para asegurar que JSON reciba un arreglo indexado [0, 1, 2...] y no un objeto asociativo
+        // Transformación limpia con ->values() para garantizar arreglos en JSON
         $exams = collect($module->exams)->shuffle()->map(function ($exam) {
             $shuffledOptions = collect($exam->options)->shuffle()->values();
             $exam->setRelation('options', $shuffledOptions);
