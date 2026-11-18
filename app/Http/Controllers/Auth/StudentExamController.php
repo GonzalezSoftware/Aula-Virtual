@@ -14,7 +14,7 @@ class StudentExamController extends Controller
     /**
      * Muestra el examen del módulo con preguntas y respuestas barajadas aleatoriamente.
      */
-    public function showExam($courseId, $moduleId)
+     public function showExam($courseId, $moduleId)
     {
         $userId = auth()->id();
 
@@ -29,7 +29,7 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
         }
 
-        // Buscar el módulo con sus exámenes y opciones
+        // Buscar el módulo asegurando la carga profunda de exámenes y sus opciones
         $module = Module::with(['exams.options'])->findOrFail($moduleId);
 
         // Validar fechas de la evaluación del módulo (si están definidas)
@@ -44,17 +44,26 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado.']);
         }
 
-        // Barajar preguntas y opciones asegurando arreglos limpios con ->values()
-        $exams = collect($module->exams)->shuffle()->map(function ($exam) {
+        // Filtrar y asegurar que cada examen tenga opciones válidas cargadas desde la BD
+        $validExams = collect($module->exams)->filter(function ($exam) {
+            return $exam->options && count($exam->options) > 0;
+        })->map(function ($exam) {
+            // Barajar las opciones de cada pregunta de forma aleatoria y limpiar índices para React
             $shuffledOptions = collect($exam->options)->shuffle()->values();
             $exam->setRelation('options', $shuffledOptions);
             return $exam;
-        })->values();
+        })->shuffle()->values();
+
+        // Verificación de seguridad si el examen no tiene preguntas configuradas
+        if ($validExams->isEmpty()) {
+            return redirect()->route('student.courses.show', $courseId)
+                ->withErrors(['error' => 'Este examen aún no tiene preguntas con opciones de respuesta configuradas.']);
+        }
 
         return Inertia::render('Student/ExamView', [
             'courseId' => $courseId,
             'module' => $module,
-            'exams' => $exams,
+            'exams' => $validExams,
             'attemptNumber' => $attemptsCount + 1,
         ]);
     }
