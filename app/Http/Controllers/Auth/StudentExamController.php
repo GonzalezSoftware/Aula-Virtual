@@ -14,21 +14,25 @@ class StudentExamController extends Controller
     /**
      * Muestra el examen del módulo con preguntas y respuestas barajadas aleatoriamente.
      */
-     public function showExam($courseId, $moduleId)
+    public function showExam($courseId, $moduleId)
     {
         $userId = auth()->id();
 
+        // Contar cuántos intentos previos registra el estudiante en este módulo
         $attemptsCount = StudentModuleProgress::where('user_id', $userId)
             ->where('module_id', $moduleId)
             ->count();
 
+        // Permitir máximo 3 intentos
         if ($attemptsCount >= 3) {
             return redirect()->route('student.courses.show', $courseId)
                 ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
         }
 
+        // Buscar el módulo con sus exámenes y opciones
         $module = Module::with(['exams.options'])->findOrFail($moduleId);
 
+        // Validar fechas de la evaluación del módulo (si están definidas)
         $now = Carbon::now();
         if ($module->exam_start_date && $now->lt(Carbon::parse($module->exam_start_date)->startOfDay())) {
             return redirect()->route('student.courses.show', $courseId)
@@ -40,7 +44,7 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado.']);
         }
 
-        // Transformación limpia con ->values() para garantizar arreglos en JSON
+        // Barajar preguntas y opciones asegurando arreglos limpios con ->values()
         $exams = collect($module->exams)->shuffle()->map(function ($exam) {
             $shuffledOptions = collect($exam->options)->shuffle()->values();
             $exam->setRelation('options', $shuffledOptions);
@@ -56,22 +60,23 @@ class StudentExamController extends Controller
     }
 
     /**
-     * Procesa las respuestas del examen, calcula la nota de 0 a 20 y guarda el registro.
+     * Procesa las respuestas del examen, calcula la nota de 0 a 20 y guarda el nuevo intento.
      */
     public function submitExam(Request $request, $courseId, $moduleId)
     {
         $userId = auth()->id();
 
-        // Buscar si ya existe un registro de progreso/examen para este usuario y módulo
-        $progress = StudentModuleProgress::where('user_id', $userId)
+        // Verificar nuevamente los intentos antes de guardar
+        $attemptsCount = StudentModuleProgress::where('user_id', $userId)
             ->where('module_id', $moduleId)
-            ->first();
+            ->count();
 
-        // Si ya existe, podemos verificar cuántos intentos llevaba (si guardas un contador) 
-        // o actualizar su nota si este nuevo intento es mejor, o bien usar updateOrCreate.
-        // Dado que la tabla exige unicidad por usuario y módulo, utilizaremos updateOrCreate:
+        if ($attemptsCount >= 3) {
+            return redirect()->route('student.courses.show', $courseId)
+                ->withErrors(['error' => 'Ya has alcanzado el límite de 3 intentos para este examen.']);
+        }
 
-        $answers = $request->input('answers', []); 
+        $answers = $request->input('answers', []); // [examId => optionId]
         $module = Module::with('exams.options')->findOrFail($moduleId);
 
         $totalQuestions = count($module->exams);
@@ -81,6 +86,7 @@ class StudentExamController extends Controller
             $selectedOptionId = $answers[$exam->id] ?? null;
 
             if ($selectedOptionId) {
+                // Verificar si la opción seleccionada es la correcta
                 $correctOption = collect($exam->options)->where('is_correct', true)->first();
 
                 if ($correctOption && $correctOption->id == $selectedOptionId) {
@@ -89,10 +95,16 @@ class StudentExamController extends Controller
             }
         }
 
-        // Calcular la nota en escala de 0 a 20
+        // Calcular la nota en base a una escala de 0 a 20 de forma proporcional
         $score = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 20 : 0;
 
-        // Usamos updateOrCreate para actualizar el registro existente del módulo en lugar de duplicarlo
+        /*
+        | -----------------------------------------------------------------
+        | NOTA: Como la tabla tiene un índice único por user_id y module_id,
+        | usamos updateOrCreate para actualizar el progreso del módulo con 
+        | la nota obtenida en este intento.
+        | -----------------------------------------------------------------
+        */
         StudentModuleProgress::updateOrCreate(
             [
                 'user_id' => $userId,
