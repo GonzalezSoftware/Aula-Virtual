@@ -18,20 +18,21 @@ class StudentExamController extends Controller
     {
         $userId = auth()->id();
 
-        // Verificar si el estudiante ya completó este módulo
-        $progress = StudentModuleProgress::where('user_id', $userId)
+        // Contar cuántos intentos lleva el estudiante en este módulo
+        $attemptsCount = StudentModuleProgress::where('user_id', $userId)
             ->where('module_id', $moduleId)
-            ->first();
+            ->count();
 
-        if ($progress && $progress->completed) {
+        // Permitir hasta 3 intentos
+        if ($attemptsCount >= 3) {
             return redirect()->route('student.courses.show', $courseId)
-                ->withErrors(['error' => 'Ya has completado este módulo y su evaluación previamente.']);
+                ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
         }
 
         // Buscar el módulo con sus exámenes y opciones
         $module = Module::with(['exams.options'])->findOrFail($moduleId);
 
-        // Validar fechas de la evaluación del módulo
+        // Validar fechas de la evaluación del módulo (si están definidas)
         $now = Carbon::now();
         if ($module->exam_start_date && $now->lt(Carbon::parse($module->exam_start_date)->startOfDay())) {
             return redirect()->route('student.courses.show', $courseId)
@@ -40,10 +41,10 @@ class StudentExamController extends Controller
 
         if ($module->exam_end_date && $now->gt(Carbon::parse($module->exam_end_date)->endOfDay())) {
             return redirect()->route('student.courses.show', $courseId)
-                ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado y se encuentra cerrado.']);
+                ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado.']);
         }
 
-        // 🛡️ Solución: Convertimos explícitamente a colección de Laravel con collect() para evitar errores de tipo string/relación
+        // Barajar preguntas y barajar aleatoriamente sus 4 opciones de respuesta
         $exams = collect($module->exams)->shuffle()->map(function ($exam) {
             $exam->setRelation('options', collect($exam->options)->shuffle());
             return $exam;
@@ -53,27 +54,27 @@ class StudentExamController extends Controller
             'courseId' => $courseId,
             'module' => $module,
             'exams' => $exams,
+            'attemptNumber' => $attemptsCount + 1,
         ]);
     }
 
     /**
-     * Procesa las respuestas del examen, calcula la nota y guarda el progreso.
+     * Procesa las respuestas del examen, calcula la nota de 0 a 20 y guarda el registro.
      */
     public function submitExam(Request $request, $courseId, $moduleId)
     {
         $userId = auth()->id();
 
-        // Doble validación por seguridad para evitar envíos duplicados
-        $progress = StudentModuleProgress::where('user_id', $userId)
+        $attemptsCount = StudentModuleProgress::where('user_id', $userId)
             ->where('module_id', $moduleId)
-            ->first();
+            ->count();
 
-        if ($progress && $progress->completed) {
+        if ($attemptsCount >= 3) {
             return redirect()->route('student.courses.show', $courseId)
-                ->withErrors(['error' => 'Esta evaluación ya fue registrada anteriormente.']);
+                ->withErrors(['error' => 'Ya has alcanzado el límite de 3 intentos para este examen.']);
         }
 
-        $answers = $request->input('answers', []); // Recibe un array asociativo: [examId => optionId]
+        $answers = $request->input('answers', []); // [examId => optionId]
         $module = Module::with('exams.options')->findOrFail($moduleId);
 
         $totalQuestions = count($module->exams);
@@ -83,7 +84,7 @@ class StudentExamController extends Controller
             $selectedOptionId = $answers[$exam->id] ?? null;
 
             if ($selectedOptionId) {
-                // Buscar cuál es la opción correcta de esta pregunta asegurando colección
+                // Verificar si la opción seleccionada es la correcta
                 $correctOption = collect($exam->options)->where('is_correct', true)->first();
 
                 if ($correctOption && $correctOption->id == $selectedOptionId) {
@@ -92,23 +93,19 @@ class StudentExamController extends Controller
             }
         }
 
-        // Calcular la nota en base a una escala de 0 a 20
+        // Calcular la nota en base a una escala de 0 a 20 de forma proporcional
         $score = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 20 : 0;
 
-        // Guardar el registro en la tabla de notas e historial de avance
-        StudentModuleProgress::updateOrCreate(
-            [
-                'user_id' => $userId,
-                'module_id' => $moduleId,
-            ],
-            [
-                'completed' => true,
-                'exam_score' => round($score, 2),
-                'completed_at' => Carbon::now(),
-            ]
-        );
+        // Guardar cada intento en la base de datos
+        StudentModuleProgress::create([
+            'user_id' => $userId,
+            'module_id' => $moduleId,
+            'completed' => true,
+            'exam_score' => round($score, 2),
+            'completed_at' => Carbon::now(),
+        ]);
 
         return redirect()->route('student.courses.show', $courseId)
-            ->with('success', '¡Evaluación completada con éxito! Tu nota final es: ' . number_format($score, 2) . '/20');
+            ->with('success', '¡Evaluación enviada con éxito! Tu nota en este intento es: ' . number_format($score, 2) . '/20 (Intento ' . ($attemptsCount + 1) . '/3)');
     }
 }

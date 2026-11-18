@@ -48,6 +48,11 @@ export default function ModuleView({ auth, course, module }) {
                             <h1 className="text-2xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
                             <p className="text-sm text-[#4A607A]">{module.description}</p>
                         </div>
+                        {/* Fechas de disponibilidad del módulo o curso */}
+                        <div className="flex flex-wrap gap-4 text-xs text-[#4A607A] mt-2 bg-blue-50/50 p-3 rounded-xl border border-blue-50">
+                            <span>📅 <strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}</span>
+                            <span>🏁 <strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}</span>
+                        </div>
 
                         {/* Materiales y Recursos Académicos */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
