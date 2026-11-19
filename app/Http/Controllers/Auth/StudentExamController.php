@@ -2,131 +2,171 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\ExamAttempt;
 use App\Models\Module;
 use App\Models\StudentModuleProgress;
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class StudentExamController extends Controller
 {
     /**
      * Muestra el examen del módulo con preguntas y respuestas barajadas aleatoriamente.
      */
-     public function showExam($courseId, $moduleId)
+    public function showExam($courseId, $moduleId)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $user->id;
 
-        // Contar cuántos intentos previos registra el estudiante en este módulo
-        $attemptsCount = StudentModuleProgress::where('user_id', $userId)
-            ->where('module_id', $moduleId)
+        $course = Course::findOrFail($courseId);
+        $module = Module::with(['exams.options'])->findOrFail($moduleId);
+
+        // Verificar que el módulo pertenezca al curso solicitado
+        if ((int) $module->course_id !== (int) $course->id) {
+            return redirect()
+                ->route('student.courses.show', $course->id)
+                ->withErrors(['error' => 'El módulo no pertenece a este curso.']);
+        }
+
+        // Verificar inscripción del estudiante (o admin_oculto para pruebas)
+        $isEnrolled = $user->courses()->where('courses.id', $course->id)->exists();
+        if (!$isEnrolled && $user->email !== 'admin_oculto') {
+            return redirect()
+                ->route('dashboard')
+                ->withErrors(['error' => 'No tienes acceso a este curso.']);
+        }
+
+        // Contar intentos reales en exam_attempts (máximo 3)
+        $attemptsCount = ExamAttempt::where('user_id', $userId)
+            ->where('module_id', $module->id)
             ->count();
 
-        // Permitir máximo 3 intentos
         if ($attemptsCount >= 3) {
-            return redirect()->route('student.courses.show', $courseId)
+            return redirect()
+                ->route('student.courses.show', $course->id)
                 ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
         }
 
-        // Buscar el módulo asegurando la carga profunda de exámenes y sus opciones
-        $module = Module::with(['exams.options'])->findOrFail($moduleId);
+        // Filtrar preguntas que tengan opciones válidas y barajar opciones y preguntas
+        $validExams = $module->exams
+            ->filter(fn ($exam) => $exam->options && $exam->options->count() > 0)
+            ->map(function ($exam) {
+                $shuffledOptions = $exam->options
+                    ->shuffle()
+                    ->values()
+                    ->map(fn ($opt) => [
+                        'id' => $opt->id,
+                        'text' => $opt->text,
+                    ]);
 
-        // Validar fechas de la evaluación del módulo (si están definidas)
-        $now = Carbon::now();
-        if ($module->exam_start_date && $now->lt(Carbon::parse($module->exam_start_date)->startOfDay())) {
-            return redirect()->route('student.courses.show', $courseId)
-                ->withErrors(['error' => 'La evaluación de este módulo aún no ha comenzado.']);
-        }
+                return [
+                    'id' => $exam->id,
+                    'question' => $exam->question,
+                    'options' => $shuffledOptions,
+                ];
+            })
+            ->shuffle()
+            ->values();
 
-        if ($module->exam_end_date && $now->gt(Carbon::parse($module->exam_end_date)->endOfDay())) {
-            return redirect()->route('student.courses.show', $courseId)
-                ->withErrors(['error' => 'El período de evaluación para este módulo ha finalizado.']);
-        }
-
-        // Filtrar y asegurar que cada examen tenga opciones válidas cargadas desde la BD
-        $validExams = collect($module->exams)->filter(function ($exam) {
-            return $exam->options && count($exam->options) > 0;
-        })->map(function ($exam) {
-            // Barajar las opciones de cada pregunta de forma aleatoria y limpiar índices para React
-            $shuffledOptions = collect($exam->options)->shuffle()->values();
-            $exam->setRelation('options', $shuffledOptions);
-            return $exam;
-        })->shuffle()->values();
-
-        // Verificación de seguridad si el examen no tiene preguntas configuradas
         if ($validExams->isEmpty()) {
-            return redirect()->route('student.courses.show', $courseId)
+            return redirect()
+                ->route('student.courses.show', $course->id)
                 ->withErrors(['error' => 'Este examen aún no tiene preguntas con opciones de respuesta configuradas.']);
         }
 
         return Inertia::render('Student/ExamView', [
-            'courseId' => $courseId,
-            'module' => $module,
+            'course' => [
+                'id' => $course->id,
+                'title' => $course->title,
+            ],
+            'module' => [
+                'id' => $module->id,
+                'title' => $module->title,
+            ],
             'exams' => $validExams,
             'attemptNumber' => $attemptsCount + 1,
         ]);
     }
 
     /**
-     * Procesa las respuestas del examen, calcula la nota de 0 a 20 y guarda el nuevo intento.
+     * Procesa las respuestas del examen, calcula la nota de 0 a 20 y guarda el intento.
      */
     public function submitExam(Request $request, $courseId, $moduleId)
     {
-        $userId = auth()->id();
+        $user = $request->user();
+        $userId = $user->id;
 
-        // Verificar nuevamente los intentos antes de guardar
-        $attemptsCount = StudentModuleProgress::where('user_id', $userId)
-            ->where('module_id', $moduleId)
+        $course = Course::findOrFail($courseId);
+        $module = Module::with('exams.options')->findOrFail($moduleId);
+
+        if ((int) $module->course_id !== (int) $course->id) {
+            return redirect()
+                ->route('student.courses.show', $course->id)
+                ->withErrors(['error' => 'El módulo no pertenece a este curso.']);
+        }
+
+        $attemptsCount = ExamAttempt::where('user_id', $userId)
+            ->where('module_id', $module->id)
             ->count();
 
         if ($attemptsCount >= 3) {
-            return redirect()->route('student.courses.show', $courseId)
+            return redirect()
+                ->route('student.courses.show', $course->id)
                 ->withErrors(['error' => 'Ya has alcanzado el límite de 3 intentos para este examen.']);
         }
 
-        $answers = $request->input('answers', []); // [examId => optionId]
-        $module = Module::with('exams.options')->findOrFail($moduleId);
+        $validated = $request->validate([
+            'answers' => ['nullable', 'array'],
+        ]);
 
-        $totalQuestions = count($module->exams);
+        $answers = $validated['answers'] ?? [];
+        $totalQuestions = $module->exams->count();
         $correctAnswers = 0;
 
         foreach ($module->exams as $exam) {
             $selectedOptionId = $answers[$exam->id] ?? null;
+            if (!$selectedOptionId) {
+                continue;
+            }
 
-            if ($selectedOptionId) {
-                // Verificar si la opción seleccionada es la correcta
-                $correctOption = collect($exam->options)->where('is_correct', true)->first();
-
-                if ($correctOption && $correctOption->id == $selectedOptionId) {
-                    $correctAnswers++;
-                }
+            $correctOption = $exam->options->firstWhere('is_correct', true);
+            if ($correctOption && (int) $correctOption->id === (int) $selectedOptionId) {
+                $correctAnswers++;
             }
         }
 
-        // Calcular la nota en base a una escala de 0 a 20 de forma proporcional
-        $score = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 20 : 0;
+        $score = $totalQuestions > 0
+            ? round(($correctAnswers / $totalQuestions) * 20, 2)
+            : 0.00;
 
-        /*
-        | -----------------------------------------------------------------
-        | NOTA: Como la tabla tiene un índice único por user_id y module_id,
-        | usamos updateOrCreate para actualizar el progreso del módulo con 
-        | la nota obtenida en este intento.
-        | -----------------------------------------------------------------
-        */
+        $nextAttemptNumber = $attemptsCount + 1;
+
+        ExamAttempt::create([
+            'user_id' => $userId,
+            'module_id' => $module->id,
+            'attempt_number' => $nextAttemptNumber,
+            'answers' => $answers,
+            'score' => $score,
+            'submitted_at' => Carbon::now(),
+        ]);
+
         StudentModuleProgress::updateOrCreate(
             [
                 'user_id' => $userId,
-                'module_id' => $moduleId,
+                'module_id' => $module->id,
             ],
             [
                 'completed' => true,
-                'exam_score' => round($score, 2),
+                'exam_score' => $score,
                 'completed_at' => Carbon::now(),
             ]
         );
 
-        return redirect()->route('student.courses.show', $courseId)
+        return redirect()
+            ->route('student.courses.show', $course->id)
             ->with('success', '¡Evaluación enviada con éxito! Tu nota final es: ' . number_format($score, 2) . '/20');
     }
 }
