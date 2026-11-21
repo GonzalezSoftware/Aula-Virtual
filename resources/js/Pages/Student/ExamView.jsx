@@ -81,7 +81,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
                 <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-blue-100 p-8 space-y-6">
                     <div className="flex flex-wrap justify-between items-center border-b border-blue-100 pb-4 gap-2">
                         <span className="text-xs font-bold bg-blue-50 text-[#0066FF] px-3.5 py-1 rounded-full uppercase tracking-wider">
-                            Pregunta {currentQuestionIndex + 1} de {exams.length} (Intento {attemptNumber}/3)
+                            Pregunta {currentQuestionIndex + 1} de {exams.length} (Intento #{attemptNumber})
                         </span>
 
                         <div className="flex items-center gap-2 text-red-600 font-bold text-xs bg-red-50 px-3.5 py-1.5 rounded-xl border border-red-100 shadow-sm">
