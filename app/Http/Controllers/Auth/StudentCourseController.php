@@ -24,10 +24,10 @@ class StudentCourseController extends Controller
     public function showCourse($id)
     {
         $student = auth()->user();
-        
+
         // Búsqueda segura para verificar que el curso pertenece al estudiante
         $course = $student->courses()
-            ->with(['modules.contents', 'modules.exams'])
+            ->with(['modules.contents', 'modules.exams.options'])
             ->where('courses.id', $id)
             ->first();
 
@@ -35,7 +35,7 @@ class StudentCourseController extends Controller
             return redirect()->route('dashboard')
                 ->withErrors(['error' => 'No tienes acceso a este curso o no existe.']);
         }
-        
+
         return Inertia::render('Student/CourseShow', [
             'course' => $course,
         ]);
@@ -45,7 +45,7 @@ class StudentCourseController extends Controller
     public function showModule(Course $course, Module $module)
     {
         $student = auth()->user();
-        
+
         // Validación flexible: Permitir acceso si está inscrito O si es administrador oculto / prueba
         $isEnrolled = $student->courses()->where('courses.id', $course->id)->exists();
 
@@ -61,7 +61,7 @@ class StudentCourseController extends Controller
         }
 
         // Cargar relaciones necesarias del módulo y del curso
-        $module->load(['contents', 'exams']);
+        $module->load(['contents', 'exams.options']);
         $course->load('modules');
 
         return Inertia::render('Student/ModuleView', [
