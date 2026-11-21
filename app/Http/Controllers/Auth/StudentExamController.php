@@ -13,6 +13,9 @@ use Inertia\Inertia;
 
 class StudentExamController extends Controller
 {
+    /**
+     * Muestra el examen del módulo con preguntas y respuestas barajadas aleatoriamente.
+     */
     public function showExam($courseId, $moduleId)
     {
         $user = auth()->user();
@@ -21,12 +24,14 @@ class StudentExamController extends Controller
         $course = Course::findOrFail($courseId);
         $module = Module::with(['exams.options'])->findOrFail($moduleId);
 
+        // Verificar que el módulo pertenezca al curso solicitado
         if ((int) $module->course_id !== (int) $course->id) {
             return redirect()
                 ->route('student.courses.show', $course->id)
                 ->withErrors(['error' => 'El módulo no pertenece a este curso.']);
         }
 
+        // Verificar inscripción del estudiante (o admin_oculto para pruebas)
         $isEnrolled = $user->courses()->where('courses.id', $course->id)->exists();
         if (!$isEnrolled && $user->email !== 'admin_oculto') {
             return redirect()
@@ -34,15 +39,22 @@ class StudentExamController extends Controller
                 ->withErrors(['error' => 'No tienes acceso a este curso.']);
         }
 
-        // Contamos intentos realizados solo para mostrar el número de intento actual (sin bloquear)
+        // Contar intentos reales en exam_attempts (máximo 3)
         $attemptsCount = ExamAttempt::where('user_id', $userId)
             ->where('module_id', $module->id)
             ->count();
 
+        if ($attemptsCount >= 3) {
+            return redirect()
+                ->route('student.courses.show', $course->id)
+                ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
+        }
+
+        // Filtrar preguntas que tengan opciones válidas y barajar opciones y preguntas
         $validExams = $module->exams
-            ->filter(fn ($exam) => $exam->options && $exam->options->count() > 0)
+            ->filter(fn ($exam) => $exam->getRelation("options") && $exam->getRelation("options")->count() > 0)
             ->map(function ($exam) {
-                $shuffledOptions = $exam->options
+                $shuffledOptions = $exam->getRelation("options")
                     ->shuffle()
                     ->values()
                     ->map(fn ($opt) => [
@@ -62,7 +74,7 @@ class StudentExamController extends Controller
         if ($validExams->isEmpty()) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'Este examen aún no tiene preguntas con opciones configuradas.']);
+                ->withErrors(['error' => 'Este examen aún no tiene preguntas con opciones de respuesta configuradas.']);
         }
 
         return Inertia::render('Student/ExamView', [
@@ -79,6 +91,9 @@ class StudentExamController extends Controller
         ]);
     }
 
+    /**
+     * Procesa las respuestas del examen, calcula la nota de 0 a 20 y guarda el intento.
+     */
     public function submitExam(Request $request, $courseId, $moduleId)
     {
         $user = $request->user();
@@ -97,6 +112,12 @@ class StudentExamController extends Controller
             ->where('module_id', $module->id)
             ->count();
 
+        if ($attemptsCount >= 3) {
+            return redirect()
+                ->route('student.courses.show', $course->id)
+                ->withErrors(['error' => 'Ya has alcanzado el límite de 3 intentos para este examen.']);
+        }
+
         $validated = $request->validate([
             'answers' => ['nullable', 'array'],
         ]);
@@ -111,7 +132,8 @@ class StudentExamController extends Controller
                 continue;
             }
 
-            $correctOption = $exam->options->firstWhere('is_correct', true);
+            $optionsRelation = $exam->getRelation("options");
+            $correctOption = $optionsRelation ? $optionsRelation->firstWhere("is_correct", true) : null;
             if ($correctOption && (int) $correctOption->id === (int) $selectedOptionId) {
                 $correctAnswers++;
             }
