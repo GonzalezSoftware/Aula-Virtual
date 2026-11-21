@@ -1,9 +1,31 @@
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import StudentSidebar from '@/Components/StudentSidebar';
 
 export default function CourseShow({ auth, course }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const { flash } = usePage().props;
+
+    useEffect(() => {
+        if (flash?.success) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Examen Terminado!',
+                text: flash.success,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#0066FF',
+            });
+        } else if (flash?.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Atención',
+                text: flash.error,
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#0066FF',
+            });
+        }
+    }, [flash?.success, flash?.error]);
 
     return (
         <>
@@ -59,8 +81,8 @@ export default function CourseShow({ auth, course }) {
                                                 <h3 className="text-sm font-extrabold text-[#051C33]">{module.title}</h3>
                                                 <p className="text-xs text-[#4A607A] mt-0.5">{module.description}</p>
                                             </div>
-                                            <Link 
-                                                href={route('student.courses.modules.show', [course.id, module.id])} 
+                                            <Link
+                                                href={route('student.courses.modules.show', [course.id, module.id])}
                                                 className="w-full sm:w-auto text-center px-4 py-2 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-sm transition"
                                             >
                                                 Ingresar al Módulo

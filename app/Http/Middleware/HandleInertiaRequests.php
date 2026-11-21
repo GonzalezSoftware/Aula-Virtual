@@ -17,14 +17,11 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
-        // Determinamos el usuario correcto según el panel o guardia activo
         $user = null;
 
         if ($request->is('admin*')) {
-            // Si estamos en rutas de admin, priorizamos el guardia admin
             $user = Auth::guard('admin')->user() ?: Auth::guard('web')->user();
         } else {
-            // Si estamos en el portal de estudiantes, priorizamos el guardia web
             $user = Auth::guard('web')->user() ?: Auth::guard('admin')->user();
         }
 
@@ -32,6 +29,10 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
         ];
     }
