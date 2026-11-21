@@ -13,16 +13,20 @@ export default function CourseShow({ auth, course }) {
                 icon: 'success',
                 title: '¡Examen Terminado!',
                 text: flash.success,
-                confirmButtonText: 'Aceptar',
+                confirmButtonText: 'OK',
                 confirmButtonColor: '#0066FF',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
             });
         } else if (flash?.error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Atención',
                 text: flash.error,
-                confirmButtonText: 'Entendido',
+                confirmButtonText: 'OK',
                 confirmButtonColor: '#0066FF',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
             });
         }
     }, [flash?.success, flash?.error]);
