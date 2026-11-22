@@ -215,7 +215,7 @@ class StudentExamController extends Controller
 
         return redirect()
             ->route('student.courses.show', $course->id)
-            ->with('success', "¡Has terminado el examen! Tu nota obtenida es: {$formattedScore} / 20.")
+            ->with('success', "¡Has terminado el examen! Tu nota obtenida es: {$formattedScore} / 20.\n Puedes ver mejor tus calificaciones en la opcion de ´Mis Calificaciones´")
             ->with('exam_score', $formattedScore);
     }
 }
