@@ -69,6 +69,14 @@ export default function CourseShow({ auth, course }) {
                                 </span>
                                 <h1 className="text-xl md:text-2xl font-extrabold text-[#051C33]">{course.title}</h1>
                                 <p className="text-xs text-[#4A607A] leading-relaxed">{course.description || "Sin descripción detallada para este curso."}</p>
+                                <div className="flex flex-wrap gap-3 pt-1 text-xs text-[#4A607A]">
+                                    <span className="bg-blue-50/70 text-[#051C33] px-3 py-1.5 rounded-xl border border-blue-100 font-medium">
+                                        📅 <strong>Inicio del Curso:</strong> {course.start_date || 'No definida'}
+                                    </span>
+                                    <span className="bg-blue-50/70 text-[#051C33] px-3 py-1.5 rounded-xl border border-blue-100 font-medium">
+                                        🏁 <strong>Cierre del Curso:</strong> {course.end_date || 'No definida'}
+                                    </span>
+                                </div>
                             </div>
                             {course.image && (
                                 <img src={`/storage/${course.image}`} alt={course.title} className="w-full md:w-44 h-28 object-cover rounded-xl shadow-sm border border-blue-50 shrink-0" />
@@ -83,13 +91,21 @@ export default function CourseShow({ auth, course }) {
                                 <div className="grid gap-3">
                                     {course.modules.map((module) => (
                                         <div key={module.id} className="bg-[#F8FAFC] rounded-xl p-4 border border-blue-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                                            <div>
+                                            <div className="space-y-1">
                                                 <h3 className="text-sm font-extrabold text-[#051C33]">{module.title}</h3>
                                                 <p className="text-xs text-[#4A607A] mt-0.5">{module.description}</p>
+                                                <div className="flex flex-wrap gap-2.5 pt-1 text-[11px] text-[#4A607A]">
+                                                    <span className="bg-white px-2.5 py-1 rounded-lg border border-blue-100">
+                                                        📅 <strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}
+                                                    </span>
+                                                    <span className="bg-white px-2.5 py-1 rounded-lg border border-blue-100">
+                                                        🏁 <strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}
+                                                    </span>
+                                                </div>
                                             </div>
                                             <Link
                                                 href={route('student.courses.modules.show', [course.id, module.id])}
-                                                className="w-full sm:w-auto text-center px-4 py-2 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-sm transition"
+                                                className="w-full sm:w-auto text-center px-4 py-2 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-sm transition shrink-0"
                                             >
                                                 Ingresar al Módulo
                                             </Link>

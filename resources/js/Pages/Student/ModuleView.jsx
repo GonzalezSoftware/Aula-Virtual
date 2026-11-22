@@ -120,13 +120,21 @@ export default function ModuleView({ auth, course, module }) {
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluación del Módulo</h2>
                             <div className="p-6 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div>
+                                <div className="space-y-1">
                                     <h3 className="font-extrabold text-[#051C33] text-base">Prueba Interactiva</h3>
                                     <p className="text-xs text-[#4A607A] mt-0.5">Presenta tu evaluación con preguntas aleatorias y cronómetro.</p>
+                                    <div className="flex flex-wrap gap-3 pt-1 text-xs text-[#051C33]">
+                                        <span className="bg-white px-3 py-1 rounded-lg border border-amber-200/80 font-medium">
+                                            📅 <strong>Inicio del Examen:</strong> {module.exam_start_date || 'No definida'}
+                                        </span>
+                                        <span className="bg-white px-3 py-1 rounded-lg border border-amber-200/80 font-medium">
+                                            🏁 <strong>Cierre del Examen:</strong> {module.exam_end_date || 'No definida'}
+                                        </span>
+                                    </div>
                                 </div>
                                 <Link
                                     href={route('student.courses.modules.exam', [course.id, module.id])}
-                                    className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap text-center"
+                                    className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap text-center shrink-0"
                                 >
                                     Presentar Examen
                                 </Link>
