@@ -156,7 +156,8 @@ class CourseController extends Controller
     }
 
     /**
-     * Actualiza un curso existente, sincronizando módulos, contenidos y evaluaciones.
+     * Actualiza un curso existente, conservando el ID de los módulos existentes
+     * para no perder calificaciones ni intentos de exámenes de los estudiantes.
      */
     public function update(Request $request, $id)
     {
@@ -175,7 +176,7 @@ class CourseController extends Controller
 
         DB::beginTransaction();
         try {
-            $course = Course::findOrFail($id);
+            $course = Course::with(['modules.contents', 'modules.exams.options'])->findOrFail($id);
 
             $imagePath = $course->image;
             if ($request->hasFile('image')) {
@@ -190,27 +191,56 @@ class CourseController extends Controller
                 'image' => $imagePath,
             ]);
 
-            // Limpiar módulos y relaciones anteriores para sincronizar los nuevos datos
-            $course->modules()->each(function ($module) {
-                $module->contents()->delete();
-                foreach($module->exams as $exam) {
-                    $exam->options()->delete();
-                }
-                $module->exams()->delete();
-                $module->delete();
-            });
-
             $modulesData = $request->input('modules', []);
+            $existingModulesById = $course->modules->keyBy('id');
+
+            // IDs de módulos existentes que permanecen en el curso
+            $keptModuleIds = collect($modulesData)
+                ->pluck('id')
+                ->filter()
+                ->map(fn ($modId) => (int) $modId)
+                ->filter(fn ($modId) => $existingModulesById->has($modId))
+                ->values();
+
+            // Eliminar únicamente los módulos que fueron quitados del curso
+            $course->modules()
+                ->whereNotIn('id', $keptModuleIds)
+                ->each(function ($removedModule) {
+                    $removedModule->contents()->delete();
+                    foreach ($removedModule->exams as $exam) {
+                        $exam->options()->delete();
+                    }
+                    $removedModule->exams()->delete();
+                    $removedModule->delete();
+                });
 
             foreach ($modulesData as $modIndex => $modData) {
-                $module = $course->modules()->create([
+                $incomingId = !empty($modData['id']) ? (int) $modData['id'] : null;
+
+                $moduleAttributes = [
                     'title' => $modData['title'] ?? 'Módulo sin título',
                     'start_date' => !empty($modData['start_date']) ? $modData['start_date'] : null,
                     'end_date' => !empty($modData['end_date']) ? $modData['end_date'] : null,
                     'exam_start_date' => !empty($modData['exam_start_date']) ? $modData['exam_start_date'] : null,
                     'exam_end_date' => !empty($modData['exam_end_date']) ? $modData['exam_end_date'] : null,
                     'order' => $modIndex + 1,
-                ]);
+                ];
+
+                if ($incomingId && $existingModulesById->has($incomingId)) {
+                    // Se conserva el mismo module_id para mantener intentos y notas del estudiante
+                    $module = $existingModulesById->get($incomingId);
+                    $module->update($moduleAttributes);
+
+                    // Renovar contenidos y preguntas de este mismo módulo
+                    $module->contents()->delete();
+                    foreach ($module->exams as $existingExam) {
+                        $existingExam->options()->delete();
+                    }
+                    $module->exams()->delete();
+                } else {
+                    // Nuevo módulo agregado al curso
+                    $module = $course->modules()->create($moduleAttributes);
+                }
 
                 if (!empty($modData['contents']) && is_array($modData['contents'])) {
                     foreach ($modData['contents'] as $contIndex => $contData) {

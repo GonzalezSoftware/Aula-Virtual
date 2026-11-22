@@ -19,6 +19,7 @@ export default function EditCourse({ auth, course }) {
     const [modules, setModules] = useState(
         course.modules && course.modules.length > 0 
             ? course.modules.map(mod => ({
+                id: mod.id ?? null,
                 title: mod.title || '',
                 start_date: mod.start_date || '',
                 end_date: mod.end_date || '',
@@ -54,6 +55,7 @@ export default function EditCourse({ auth, course }) {
                 }]
             }))
             : [{
+                id: null,
                 title: '',
                 start_date: '',
                 end_date: '',
@@ -84,6 +86,7 @@ export default function EditCourse({ auth, course }) {
         const newModules = [
             ...modules,
             {
+                id: null,
                 title: '',
                 start_date: startDate || '',
                 end_date: endDate || '',
@@ -222,6 +225,9 @@ export default function EditCourse({ auth, course }) {
         if (image) formData.append('image', image);
 
         modules.forEach((mod, modIndex) => {
+            if (mod.id) {
+                formData.append(`modules[${modIndex}][id]`, mod.id);
+            }
             formData.append(`modules[${modIndex}][title]`, mod.title);
             if (mod.start_date) formData.append(`modules[${modIndex}][start_date]`, mod.start_date);
             if (mod.end_date) formData.append(`modules[${modIndex}][end_date]`, mod.end_date);

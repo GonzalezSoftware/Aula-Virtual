@@ -30,6 +30,20 @@ export default function StudentSidebar({ sidebarOpen, setSidebarOpen, activeMenu
                         {sidebarOpen && <span>Inicio / Cursos</span>}
                     </Link>
 
+                                        <Link
+                        href={route('student.grades')}
+                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition ${
+                            activeMenu === 'grades' 
+                                ? 'bg-[#0066FF] text-white shadow-md shadow-blue-600/20' 
+                                : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        }`}
+                    >
+                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {sidebarOpen && <span>Mis Calificaciones</span>}
+                    </Link>
+
                     <Link
                         href={route('student.password.edit')}
                         className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition ${
@@ -44,20 +58,7 @@ export default function StudentSidebar({ sidebarOpen, setSidebarOpen, activeMenu
                         {sidebarOpen && <span>Cambiar Contraseña</span>}
                     </Link>
 
-                    <Link
-                        href={route('student.grades')}
-                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition ${
-                            activeMenu === 'grades' 
-                                ? 'bg-[#0066FF] text-white shadow-md shadow-blue-600/20' 
-                                : 'text-slate-300 hover:text-white hover:bg-white/5'
-                        }`}
-                    >
-                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {sidebarOpen && <span>Mis Calificaciones</span>}
-                    </Link>
-                    
+
                 </nav>
             </div>
 
