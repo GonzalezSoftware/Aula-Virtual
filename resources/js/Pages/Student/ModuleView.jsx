@@ -67,8 +67,8 @@ export default function ModuleView({ auth, course, module }) {
                         </div>
 
                         <div className="flex flex-wrap gap-4 text-xs text-[#4A607A] mt-2 bg-blue-50/50 p-3 rounded-xl border border-blue-50">
-                            <span>📅 <strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}</span>
-                            <span>🏁 <strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}</span>
+                            <span><strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}</span>
+                            <span><strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}</span>
                         </div>
 
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
@@ -125,10 +125,10 @@ export default function ModuleView({ auth, course, module }) {
                                     <p className="text-xs text-[#4A607A] mt-0.5">Presenta tu evaluación con preguntas aleatorias y cronómetro.</p>
                                     <div className="flex flex-wrap gap-3 pt-1 text-xs text-[#051C33]">
                                         <span className="bg-white px-3 py-1 rounded-lg border border-amber-200/80 font-medium">
-                                            📅 <strong>Inicio del Examen:</strong> {module.exam_start_date || 'No definida'}
+                                            <strong>Inicio del Examen:</strong> {module.exam_start_date || 'No definida'}
                                         </span>
                                         <span className="bg-white px-3 py-1 rounded-lg border border-amber-200/80 font-medium">
-                                            🏁 <strong>Cierre del Examen:</strong> {module.exam_end_date || 'No definida'}
+                                            <strong>Cierre del Examen:</strong> {module.exam_end_date || 'No definida'}
                                         </span>
                                     </div>
                                 </div>

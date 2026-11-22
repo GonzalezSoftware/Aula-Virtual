@@ -71,10 +71,10 @@ export default function CourseShow({ auth, course }) {
                                 <p className="text-xs text-[#4A607A] leading-relaxed">{course.description || "Sin descripción detallada para este curso."}</p>
                                 <div className="flex flex-wrap gap-3 pt-1 text-xs text-[#4A607A]">
                                     <span className="bg-blue-50/70 text-[#051C33] px-3 py-1.5 rounded-xl border border-blue-100 font-medium">
-                                        📅 <strong>Inicio del Curso:</strong> {course.start_date || 'No definida'}
+                                        <strong>Inicio del Curso:</strong> {course.start_date || 'No definida'}
                                     </span>
                                     <span className="bg-blue-50/70 text-[#051C33] px-3 py-1.5 rounded-xl border border-blue-100 font-medium">
-                                        🏁 <strong>Cierre del Curso:</strong> {course.end_date || 'No definida'}
+                                        <strong>Cierre del Curso:</strong> {course.end_date || 'No definida'}
                                     </span>
                                 </div>
                             </div>
@@ -96,10 +96,10 @@ export default function CourseShow({ auth, course }) {
                                                 <p className="text-xs text-[#4A607A] mt-0.5">{module.description}</p>
                                                 <div className="flex flex-wrap gap-2.5 pt-1 text-[11px] text-[#4A607A]">
                                                     <span className="bg-white px-2.5 py-1 rounded-lg border border-blue-100">
-                                                        📅 <strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}
+                                                        <strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}
                                                     </span>
                                                     <span className="bg-white px-2.5 py-1 rounded-lg border border-blue-100">
-                                                        🏁 <strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}
+                                                        <strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}
                                                     </span>
                                                 </div>
                                             </div>
