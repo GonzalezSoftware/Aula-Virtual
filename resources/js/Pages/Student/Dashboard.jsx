@@ -1,9 +1,28 @@
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
 import StudentSidebar from '@/Components/StudentSidebar';
+import Swal from 'sweetalert2';
 
 export default function StudentDashboard({ auth, courses = [] }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const { flash, errors } = usePage().props;
+    const shownAlertRef = useRef(null);
+
+    useEffect(() => {
+        const errorMsg = flash?.error || errors?.error;
+        if (errorMsg && shownAlertRef.current !== errorMsg) {
+            shownAlertRef.current = errorMsg;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Acceso Restringido por Fecha',
+                text: errorMsg,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#0066FF',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            });
+        }
+    }, [flash?.error, errors?.error]);
 
     return (
         <>
