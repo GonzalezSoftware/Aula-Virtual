@@ -13,6 +13,43 @@ use Inertia\Inertia;
 
 class StudentExamController extends Controller
 {
+    private function validateExamAvailability(Course $course, Module $module)
+    {
+        $today = Carbon::today();
+
+        if ($course->start_date && $today->lt(Carbon::parse($course->start_date)->startOfDay())) {
+            $dateStr = Carbon::parse($course->start_date)->format('d/m/Y');
+            return "El curso \"{$course->title}\" aún no ha iniciado (inicia el {$dateStr}).";
+        }
+
+        if ($course->end_date && $today->gt(Carbon::parse($course->end_date)->endOfDay())) {
+            $dateStr = Carbon::parse($course->end_date)->format('d/m/Y');
+            return "El curso \"{$course->title}\" ya finalizó (cerró el {$dateStr}).";
+        }
+
+        if ($module->start_date && $today->lt(Carbon::parse($module->start_date)->startOfDay())) {
+            $dateStr = Carbon::parse($module->start_date)->format('d/m/Y');
+            return "El módulo \"{$module->title}\" aún no ha iniciado (inicia el {$dateStr}).";
+        }
+
+        if ($module->end_date && $today->gt(Carbon::parse($module->end_date)->endOfDay())) {
+            $dateStr = Carbon::parse($module->end_date)->format('d/m/Y');
+            return "El módulo \"{$module->title}\" ya cerró (cerró el {$dateStr}).";
+        }
+
+        if ($module->exam_start_date && $today->lt(Carbon::parse($module->exam_start_date)->startOfDay())) {
+            $dateStr = Carbon::parse($module->exam_start_date)->format('d/m/Y');
+            return "La evaluación del módulo \"{$module->title}\" aún no está habilitada. Inicia el {$dateStr}.";
+        }
+
+        if ($module->exam_end_date && $today->gt(Carbon::parse($module->exam_end_date)->endOfDay())) {
+            $dateStr = Carbon::parse($module->exam_end_date)->format('d/m/Y');
+            return "La evaluación del módulo \"{$module->title}\" ya cerró. Fecha límite: {$dateStr}.";
+        }
+
+        return null;
+    }
+
     /**
      * Muestra el examen del módulo con preguntas y respuestas barajadas aleatoriamente.
      */
@@ -24,22 +61,25 @@ class StudentExamController extends Controller
         $course = Course::findOrFail($courseId);
         $module = Module::with(['exams.options'])->findOrFail($moduleId);
 
-        // Verificar que el módulo pertenezca al curso solicitado
         if ((int) $module->course_id !== (int) $course->id) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'El módulo no pertenece a este curso.']);
+                ->with('error', 'El módulo no pertenece a este curso.');
         }
 
-        // Verificar inscripción del estudiante (o admin_oculto para pruebas)
         $isEnrolled = $user->courses()->where('courses.id', $course->id)->exists();
         if (!$isEnrolled && $user->email !== 'admin_oculto') {
             return redirect()
                 ->route('dashboard')
-                ->withErrors(['error' => 'No tienes acceso a este curso.']);
+                ->with('error', 'No tienes acceso a este curso.');
         }
 
-        // Contar intentos reales en exam_attempts (máximo 3)
+        if ($dateMessage = $this->validateExamAvailability($course, $module)) {
+            return redirect()
+                ->route('student.courses.modules.show', [$course->id, $module->id])
+                ->with('error', $dateMessage);
+        }
+
         $attemptsCount = ExamAttempt::where('user_id', $userId)
             ->where('module_id', $module->id)
             ->count();
@@ -47,10 +87,9 @@ class StudentExamController extends Controller
         if ($attemptsCount >= 3) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.']);
+                ->with('error', 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.');
         }
 
-        // Filtrar preguntas que tengan opciones válidas y barajar opciones y preguntas
         $validExams = $module->exams
             ->filter(fn ($exam) => $exam->getRelation("options") && $exam->getRelation("options")->count() > 0)
             ->map(function ($exam) {
@@ -74,7 +113,7 @@ class StudentExamController extends Controller
         if ($validExams->isEmpty()) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'Este examen aún no tiene preguntas con opciones de respuesta configuradas.']);
+                ->with('error', 'Este examen aún no tiene preguntas con opciones de respuesta configuradas.');
         }
 
         return Inertia::render('Student/ExamView', [
@@ -105,7 +144,13 @@ class StudentExamController extends Controller
         if ((int) $module->course_id !== (int) $course->id) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'El módulo no pertenece a este curso.']);
+                ->with('error', 'El módulo no pertenece a este curso.');
+        }
+
+        if ($dateMessage = $this->validateExamAvailability($course, $module)) {
+            return redirect()
+                ->route('student.courses.modules.show', [$course->id, $module->id])
+                ->with('error', $dateMessage);
         }
 
         $attemptsCount = ExamAttempt::where('user_id', $userId)
@@ -115,7 +160,7 @@ class StudentExamController extends Controller
         if ($attemptsCount >= 3) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'Ya has alcanzado el límite de 3 intentos para este examen.']);
+                ->with('error', 'Ya has alcanzado el límite de 3 intentos para este examen.');
         }
 
         $validated = $request->validate([

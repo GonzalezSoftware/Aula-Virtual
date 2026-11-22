@@ -4,13 +4,25 @@ import Swal from 'sweetalert2';
 import StudentSidebar from '@/Components/StudentSidebar';
 
 export default function CourseShow({ auth, course }) {
-const [sidebarOpen, setSidebarOpen] = useState(true);
-    const { flash } = usePage().props;
-    const shownFlashRef = useRef(null);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const { flash, errors } = usePage().props;
+    const shownAlertRef = useRef(null);
 
     useEffect(() => {
-        if (flash?.success && shownFlashRef.current !== flash.success) {
-            shownFlashRef.current = flash.success;
+        const errorMsg = flash?.error || errors?.error;
+        if (errorMsg && shownAlertRef.current !== `err:${errorMsg}`) {
+            shownAlertRef.current = `err:${errorMsg}`;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Acceso Restringido por Fecha',
+                text: errorMsg,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#0066FF',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            });
+        } else if (flash?.success && shownAlertRef.current !== `ok:${flash.success}`) {
+            shownAlertRef.current = `ok:${flash.success}`;
             Swal.fire({
                 icon: 'success',
                 title: '¡Examen Terminado!',
@@ -20,19 +32,8 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
                 allowOutsideClick: false,
                 allowEscapeKey: false,
             });
-        } else if (flash?.error && shownFlashRef.current !== flash.error) {
-            shownFlashRef.current = flash.error;
-            Swal.fire({
-                icon: 'error',
-                title: 'Atención',
-                text: flash.error,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#0066FF',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-            });
         }
-    }, [flash?.success, flash?.error]);
+    }, [flash?.success, flash?.error, errors?.error]);
 
     return (
         <>
@@ -61,7 +62,6 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
                     </header>
 
                     <main className="max-w-6xl mx-auto px-6 py-8 w-full flex-grow space-y-6">
-                        {/* Tarjeta de información del curso */}
                         <div className="bg-white rounded-2xl border border-blue-100 shadow-lg p-6 flex flex-col md:flex-row gap-6 items-center justify-between">
                             <div className="space-y-2 flex-1">
                                 <span className="inline-block px-3 py-0.5 bg-blue-50 text-[#0066FF] text-[11px] font-bold rounded-full uppercase tracking-wider">
@@ -75,7 +75,6 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
                             )}
                         </div>
 
-                        {/* Lista de Módulos */}
                         <div className="bg-white rounded-2xl border border-blue-100 shadow-lg p-6">
                             <div className="mb-4">
                                 <h2 className="text-lg font-extrabold text-[#051C33]">Módulos de Estudio Disponibles</h2>

@@ -1,15 +1,32 @@
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
+import Swal from 'sweetalert2';
 import StudentSidebar from '@/Components/StudentSidebar';
 import PdfViewerModal from '@/Components/PdfViewerModal';
 import VideoPlayerModal from '@/Components/VideoPlayerModal';
 
 export default function ModuleView({ auth, course, module }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    // Estado para controlar el PDF activo en el visor protegido
     const [activePdf, setActivePdf] = useState(null);
-
     const [activeVideo, setActiveVideo] = useState(null);
+    const { flash, errors } = usePage().props;
+    const shownAlertRef = useRef(null);
+
+    useEffect(() => {
+        const errorMsg = flash?.error || errors?.error;
+        if (errorMsg && shownAlertRef.current !== errorMsg) {
+            shownAlertRef.current = errorMsg;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Evaluación No Disponible',
+                text: errorMsg,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#0066FF',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            });
+        }
+    }, [flash?.error, errors?.error]);
 
     return (
         <>
@@ -48,13 +65,12 @@ export default function ModuleView({ auth, course, module }) {
                             <h1 className="text-2xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
                             <p className="text-sm text-[#4A607A]">{module.description}</p>
                         </div>
-                        {/* Fechas de disponibilidad del módulo o curso */}
+
                         <div className="flex flex-wrap gap-4 text-xs text-[#4A607A] mt-2 bg-blue-50/50 p-3 rounded-xl border border-blue-50">
                             <span>📅 <strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}</span>
                             <span>🏁 <strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}</span>
                         </div>
 
-                        {/* Materiales y Recursos Académicos */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos Académicos</h2>
                             {module.contents && module.contents.length > 0 ? (
@@ -83,7 +99,7 @@ export default function ModuleView({ auth, course, module }) {
                                                     {videoResource && (
                                                         <button
                                                             onClick={() => setActiveVideo({
-                                                                url: videoResource, // <-- Aquí pasa la URL directa que viene de tu base de datos
+                                                                url: videoResource,
                                                                 title: content.title
                                                             })}
                                                             className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#051C33] text-xs font-semibold transition cursor-pointer"
@@ -101,7 +117,6 @@ export default function ModuleView({ auth, course, module }) {
                             )}
                         </div>
 
-                        {/* Sección de Exámenes y Evaluaciones */}
                         <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
                             <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluación del Módulo</h2>
                             <div className="p-6 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -117,10 +132,8 @@ export default function ModuleView({ auth, course, module }) {
                                 </Link>
                             </div>
                         </div>
-
                     </main>
 
-                    {/* Renderizar el Visor Protegido si hay un PDF activo */}
                     {activePdf && (
                         <PdfViewerModal
                             pdfUrl={activePdf.url}
@@ -129,7 +142,6 @@ export default function ModuleView({ auth, course, module }) {
                         />
                     )}
 
-                    {/* Renderizar el Reproductor de Video Protegido */}
                     {activeVideo && (
                         <VideoPlayerModal
                             videoUrl={activeVideo.url}

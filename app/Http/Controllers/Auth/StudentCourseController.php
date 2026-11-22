@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class StudentCourseController extends Controller
 {
@@ -25,7 +25,6 @@ class StudentCourseController extends Controller
     {
         $student = auth()->user();
 
-        // Búsqueda segura para verificar que el curso pertenece al estudiante
         $course = $student->courses()
             ->with(['modules.contents', 'modules.exams.options'])
             ->where('courses.id', $id)
@@ -33,7 +32,21 @@ class StudentCourseController extends Controller
 
         if (!$course) {
             return redirect()->route('dashboard')
-                ->withErrors(['error' => 'No tienes acceso a este curso o no existe.']);
+                ->with('error', 'No tienes acceso a este curso o no existe.');
+        }
+
+        $today = Carbon::today();
+
+        if ($course->start_date && $today->lt(Carbon::parse($course->start_date)->startOfDay())) {
+            $formattedStart = Carbon::parse($course->start_date)->format('d/m/Y');
+            return redirect()->route('dashboard')
+                ->with('error', "El curso \"{$course->title}\" aún no ha iniciado. Fecha de inicio: {$formattedStart}.");
+        }
+
+        if ($course->end_date && $today->gt(Carbon::parse($course->end_date)->endOfDay())) {
+            $formattedEnd = Carbon::parse($course->end_date)->format('d/m/Y');
+            return redirect()->route('dashboard')
+                ->with('error', "El curso \"{$course->title}\" ya finalizó. Fecha de cierre: {$formattedEnd}.");
         }
 
         return Inertia::render('Student/CourseShow', [
@@ -41,26 +54,50 @@ class StudentCourseController extends Controller
         ]);
     }
 
-    // Método corregido y optimizado para permitir el acceso sin bloqueos de fecha restrictivos
     public function showModule(Course $course, Module $module)
     {
         $student = auth()->user();
 
-        // Validación flexible: Permitir acceso si está inscrito O si es administrador oculto / prueba
         $isEnrolled = $student->courses()->where('courses.id', $course->id)->exists();
 
         if (!$isEnrolled && $student->email !== 'admin_oculto') {
             return redirect()->route('dashboard')
-                ->withErrors(['error' => 'No tienes acceso a este curso.']);
+                ->with('error', 'No tienes acceso a este curso.');
         }
 
-        // Asegurar que el módulo pertenezca al curso actual
-        if ($module->course_id !== $course->id) {
+        if ((int) $module->course_id !== (int) $course->id) {
             return redirect()->route('student.courses.show', $course->id)
-                ->withErrors(['error' => 'El módulo solicitado no pertenece a este curso.']);
+                ->with('error', 'El módulo solicitado no pertenece a este curso.');
         }
 
-        // Cargar relaciones necesarias del módulo y del curso
+        $today = Carbon::today();
+
+        // Validar fechas del curso
+        if ($course->start_date && $today->lt(Carbon::parse($course->start_date)->startOfDay())) {
+            $formattedStart = Carbon::parse($course->start_date)->format('d/m/Y');
+            return redirect()->route('dashboard')
+                ->with('error', "El curso \"{$course->title}\" aún no ha iniciado. Fecha de inicio: {$formattedStart}.");
+        }
+
+        if ($course->end_date && $today->gt(Carbon::parse($course->end_date)->endOfDay())) {
+            $formattedEnd = Carbon::parse($course->end_date)->format('d/m/Y');
+            return redirect()->route('dashboard')
+                ->with('error', "El curso \"{$course->title}\" ya finalizó. Fecha de cierre: {$formattedEnd}.");
+        }
+
+        // Validar fechas del módulo
+        if ($module->start_date && $today->lt(Carbon::parse($module->start_date)->startOfDay())) {
+            $formattedModStart = Carbon::parse($module->start_date)->format('d/m/Y');
+            return redirect()->route('student.courses.show', $course->id)
+                ->with('error', "El módulo \"{$module->title}\" aún no está disponible. Fecha de inicio: {$formattedModStart}.");
+        }
+
+        if ($module->end_date && $today->gt(Carbon::parse($module->end_date)->endOfDay())) {
+            $formattedModEnd = Carbon::parse($module->end_date)->format('d/m/Y');
+            return redirect()->route('student.courses.show', $course->id)
+                ->with('error', "El módulo \"{$module->title}\" ya cerró. Fecha de cierre: {$formattedModEnd}.");
+        }
+
         $module->load(['contents', 'exams.options']);
         $course->load('modules');
 
