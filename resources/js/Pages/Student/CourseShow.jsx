@@ -4,11 +4,13 @@ import Swal from 'sweetalert2';
 import StudentSidebar from '@/Components/StudentSidebar';
 
 export default function CourseShow({ auth, course }) {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+const [sidebarOpen, setSidebarOpen] = useState(true);
     const { flash } = usePage().props;
+    const shownFlashRef = useRef(null);
 
     useEffect(() => {
-        if (flash?.success) {
+        if (flash?.success && shownFlashRef.current !== flash.success) {
+            shownFlashRef.current = flash.success;
             Swal.fire({
                 icon: 'success',
                 title: '¡Examen Terminado!',
@@ -18,7 +20,8 @@ export default function CourseShow({ auth, course }) {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
             });
-        } else if (flash?.error) {
+        } else if (flash?.error && shownFlashRef.current !== flash.error) {
+            shownFlashRef.current = flash.error;
             Swal.fire({
                 icon: 'error',
                 title: 'Atención',
