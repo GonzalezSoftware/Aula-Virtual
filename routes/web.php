@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\StudentCourseController;
 use App\Http\Controllers\Auth\StudentContentController; 
 use App\Http\Controllers\Auth\StudentExamController;
+use App\Http\Controllers\Auth\StudentGradeController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use Illuminate\Foundation\Application;
@@ -102,6 +103,11 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/student/courses/{course}/modules/{module}/exam', [StudentExamController::class, 'showExam'])->name('student.courses.modules.exam');
     Route::post('/student/courses/{course}/modules/{module}/exam/submit', [StudentExamController::class, 'submitExam'])->name('student.exams.submit');
+
+    // ==========================================
+    // CALIFICACIONES DEL ESTUDIANTE
+    // ==========================================
+    Route::get('/student/grades', [StudentGradeController::class, 'index'])->name('student.grades');
 
     // ==========================================
     // NUEVA RUTA PARA VISUALIZACIÓN SEGURA DE PDFs
