@@ -73,6 +73,22 @@ export default function StudentDashboard({ auth, courses = [] }) {
                                             <div className="p-6 space-y-3">
                                                 <h3 className="text-lg font-extrabold text-[#051C33]">{course.title}</h3>
                                                 <p className="text-xs text-[#4A607A] line-clamp-3">{course.description}</p>
+
+                                                <div className="flex flex-wrap gap-2 pt-1">
+                                                    <span className="text-[11px] bg-blue-50 text-[#0066FF] px-3 py-1 rounded-full font-semibold border border-blue-100">
+                                                        {course.modules?.length || 0} Módulos
+                                                    </span>
+                                                    {course.start_date && (
+                                                        <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                                                            Inicio: {course.start_date}
+                                                        </span>
+                                                    )}
+                                                    {course.end_date && (
+                                                        <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                                                            Cierre: {course.end_date}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="p-6 pt-0">

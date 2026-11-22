@@ -83,8 +83,8 @@ Route::middleware(['auth'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
-        // Cargamos los cursos asociados al estudiante autenticado
-        $user->load('courses');
+        // Cargamos los cursos asociados al estudiante autenticado junto con sus módulos
+        $user->load('courses.modules');
 
         return Inertia::render('Student/Dashboard', [
             'courses' => $user->courses
