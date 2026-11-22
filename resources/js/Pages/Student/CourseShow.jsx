@@ -14,7 +14,7 @@ export default function CourseShow({ auth, course }) {
             shownAlertRef.current = `err:${errorMsg}`;
             Swal.fire({
                 icon: 'warning',
-                title: 'Acceso Restringido por Fecha',
+                title: 'Acceso Restringido',
                 text: errorMsg,
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#0066FF',

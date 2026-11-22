@@ -87,7 +87,7 @@ class StudentExamController extends Controller
         if ($attemptsCount >= 3) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->with('error', 'Has agotado el límite máximo de 3 intentos permitidos para esta evaluación.');
+                ->with('error', 'No puedes presentar el examen nuevamente porque ya agotaste el límite de 3 intentos.');
         }
 
         $validExams = $module->exams
@@ -160,7 +160,7 @@ class StudentExamController extends Controller
         if ($attemptsCount >= 3) {
             return redirect()
                 ->route('student.courses.show', $course->id)
-                ->with('error', 'Ya has alcanzado el límite de 3 intentos para este examen.');
+                ->with('error', 'No puedes presentar el examen nuevamente porque ya agotaste el límite de 3 intentos.');
         }
 
         $validated = $request->validate([
@@ -211,8 +211,11 @@ class StudentExamController extends Controller
             ]
         );
 
+        $formattedScore = number_format($score, 2);
+
         return redirect()
             ->route('student.courses.show', $course->id)
-            ->with('success', '¡Evaluación enviada con éxito! Tu nota final es: ' . number_format($score, 2) . '/20');
+            ->with('success', "¡Has terminado el examen! Tu nota obtenida es: {$formattedScore} / 20.")
+            ->with('exam_score', $formattedScore);
     }
 }

@@ -21,6 +21,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
             title: 'Enviando evaluación...',
             text: 'Calculando tus resultados finales sobre 20.',
             allowOutsideClick: false,
+            allowEscapeKey: false,
             didOpen: () => Swal.showLoading(),
         });
 
@@ -28,8 +29,38 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
             `/student/courses/${course.id}/modules/${module.id}/exam/submit`,
             { answers: finalAnswers },
             {
-                onFinish: () => {
+                onSuccess: (page) => {
                     Swal.close();
+                    const successMsg =
+                        page?.props?.flash?.success ||
+                        (page?.props?.flash?.exam_score
+                            ? `¡Has terminado el examen! Tu nota obtenida es: ${page.props.flash.exam_score} / 20.`
+                            : '¡Has terminado el examen! Puedes consultar tu calificación detallada en Mis Calificaciones.');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Examen Terminado!',
+                        text: successMsg,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#0066FF',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                    });
+                },
+                onError: (errors) => {
+                    Swal.close();
+                    const errText = errors?.error || 'Ocurrió un error al enviar la evaluación.';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Atención',
+                        text: errText,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#0066FF',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                    });
+                },
+                onFinish: () => {
                     setIsSubmitting(false);
                 },
             }
