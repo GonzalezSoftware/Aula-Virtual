@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\StudentExamController;
 use App\Http\Controllers\Auth\StudentGradeController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\AdminGradeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,9 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/students/pending', [AdminStudentController::class, 'pending'])->name('admin.students.pending');
     Route::post('/admin/students/{id}/approve', [AdminStudentController::class, 'approve'])->name('admin.students.approve');
     Route::delete('/admin/students/{id}/reject', [AdminStudentController::class, 'reject'])->name('admin.students.reject');
+
+    // Calificaciones de estudiantes por curso asignado
+    Route::get('/admin/grades', [AdminGradeController::class, 'index'])->name('admin.grades');
 
     // Ruta de cierre de sesión independiente para el Admin
     Route::post('/admin/logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('admin.logout');

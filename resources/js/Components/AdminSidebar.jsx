@@ -61,6 +61,21 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen, activeMenu }
                         {sidebarOpen && <span>Estudiantes en Espera</span>}
                     </Link>
 
+                    {/* Calificaciones */}
+                    <Link
+                        href={route('admin.grades')}
+                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition ${
+                            activeMenu === 'grades'
+                                ? 'bg-[#0066FF] text-white shadow-md shadow-blue-600/20'
+                                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                        }`}
+                    >
+                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {sidebarOpen && <span>Calificaciones</span>}
+                    </Link>
+
                     {/* Crear Curso */}
                     <Link
                         href={route('admin.courses.create')}
