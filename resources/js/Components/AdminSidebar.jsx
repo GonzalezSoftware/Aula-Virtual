@@ -23,31 +23,32 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen, activeMenu }
 
     return (
         <aside className={`${isOpen ? 'w-52 sm:w-64' : 'w-16 sm:w-20'} bg-[#051C33] text-white border-r border-slate-800 transition-all duration-300 flex flex-col sticky top-0 h-screen z-30 shadow-xl shrink-0`}>
-            {/* CABECERA SUPERIOR CON LOGO Y BOTÓN SIEMPRE ACCESIBLE */}
-            <div className={`h-16 sm:h-20 px-2.5 sm:px-4 flex items-center ${isOpen ? 'justify-between gap-2' : 'justify-center'} border-b border-white/10 shrink-0`}>
+            {/* CABECERA SUPERIOR */}
+            <div className="h-16 sm:h-20 px-3 sm:px-5 flex items-center gap-2.5 sm:gap-3 border-b border-white/10 shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md shadow-blue-500/25 shrink-0">
+                    AD
+                </div>
                 {isOpen && (
-                    <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-base shadow-md shadow-blue-500/25 shrink-0">
-                            AD
-                        </div>
-                        <span className="text-sm sm:text-base font-bold tracking-tight text-white truncate">
-                            Panel <span className="text-[#3385FF]">Admin</span>
-                        </span>
-                    </div>
+                    <span className="text-sm sm:text-base font-bold tracking-tight text-white whitespace-nowrap truncate">
+                        Panel <span className="text-[#3385FF]">Admin</span>
+                    </span>
                 )}
+            </div>
 
+            {/* BOTÓN ENTRE LA CABECERA Y EL PRIMER ENLACE */}
+            <div className="px-2.5 sm:px-4 pt-2.5 sm:pt-3 pb-1 border-b border-white/10 shrink-0">
                 <button
                     type="button"
                     onClick={toggleSidebar}
                     title={isOpen ? 'Ocultar menú lateral' : 'Desplegar menú lateral'}
                     aria-label={isOpen ? 'Ocultar menú lateral' : 'Desplegar menú lateral'}
-                    className={`${isOpen ? 'px-2.5 py-2' : 'w-10 h-10'} rounded-xl bg-white/10 border border-white/15 text-slate-200 hover:text-white hover:bg-[#0066FF] hover:border-[#0066FF] text-xs font-semibold flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer`}
+                    className="w-full py-2 rounded-xl bg-white/5 border border-white/10 text-slate-200 hover:text-white hover:bg-[#0066FF] hover:border-[#0066FF] text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
                 >
                     <span>{isOpen ? '◀ Ocultar' : '▶'}</span>
                 </button>
             </div>
 
-            {/* NAVEGACIÓN (SOLO ESTA ÁREA HACE SCROLL SI HAY MUCHOS ITEMS) */}
+            {/* NAVEGACIÓN */}
             <div className="flex-1 overflow-y-auto">
                 <nav className="p-2.5 sm:p-4 space-y-1.5 sm:space-y-2">
                     {/* Dashboard */}
