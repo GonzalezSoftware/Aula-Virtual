@@ -12,12 +12,12 @@ export default function EditCourseList({ auth, courses }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="edit-courses" />
 
-                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
                     
                     {/* HEADER ESTANDARIZADO */}
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Panel de Administración</h2>
-                        <div className="flex items-center gap-5">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-20 shadow-sm">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">Panel de Administración</h2>
+                        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
                             <div className="text-right hidden sm:block">
                                 <span className="text-xs text-[#4A607A] block">Administrador Maestro</span>
                                 <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Administrador'}</span>
@@ -26,35 +26,35 @@ export default function EditCourseList({ auth, courses }) {
                                 href={route('admin.logout')}
                                 method="post"
                                 as="button"
-                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                                className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm whitespace-nowrap"
                             >
                                 <span>Cerrar Sesión</span>
                             </Link>
                         </div>
                     </header>
 
-                    <main className="max-w-6xl mx-auto px-8 py-10 w-full flex-grow">
-                        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100">
+                    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow">
+                        <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100">
                             <div className="mb-6 border-b border-blue-100 pb-4">
-                                <h1 className="text-2xl font-extrabold text-[#051C33]">
+                                <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33]">
                                     Seleccionar Curso para Editar
                                 </h1>
-                                <p className="text-sm text-[#4A607A] mt-1">
+                                <p className="text-xs sm:text-sm text-[#4A607A] mt-1">
                                     Elige uno de los cursos creados para modificar su información, fechas, contenidos o evaluaciones.
                                 </p>
                             </div>
 
                             {courses.length === 0 ? (
-                                <div className="text-center py-16">
-                                    <p className="text-sm text-slate-500">No hay cursos registrados en la plataforma todavía.</p>
+                                <div className="text-center py-12 sm:py-16">
+                                    <p className="text-xs sm:text-sm text-slate-500">No hay cursos registrados en la plataforma todavía.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                                     {courses.map((course) => (
-                                        <div key={course.id} className="border border-blue-100 rounded-2xl overflow-hidden bg-[#F8FAFC] flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                                        <div key={course.id} className="border border-blue-100 rounded-2xl overflow-hidden bg-[#F8FAFC] flex flex-col justify-between shadow-sm hover:shadow-md transition min-w-0">
                                             <div>
                                                 {/* IMAGEN DE PORTADA DEL CURSO */}
-                                                <div className="w-full h-40 bg-blue-50/70 border-b border-blue-100 overflow-hidden relative">
+                                                <div className="w-full h-36 sm:h-40 bg-blue-50/70 border-b border-blue-100 overflow-hidden relative">
                                                     {course.image ? (
                                                         <img 
                                                             src={`/storage/${course.image}`} 
@@ -71,8 +71,8 @@ export default function EditCourseList({ auth, courses }) {
                                                     )}
                                                 </div>
 
-                                                <div className="p-5">
-                                                    <h3 className="text-base font-bold text-[#051C33] mb-2 line-clamp-1">{course.title}</h3>
+                                                <div className="p-4 sm:p-5">
+                                                    <h3 className="text-sm sm:text-base font-bold text-[#051C33] mb-2 line-clamp-1">{course.title}</h3>
                                                     <p className="text-xs text-[#4A607A] line-clamp-2 mb-4">{course.description}</p>
                                                     
                                                     <div className="flex flex-wrap gap-2">
@@ -88,7 +88,7 @@ export default function EditCourseList({ auth, courses }) {
                                                 </div>
                                             </div>
 
-                                            <div className="px-5 py-4 bg-white border-t border-blue-100 flex justify-end">
+                                            <div className="px-4 sm:px-5 py-3.5 sm:py-4 bg-white border-t border-blue-100 flex justify-end">
                                                 <Link
                                                     href={route('admin.courses.edit', course.id)}
                                                     className="w-full text-center px-4 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-bold rounded-xl shadow-md shadow-blue-600/20 transition"

@@ -58,9 +58,9 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
                 <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="grades" />
 
                 <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Calificaciones de Estudiantes</h2>
-                        <div className="flex items-center gap-5">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-20 shadow-sm">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">Calificaciones de Estudiantes</h2>
+                        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
                             <div className="text-right hidden sm:block">
                                 <span className="text-xs text-[#4A607A] block">Administrador Maestro</span>
                                 <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Administrador'}</span>
@@ -69,39 +69,39 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
                                 href={route('admin.logout')}
                                 method="post"
                                 as="button"
-                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                                className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm whitespace-nowrap"
                             >
                                 <span>Cerrar Sesión</span>
                             </Link>
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-grow space-y-6">
-                        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100 space-y-6">
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow space-y-6">
+                        <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100 space-y-6">
                             <div className="border-b border-blue-100 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div>
-                                    <h1 className="text-2xl font-extrabold text-[#051C33]">
+                                    <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33]">
                                         Notas por Estudiante y Curso Asignado
                                     </h1>
-                                    <p className="text-sm text-[#4A607A] mt-1">
+                                    <p className="text-xs sm:text-sm text-[#4A607A] mt-1">
                                         Consulta las calificaciones sobre 20, intentos realizados y promedios de cada estudiante en los cursos que tiene asignados.
                                     </p>
                                 </div>
                             </div>
 
                             {/* Tarjetas de resumen */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                                 <div className="bg-[#F8FAFC] border border-blue-100 rounded-2xl p-4">
                                     <span className="text-xs font-semibold text-[#4A607A] block">Estudiantes listados</span>
-                                    <span className="text-2xl font-extrabold text-[#051C33] mt-1 block">{summary.uniqueStudents}</span>
+                                    <span className="text-xl sm:text-2xl font-extrabold text-[#051C33] mt-1 block">{summary.uniqueStudents}</span>
                                 </div>
                                 <div className="bg-[#F8FAFC] border border-blue-100 rounded-2xl p-4">
                                     <span className="text-xs font-semibold text-[#4A607A] block">Asignaciones curso-estudiante</span>
-                                    <span className="text-2xl font-extrabold text-[#051C33] mt-1 block">{summary.totalAssignments}</span>
+                                    <span className="text-xl sm:text-2xl font-extrabold text-[#051C33] mt-1 block">{summary.totalAssignments}</span>
                                 </div>
                                 <div className="bg-[#F8FAFC] border border-blue-100 rounded-2xl p-4">
                                     <span className="text-xs font-semibold text-[#4A607A] block">Promedio general (sobre 20)</span>
-                                    <span className="text-2xl font-extrabold text-[#0066FF] mt-1 block">{summary.averageScore} / 20</span>
+                                    <span className="text-xl sm:text-2xl font-extrabold text-[#0066FF] mt-1 block">{summary.averageScore} / 20</span>
                                 </div>
                             </div>
 
@@ -116,7 +116,7 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Ej. Pérez, 12345678, correo@ejemplo.com..."
-                                        className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                        className="w-full border border-blue-200/80 rounded-xl px-3.5 sm:px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
                                     />
                                 </div>
                                 <div>
@@ -140,8 +140,8 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
 
                             {/* Listado de calificaciones */}
                             {filteredRecords.length === 0 ? (
-                                <div className="text-center py-12 bg-[#F8FAFC] rounded-2xl border border-blue-100">
-                                    <p className="text-sm text-[#4A607A]">
+                                <div className="text-center py-12 bg-[#F8FAFC] rounded-2xl border border-blue-100 px-4">
+                                    <p className="text-xs sm:text-sm text-[#4A607A]">
                                         No se encontraron registros de calificaciones para los filtros seleccionados.
                                     </p>
                                 </div>
@@ -154,12 +154,12 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
                                         return (
                                             <div
                                                 key={`${item.student_id}-${item.course_id}`}
-                                                className="border border-blue-100 rounded-2xl p-6 bg-[#F8FAFC] space-y-4 shadow-sm"
+                                                className="border border-blue-100 rounded-2xl p-4 sm:p-6 bg-[#F8FAFC] space-y-4 shadow-sm min-w-0"
                                             >
                                                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-blue-100 pb-4">
-                                                    <div className="space-y-1">
+                                                    <div className="space-y-1 min-w-0">
                                                         <div className="flex flex-wrap items-center gap-2">
-                                                            <h3 className="text-base font-extrabold text-[#051C33]">
+                                                            <h3 className="text-sm sm:text-base font-extrabold text-[#051C33]">
                                                                 {item.student_name}
                                                             </h3>
                                                             {item.cedula && (
@@ -173,17 +173,17 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <p className="text-xs text-[#4A607A]">
+                                                        <p className="text-xs text-[#4A607A] break-all sm:break-normal">
                                                             {item.email} • <strong className="text-[#051C33]">Curso:</strong> {item.course_title}
                                                         </p>
                                                     </div>
 
-                                                    <div className="flex flex-wrap items-center gap-3">
-                                                        <span className="text-xs bg-blue-50 text-[#0066FF] px-3 py-1.5 rounded-xl font-semibold border border-blue-100">
+                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                                        <span className="text-[11px] sm:text-xs bg-blue-50 text-[#0066FF] px-3 py-1.5 rounded-xl font-semibold border border-blue-100">
                                                             Módulos evaluados: {item.evaluated_modules_count}/{item.total_modules_count}
                                                         </span>
                                                         <span
-                                                            className={`text-xs px-3.5 py-1.5 rounded-xl font-extrabold border ${
+                                                            className={`text-[11px] sm:text-xs px-3.5 py-1.5 rounded-xl font-extrabold border ${
                                                                 !hasAverage
                                                                     ? 'bg-slate-100 text-slate-600 border-slate-200'
                                                                     : isApproved
@@ -204,7 +204,7 @@ export default function AdminGrades({ auth, records = [], courses = [] }) {
                                                             return (
                                                                 <div
                                                                     key={mod.id}
-                                                                    className="bg-white rounded-xl p-4 border border-blue-100 flex flex-col justify-between gap-2"
+                                                                    className="bg-white rounded-xl p-3.5 sm:p-4 border border-blue-100 flex flex-col justify-between gap-2 min-w-0"
                                                                 >
                                                                     <div>
                                                                         <p className="text-xs font-bold text-[#051C33] line-clamp-1">

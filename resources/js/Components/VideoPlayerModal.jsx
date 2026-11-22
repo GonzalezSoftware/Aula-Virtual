@@ -50,17 +50,17 @@ export default function VideoPlayerModal({ videoUrl, title, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 select-none">
-            <div className="bg-slate-900 w-full max-w-5xl rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 select-none">
+            <div className="bg-slate-900 w-full max-w-5xl rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-700">
                 
                 {/* Header corporativo */}
-                <div className="px-6 py-4 bg-[#051C33] text-white flex justify-between items-center select-none">
-                    <h3 className="font-extrabold text-sm tracking-tight truncate max-w-xl text-white">
-                        🎬 {title} <span className="text-xs text-blue-400 font-normal ml-2">(Reproducción Protegida)</span>
+                <div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 sm:gap-3 select-none">
+                    <h3 className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-full sm:max-w-xl text-white">
+                        🎬 {title} <span className="text-[11px] sm:text-xs text-blue-400 font-normal ml-1.5 sm:ml-2">(Reproducción Protegida)</span>
                     </h3>
                     <button 
                         onClick={onClose}
-                        className="px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0"
                     >
                         Cerrar Reproductor
                     </button>

@@ -38,31 +38,31 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
     const securePdfSrc = `${pdfUrl}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0&view=Fit,top`;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 select-none">
-            <div className="bg-white w-full max-w-5xl h-[92vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-blue-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 select-none">
+            <div className="bg-white w-full max-w-5xl h-[94vh] sm:h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-blue-100">
                 
                 {/* Header corporativo con Paginación Integrada */}
-                <div className="px-6 py-3.5 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-center gap-3 select-none">
-                    <h3 className="font-extrabold text-sm tracking-tight truncate max-w-md text-white">
+                <div className="px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-center gap-2.5 sm:gap-3 select-none">
+                    <h3 className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-full sm:max-w-md text-white text-center sm:text-left">
                         📖 {title}
                     </h3>
 
                     {/* Controles de Paginación Centrales */}
-                    <div className="flex items-center gap-3 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 bg-slate-800/80 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 w-full sm:w-auto">
                         <button 
                             onClick={prevPage}
                             disabled={currentPage === 1}
-                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer"
+                            className="px-2.5 sm:px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer shrink-0"
                         >
                             Anterior
                         </button>
-                        <span className="text-xs font-medium text-slate-200">
+                        <span className="text-[11px] sm:text-xs font-medium text-slate-200 whitespace-nowrap">
                             Página <strong className="text-white">{currentPage}</strong> de <strong className="text-white">{totalPages}</strong>
                         </span>
                         <button 
                             onClick={nextPage}
                             disabled={currentPage >= totalPages}
-                            className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer"
+                            className="px-2.5 sm:px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer shrink-0"
                         >
                             Siguiente
                         </button>
@@ -70,14 +70,14 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
 
                     <button 
                         onClick={onClose}
-                        className="px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0"
                     >
                         Cerrar Visor
                     </button>
                 </div>
 
                 {/* Contenedor principal con visor paginado y capa de seguridad absoluta */}
-                <div className="flex-1 bg-slate-950 relative overflow-hidden select-none flex items-center justify-center p-2">
+                <div className="flex-1 bg-slate-950 relative overflow-hidden select-none flex items-center justify-center p-1.5 sm:p-2">
                     
                     {/* 🛡️ CAPA INVISIBLE ANTIRROBO ABSOLUTA (z-20): 
                         Bloquea cualquier intento de clic, arrastre o selección de texto sobre el documento. */}

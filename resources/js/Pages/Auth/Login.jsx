@@ -17,7 +17,6 @@ export default function Login({ status, canResetPassword }) {
         };
     }, []);
 
-    // Mostrar alerta con SweetAlert2 si hay errores de validación de Laravel
     useEffect(() => {
         if (errors.email || errors.password) {
             Swal.fire({
@@ -33,7 +32,6 @@ export default function Login({ status, canResetPassword }) {
         }
     }, [errors]);
 
-    // Mostrar alerta de estado si la hay
     useEffect(() => {
         if (status) {
             Swal.fire({
@@ -52,12 +50,7 @@ export default function Login({ status, canResetPassword }) {
         e.preventDefault();
         
         post(route('login'), {
-            // Eliminamos el onSuccess intrusivo para que Inertia 
-            // ejecute la redirección automática enviada por Laravel ('/dashboard')
-            onError: () => {
-                // Los errores ya los atrapa el useEffect de 'errors', 
-                // así que aquí solo dejamos que Inertia procese los flujos.
-            }
+            onError: () => {},
         });
     };
 
@@ -65,30 +58,30 @@ export default function Login({ status, canResetPassword }) {
         <>
             <Head title="Iniciar Sesión - Estudiantes" />
 
-            <div className="min-h-screen bg-[#F0F6FF] text-[#0A2540] flex flex-col justify-between font-['Poppins']">
+            <div className="min-h-screen overflow-x-hidden bg-[#F0F6FF] text-[#0A2540] flex flex-col justify-between font-['Poppins']">
                 
                 {/* BARRA DE NAVEGACIÓN SUPERIOR */}
                 <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100">
-                    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                        <Link href="/" className="flex items-center gap-3 group">
-                            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/25 group-hover:scale-105 transition">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
+                        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md shadow-blue-500/25 group-hover:scale-105 transition shrink-0">
                                 AV
                             </div>
-                            <span className="text-xl font-bold tracking-tight text-[#0A2540]">
+                            <span className="text-base sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
                                 Aula Virtual <span className="text-[#0066FF]">Académica</span>
                             </span>
                         </Link>
 
-                        <nav className="flex items-center gap-4">
+                        <nav className="flex items-center gap-2 sm:gap-4 shrink-0">
                             <Link
                                 href="/"
-                                className="text-sm font-medium text-[#4A607A] hover:text-[#0066FF] transition"
+                                className="hidden sm:inline text-sm font-medium text-[#4A607A] hover:text-[#0066FF] transition"
                             >
                                 Volver al inicio
                             </Link>
                             <Link
                                 href={route('register')}
-                                className="px-5 py-2.5 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-sm font-semibold hover:bg-[#0066FF] hover:text-white transition"
+                                className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs sm:text-sm font-semibold hover:bg-[#0066FF] hover:text-white transition whitespace-nowrap"
                             >
                                 Registrarse
                             </Link>
@@ -97,8 +90,8 @@ export default function Login({ status, canResetPassword }) {
                 </header>
 
                 {/* CONTENIDO PRINCIPAL */}
-                <main className="flex-grow flex items-center justify-center px-6 py-12">
-                    <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+                <main className="flex-grow flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+                    <div className="w-full max-w-5xl bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
                         
                         {/* PANEL IZQUIERDO: BANNER INSTITUCIONAL */}
                         <div className="hidden lg:flex lg:col-span-5 relative bg-[#051C33] text-white p-10 flex-col justify-between overflow-hidden">
@@ -132,18 +125,17 @@ export default function Login({ status, canResetPassword }) {
                         </div>
 
                         {/* PANEL DERECHO: FORMULARIO */}
-                        <div className="lg:col-span-7 p-8 sm:p-12 flex flex-col justify-center">
-                            <div className="mb-8">
-                                <h1 className="text-2xl sm:text-3xl font-bold text-[#051C33]">Iniciar Sesión</h1>
-                                <p className="text-sm text-[#4A607A] mt-2">
+                        <div className="lg:col-span-7 p-5 sm:p-12 flex flex-col justify-center min-w-0">
+                            <div className="mb-6 sm:mb-8">
+                                <h1 className="text-xl sm:text-3xl font-bold text-[#051C33]">Iniciar Sesión</h1>
+                                <p className="text-xs sm:text-sm text-[#4A607A] mt-2">
                                     Introduce tu correo y tu clave temporal de 8 dígitos para acceder.
                                 </p>
                             </div>
 
-                            <form onSubmit={submit} className="space-y-6">
-                                {/* CAMPO CORREO */}
+                            <form onSubmit={submit} className="space-y-5 sm:space-y-6">
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-semibold text-[#0A2540] mb-2">
+                                    <label htmlFor="email" className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5 sm:mb-2">
                                         Correo Electrónico
                                     </label>
                                     <div className="relative">
@@ -161,16 +153,15 @@ export default function Login({ status, canResetPassword }) {
                                             autoFocus
                                             onChange={(e) => setData('email', e.target.value)}
                                             placeholder="ejemplo@correo.com"
-                                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
+                                            className="w-full pl-11 pr-4 py-2.5 sm:py-3 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                             required
                                         />
                                     </div>
                                 </div>
 
-                                {/* CAMPO CLAVE TEMPORAL CON OJITO */}
                                 <div>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <label htmlFor="password" className="block text-sm font-semibold text-[#0A2540]">
+                                    <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                                        <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-[#0A2540]">
                                             Clave Temporal (8 dígitos)
                                         </label>
                                     </div>
@@ -188,7 +179,7 @@ export default function Login({ status, canResetPassword }) {
                                             autoComplete="current-password"
                                             onChange={(e) => setData('password', e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full pl-11 pr-12 py-3 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
+                                            className="w-full pl-11 pr-12 py-2.5 sm:py-3 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                             required
                                         />
                                         <button
@@ -210,7 +201,6 @@ export default function Login({ status, canResetPassword }) {
                                     </div>
                                 </div>
 
-                                {/* RECORDAR SESIÓN */}
                                 <div className="flex items-center justify-between">
                                     <label className="flex items-center gap-2.5 cursor-pointer select-none">
                                         <input
@@ -220,15 +210,14 @@ export default function Login({ status, canResetPassword }) {
                                             onChange={(e) => setData('remember', e.target.checked)}
                                             className="w-4 h-4 rounded border-blue-300 text-[#0066FF] focus:ring-[#0066FF]/30 transition"
                                         />
-                                        <span className="text-sm text-[#4A607A]">Mantener sesión iniciada</span>
+                                        <span className="text-xs sm:text-sm text-[#4A607A]">Mantener sesión iniciada</span>
                                     </label>
                                 </div>
 
-                                {/* BOTÓN ENVIAR */}
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full py-3.5 px-6 rounded-xl bg-[#0066FF] text-white font-semibold text-sm hover:bg-[#0052CC] focus:ring-4 focus:ring-[#0066FF]/30 transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full py-3 sm:py-3.5 px-6 rounded-xl bg-[#0066FF] text-white font-semibold text-xs sm:text-sm hover:bg-[#0052CC] focus:ring-4 focus:ring-[#0066FF]/30 transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <span>{processing ? 'Ingresando...' : 'Acceder al Aula Virtual'}</span>
                                     {!processing && (
@@ -239,8 +228,8 @@ export default function Login({ status, canResetPassword }) {
                                 </button>
                             </form>
 
-                            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-                                <p className="text-sm text-[#4A607A]">
+                            <div className="mt-6 sm:mt-8 pt-6 border-t border-slate-100 text-center space-y-2">
+                                <p className="text-xs sm:text-sm text-[#4A607A]">
                                     ¿Aún no tienes una cuenta?{' '}
                                     <Link
                                         href={route('register')}
@@ -249,6 +238,14 @@ export default function Login({ status, canResetPassword }) {
                                         Regístrate aquí
                                     </Link>
                                 </p>
+                                <div className="sm:hidden">
+                                    <Link
+                                        href="/"
+                                        className="text-xs font-medium text-[#4A607A] hover:text-[#0066FF] transition"
+                                    >
+                                        ← Volver al inicio
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -256,7 +253,7 @@ export default function Login({ status, canResetPassword }) {
 
                 {/* PIE DE PÁGINA */}
                 <footer className="bg-[#051C33] text-[#90caf9] py-6 border-t border-blue-900">
-                    <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-center sm:text-left">
                         <p>© 2026 Aula Virtual Académica. Todos los derechos reservados.</p>
                         <p className="font-medium text-[#E3F2FD]">Plataforma Educativa Oficial</p>
                     </div>

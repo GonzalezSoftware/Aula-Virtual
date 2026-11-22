@@ -108,16 +108,16 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
         <>
             <Head title={`Evaluación - ${module.title}`} />
 
-            <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex flex-col items-center justify-center p-6">
-                <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-blue-100 p-8 space-y-6">
+            <div className="min-h-screen overflow-x-hidden bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex flex-col items-center justify-center p-4 sm:p-6">
+                <div className="w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-blue-100 p-4 sm:p-8 space-y-5 sm:space-y-6">
                     <div className="flex flex-wrap justify-between items-center border-b border-blue-100 pb-4 gap-2">
-                        <span className="text-xs font-bold bg-blue-50 text-[#0066FF] px-3.5 py-1 rounded-full uppercase tracking-wider">
+                        <span className="text-[11px] sm:text-xs font-bold bg-blue-50 text-[#0066FF] px-3 sm:px-3.5 py-1 rounded-full uppercase tracking-wider">
                             Pregunta {currentQuestionIndex + 1} de {exams.length} (Intento #{attemptNumber})
                         </span>
 
-                        <div className="flex items-center gap-2 text-red-600 font-bold text-xs bg-red-50 px-3.5 py-1.5 rounded-xl border border-red-100 shadow-sm">
-                            <span>⏱️ Tiempo restante:</span>
-                            <span className="text-sm">{timeLeft}s</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-red-600 font-bold text-xs bg-red-50 px-3 py-1.5 rounded-xl border border-red-100 shadow-sm">
+                            <span>⏱️ Tiempo:</span>
+                            <span className="text-xs sm:text-sm">{timeLeft}s</span>
                         </div>
                     </div>
 
@@ -125,7 +125,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
                         <p className="text-xs font-semibold text-[#4A607A] mb-1">
                             {course?.title} — {module?.title}
                         </p>
-                        <h2 className="text-lg md:text-xl font-extrabold text-[#051C33] leading-snug">
+                        <h2 className="text-base sm:text-lg md:text-xl font-extrabold text-[#051C33] leading-snug">
                             {currentExam.question}
                         </h2>
                     </div>
@@ -139,17 +139,17 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
                                         key={option.id}
                                         type="button"
                                         onClick={() => handleSelectOption(currentExam.id, option.id)}
-                                        className={`w-full text-left px-5 py-4 rounded-2xl border text-sm font-medium transition-all flex items-center justify-between ${
+                                        className={`w-full text-left px-3.5 sm:px-5 py-3.5 sm:py-4 rounded-2xl border text-xs sm:text-sm font-medium transition-all flex items-center justify-between gap-3 ${
                                             isSelected
                                                 ? 'bg-blue-50/80 border-[#0066FF] text-[#0066FF] shadow-sm'
                                                 : 'bg-slate-50 border-slate-200 text-[#051C33] hover:bg-slate-100'
                                         }`}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <span className="font-bold text-xs px-2 py-1 bg-white border border-slate-200 rounded-lg">
+                                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                            <span className="font-bold text-xs px-2 py-1 bg-white border border-slate-200 rounded-lg shrink-0">
                                                 {letters[idx] || (idx + 1)}
                                             </span>
-                                            <span>{option.text}</span>
+                                            <span className="break-words">{option.text}</span>
                                         </div>
                                         <span
                                             className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs shrink-0 ${
@@ -175,7 +175,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
                             type="button"
                             disabled={isSubmitting}
                             onClick={handleNextQuestion}
-                            className="px-6 py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/25 transition disabled:opacity-50"
+                            className="w-full sm:w-auto px-6 py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/25 transition disabled:opacity-50"
                         >
                             {currentQuestionIndex === exams.length - 1
                                 ? 'Finalizar y Enviar Examen'

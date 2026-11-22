@@ -61,10 +61,10 @@ export default function ChangePassword({ auth, status }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 <StudentSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="password" />
 
-                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Seguridad de la Cuenta</h2>
-                        <div className="flex items-center gap-5">
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-10 shadow-sm">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">Seguridad de la Cuenta</h2>
+                        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
                             <div className="text-right hidden sm:block">
                                 <span className="text-xs text-[#4A607A] block">Estudiante Activo</span>
                                 <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Estudiante'}</span>
@@ -73,21 +73,21 @@ export default function ChangePassword({ auth, status }) {
                                 href={route('student.logout')}
                                 method="post"
                                 as="button"
-                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                                className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm whitespace-nowrap"
                             >
                                 <span>Cerrar Sesión</span>
                             </Link>
                         </div>
                     </header>
 
-                    <main className="max-w-4xl mx-auto px-8 py-10 w-full flex-grow">
-                        <div className="mb-8">
-                            <h1 className="text-2xl font-extrabold text-[#051C33]">Cambiar Contraseña</h1>
-                            <p className="text-sm text-[#4A607A] mt-1">Asegura tu cuenta actualizando tu clave temporal por una contraseña segura y personal.</p>
+                    <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow">
+                        <div className="mb-6 sm:mb-8">
+                            <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33]">Cambiar Contraseña</h1>
+                            <p className="text-xs sm:text-sm text-[#4A607A] mt-1">Asegura tu cuenta actualizando tu clave temporal por una contraseña segura y personal.</p>
                         </div>
 
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-8">
-                            <form onSubmit={submit} className="space-y-6">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-5 sm:p-8">
+                            <form onSubmit={submit} className="space-y-5 sm:space-y-6">
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-wider text-[#4A607A] mb-2">Contraseña Actual (o Temporal)</label>
                                     <div className="relative">
@@ -95,10 +95,10 @@ export default function ChangePassword({ auth, status }) {
                                             type={showCurrentPassword ? 'text' : 'password'}
                                             value={data.current_password}
                                             onChange={(e) => setData('current_password', e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/20 text-sm outline-none transition pr-12"
+                                            className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/20 text-xs sm:text-sm outline-none transition pr-16"
                                             placeholder="••••••••"
                                         />
-                                        <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#051C33]">
+                                        <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-[#051C33]">
                                             {showCurrentPassword ? 'Ocultar' : 'Ver'}
                                         </button>
                                     </div>
@@ -112,28 +112,36 @@ export default function ChangePassword({ auth, status }) {
                                             type={showNewPassword ? 'text' : 'password'}
                                             value={data.password}
                                             onChange={(e) => setData('password', e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/20 text-sm outline-none transition pr-12"
+                                            className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/20 text-xs sm:text-sm outline-none transition pr-16"
                                             placeholder="••••••••"
                                         />
+                                        <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-[#051C33]">
+                                            {showNewPassword ? 'Ocultar' : 'Ver'}
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-wider text-[#4A607A] mb-2">Confirmar Nueva Contraseña</label>
-                                    <input
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        value={data.password_confirmation}
-                                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/20 text-sm outline-none transition pr-12"
-                                        placeholder="••••••••"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            value={data.password_confirmation}
+                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                            className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 focus:border-[#0066FF] focus:ring-2 focus:ring-blue-500/20 text-xs sm:text-sm outline-none transition pr-16"
+                                            placeholder="••••••••"
+                                        />
+                                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-[#051C33]">
+                                            {showConfirmPassword ? 'Ocultar' : 'Ver'}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-end pt-4">
                                     <button
                                         type="submit"
                                         disabled={processing || !isFormValid}
-                                        className="px-6 py-3 rounded-xl bg-[#0066FF] text-white font-semibold text-sm hover:bg-blue-700 transition shadow-lg shadow-blue-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#0066FF] text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 transition shadow-lg shadow-blue-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Guardar Nueva Contraseña
                                     </button>

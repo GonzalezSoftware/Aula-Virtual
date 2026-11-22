@@ -266,10 +266,10 @@ export default function CreateCourse({ auth }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="create-course" />
 
-                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Panel de Administración</h2>
-                        <div className="flex items-center gap-5">
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-20 shadow-sm">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">Panel de Administración</h2>
+                        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
                             <div className="text-right hidden sm:block">
                                 <span className="text-xs text-[#4A607A] block">Administrador Maestro</span>
                                 <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Administrador'}</span>
@@ -278,31 +278,31 @@ export default function CreateCourse({ auth }) {
                                 href={route('admin.logout')}
                                 method="post"
                                 as="button"
-                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                                className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm whitespace-nowrap"
                             >
                                 <span>Cerrar Sesión</span>
                             </Link>
                         </div>
                     </header>
 
-                    <main className="max-w-5xl mx-auto px-8 py-10 w-full flex-grow">
-                        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100">
-                            <h1 className="text-2xl font-extrabold text-[#051C33] mb-6 border-b border-blue-100 pb-4">
+                    <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow">
+                        <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl shadow-blue-900/5 border border-blue-100">
+                            <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33] mb-6 border-b border-blue-100 pb-4">
                                 Crear Nuevo Curso y Módulos con Cronograma
                             </h1>
 
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#F8FAFC] p-6 rounded-2xl border border-blue-100/80">
-                                    <div className="md:col-span-2 space-y-4">
+                            <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 bg-[#F8FAFC] p-4 sm:p-6 rounded-2xl border border-blue-100/80">
+                                    <div className="md:col-span-2 space-y-4 min-w-0">
                                         <div>
-                                            <label className="block text-sm font-semibold text-[#051C33] mb-1.5">Título del Curso *</label>
+                                            <label className="block text-xs sm:text-sm font-semibold text-[#051C33] mb-1.5">Título del Curso *</label>
                                             <input
                                                 type="text"
                                                 required
                                                 value={title}
                                                 onChange={(e) => setTitle(e.target.value)}
                                                 placeholder="Ej. Programación Avanzada en Laravel"
-                                                className="w-full border border-blue-200/80 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF]/25 focus:border-[#0066FF] outline-none bg-white text-sm text-[#051C33]"
+                                                className="w-full border border-blue-200/80 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-[#0066FF]/25 focus:border-[#0066FF] outline-none bg-white text-xs sm:text-sm text-[#051C33]"
                                             />
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -328,14 +328,14 @@ export default function CreateCourse({ auth }) {
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-semibold text-[#051C33] mb-1.5">Descripción *</label>
+                                            <label className="block text-xs sm:text-sm font-semibold text-[#051C33] mb-1.5">Descripción *</label>
                                             <textarea
                                                 required
                                                 rows="3"
                                                 value={description}
                                                 onChange={(e) => setDescription(e.target.value)}
                                                 placeholder="Detalles generales del curso..."
-                                                className="w-full border border-blue-200/80 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF]/25 focus:border-[#0066FF] outline-none bg-white text-sm text-[#051C33]"
+                                                className="w-full border border-blue-200/80 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 focus:ring-2 focus:ring-[#0066FF]/25 focus:border-[#0066FF] outline-none bg-white text-xs sm:text-sm text-[#051C33]"
                                             />
                                         </div>
                                     </div>
@@ -344,7 +344,7 @@ export default function CreateCourse({ auth }) {
                                         {imagePreview ? (
                                             <img src={imagePreview} alt="Portada" className="w-full h-36 object-cover rounded-xl mb-3 shadow-sm" />
                                         ) : (
-                                            <div className="text-center text-slate-400 py-6 text-sm">Sin imagen seleccionada</div>
+                                            <div className="text-center text-slate-400 py-6 text-xs sm:text-sm">Sin imagen seleccionada</div>
                                         )}
                                         <label className="cursor-pointer bg-[#E3F2FD] text-[#0066FF] hover:bg-[#0066FF] hover:text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-sm">
                                             Subir Portada
@@ -354,9 +354,9 @@ export default function CreateCourse({ auth }) {
                                 </div>
 
                                 <div className="space-y-6 pt-4 border-t border-blue-100">
-                                    <div className="sticky top-20 bg-white/95 backdrop-blur-md py-4 z-10 border-b border-blue-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
+                                    <div className="sticky top-16 sm:top-20 bg-white/95 backdrop-blur-md py-3 sm:py-4 z-10 border-b border-blue-100 shadow-sm flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 px-2">
                                         <div>
-                                            <h2 className="text-base font-extrabold text-[#051C33]">Estructura del Curso</h2>
+                                            <h2 className="text-sm sm:text-base font-extrabold text-[#051C33]">Estructura del Curso</h2>
                                             <p className="text-xs text-[#4A607A]">Módulos creados (alterna entre ellos)</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
@@ -365,7 +365,7 @@ export default function CreateCourse({ auth }) {
                                                     key={idx}
                                                     type="button"
                                                     onClick={() => setActiveModuleIndex(idx)}
-                                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm ${
+                                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm ${
                                                         activeModuleIndex === idx ? 'bg-[#0066FF] text-white' : 'bg-[#F8FAFC] text-[#4A607A] border border-blue-100'
                                                     }`}
                                                 >
@@ -373,34 +373,33 @@ export default function CreateCourse({ auth }) {
                                                 </button>
                                             ))}
                                         </div>
-                                        <button type="button" onClick={addModule} className="bg-[#0066FF] hover:bg-[#0052CC] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md">
+                                        <button type="button" onClick={addModule} className="bg-[#0066FF] hover:bg-[#0052CC] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md whitespace-nowrap">
                                             + Agregar Módulo
                                         </button>
                                     </div>
 
-                                    <div className="border border-blue-200/80 rounded-3xl p-6 bg-white shadow-xl shadow-blue-950/5 space-y-6 mt-4">
-                                        <div className="flex justify-between items-center gap-4 border-b border-blue-100 pb-4">
+                                    <div className="border border-blue-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-white shadow-xl shadow-blue-950/5 space-y-6 mt-4">
+                                        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 border-b border-blue-100 pb-4">
                                             <input
                                                 type="text"
                                                 required
                                                 value={currentModule.title}
                                                 onChange={(e) => updateModuleTitle(e.target.value)}
                                                 placeholder="Nombre del módulo"
-                                                className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-sm font-medium outline-none bg-white text-[#051C33]"
+                                                className="w-full border border-blue-200/80 rounded-xl px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium outline-none bg-white text-[#051C33]"
                                             />
                                             {modules.length > 1 && (
                                                 <button
                                                     type="button"
                                                     onClick={() => removeModule(activeModuleIndex)}
-                                                    className="px-3.5 py-1.5 bg-red-50 text-red-600 rounded-xl text-xs font-semibold hover:bg-red-600 hover:text-white transition whitespace-nowrap"
+                                                    className="px-3.5 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-semibold hover:bg-red-600 hover:text-white transition whitespace-nowrap shrink-0"
                                                 >
                                                     Eliminar Módulo
                                                 </button>
                                             )}
                                         </div>
 
-                                        {/* VALIDACIONES Y SELECTORES DE FECHAS DE LOS MÓDULOS Y EXÁMENES RESTAURADOS */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#F8FAFC] p-4 rounded-2xl border border-blue-100">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-[#F8FAFC] p-3.5 sm:p-4 rounded-2xl border border-blue-100">
                                             <div>
                                                 <label className="block text-[11px] font-semibold text-[#4A607A] mb-1">Inicio del Módulo</label>
                                                 <input
@@ -447,7 +446,7 @@ export default function CreateCourse({ auth }) {
                                             </div>
                                         </div>
 
-                                        <div className="flex gap-3">
+                                        <div className="flex flex-wrap gap-2 sm:gap-3">
                                             <button type="button" onClick={() => addContent('pdf')} className="bg-[#E3F2FD] text-[#0066FF] px-3.5 py-2 rounded-xl text-xs font-semibold">+ Agregar PDF</button>
                                             <button type="button" onClick={() => addContent('video')} className="bg-[#E3F2FD] text-[#0066FF] px-3.5 py-2 rounded-xl text-xs font-semibold">+ Agregar Video</button>
                                             <button type="button" onClick={addExam} className="bg-blue-50 text-[#051C33] px-3.5 py-2 rounded-xl text-xs font-semibold">+ Agregar Pregunta de Examen</button>
@@ -458,9 +457,9 @@ export default function CreateCourse({ auth }) {
                                             <div className="space-y-4 pt-4 border-t border-blue-100">
                                                 <h4 className="text-xs font-bold text-[#051C33] uppercase tracking-wider">Contenidos del Módulo</h4>
                                                 {currentModule.contents.map((content, contIndex) => (
-                                                    <div key={contIndex} className="p-4 bg-[#F8FAFC] rounded-2xl border border-blue-100 space-y-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-lg uppercase">
+                                                    <div key={contIndex} className="p-3.5 sm:p-4 bg-[#F8FAFC] rounded-2xl border border-blue-100 space-y-3">
+                                                        <div className="flex items-center gap-2 sm:gap-3">
+                                                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-lg uppercase shrink-0">
                                                                 {content.type}
                                                             </span>
                                                             <input
@@ -469,12 +468,12 @@ export default function CreateCourse({ auth }) {
                                                                 value={content.title}
                                                                 onChange={(e) => updateContentField(contIndex, 'title', e.target.value)}
                                                                 placeholder={`Título del ${content.type}`}
-                                                                className="flex-1 border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33] font-medium"
+                                                                className="flex-1 min-w-0 border border-blue-200/80 rounded-xl px-3 sm:px-4 py-2 text-xs outline-none bg-white text-[#051C33] font-medium"
                                                             />
                                                             <button
                                                                 type="button"
                                                                 onClick={() => removeContent(contIndex)}
-                                                                className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1"
+                                                                className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 shrink-0"
                                                             >
                                                                 ✕
                                                             </button>
@@ -486,14 +485,14 @@ export default function CreateCourse({ auth }) {
                                                                     type="file"
                                                                     accept="application/pdf"
                                                                     onChange={(e) => updateContentField(contIndex, 'file', e.target.files[0])}
-                                                                    className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 cursor-pointer"
+                                                                    className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 sm:file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 cursor-pointer"
                                                                 />
                                                             </div>
                                                         )}
 
                                                         {content.type === 'video' && (
                                                             <div className="space-y-3">
-                                                                <div className="flex gap-4">
+                                                                <div className="flex flex-wrap gap-4">
                                                                     <label className="flex items-center gap-2 text-xs cursor-pointer font-medium text-[#051C33]">
                                                                         <input
                                                                             type="radio"
@@ -519,14 +518,14 @@ export default function CreateCourse({ auth }) {
                                                                         value={content.url || ''}
                                                                         onChange={(e) => updateContentField(contIndex, 'url', e.target.value)}
                                                                         placeholder="https://www.youtube.com/watch?v=..."
-                                                                        className="w-full border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
+                                                                        className="w-full border border-blue-200/80 rounded-xl px-3.5 sm:px-4 py-2 text-xs outline-none bg-white text-[#051C33]"
                                                                     />
                                                                 ) : (
                                                                     <input
                                                                         type="file"
                                                                         accept="video/mp4,video/webm"
                                                                         onChange={(e) => updateContentField(contIndex, 'file', e.target.files[0])}
-                                                                        className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 cursor-pointer"
+                                                                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 sm:file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0066FF] hover:file:bg-blue-100 cursor-pointer"
                                                                     />
                                                                 )}
                                                             </div>
@@ -541,9 +540,9 @@ export default function CreateCourse({ auth }) {
                                             <div className="space-y-4 pt-4 border-t border-blue-100">
                                                 <h4 className="text-xs font-bold text-[#051C33] uppercase tracking-wider">Preguntas del Examen</h4>
                                                 {currentModule.exams.map((exam, examIndex) => (
-                                                    <div key={examIndex} className="p-5 bg-[#F8FAFC] rounded-2xl border border-blue-100 space-y-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-lg">
+                                                    <div key={examIndex} className="p-3.5 sm:p-5 bg-[#F8FAFC] rounded-2xl border border-blue-100 space-y-4">
+                                                        <div className="flex items-center gap-2 sm:gap-3">
+                                                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2.5 py-1 rounded-lg shrink-0">
                                                                 P{examIndex + 1}
                                                             </span>
                                                             <input
@@ -552,13 +551,13 @@ export default function CreateCourse({ auth }) {
                                                                 value={exam.question}
                                                                 onChange={(e) => updateExamQuestion(examIndex, e.target.value)}
                                                                 placeholder="Escribe la pregunta del examen aquí..."
-                                                                className="flex-1 border border-blue-200/80 rounded-xl px-4 py-2 text-xs outline-none bg-white text-[#051C33] font-medium"
+                                                                className="flex-1 min-w-0 border border-blue-200/80 rounded-xl px-3 sm:px-4 py-2 text-xs outline-none bg-white text-[#051C33] font-medium"
                                                             />
                                                             {currentModule.exams.length > 1 && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => removeExam(examIndex)}
-                                                                    className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1"
+                                                                    className="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 shrink-0"
                                                                 >
                                                                     ✕
                                                                 </button>
@@ -566,16 +565,16 @@ export default function CreateCourse({ auth }) {
                                                         </div>
 
                                                         {/* Opciones de respuesta */}
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-8">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-0 sm:pl-8">
                                                             {exam.options.map((option, optIndex) => (
-                                                                <div key={optIndex} className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-blue-100 shadow-sm">
+                                                                <div key={optIndex} className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-blue-100 shadow-sm min-w-0">
                                                                     <input
                                                                         type="radio"
                                                                         name={`correct_opt_${activeModuleIndex}_${examIndex}`}
                                                                         checked={option.is_correct}
                                                                         onChange={() => setCorrectOption(examIndex, optIndex)}
                                                                         title="Marcar como opción correcta"
-                                                                        className="w-4 h-4 text-blue-600 cursor-pointer"
+                                                                        className="w-4 h-4 text-blue-600 cursor-pointer shrink-0"
                                                                     />
                                                                     <input
                                                                         type="text"
@@ -583,10 +582,10 @@ export default function CreateCourse({ auth }) {
                                                                         value={option.text}
                                                                         onChange={(e) => updateOptionText(examIndex, optIndex, e.target.value)}
                                                                         placeholder={`Opción ${optIndex + 1}`}
-                                                                        className="w-full border-none outline-none text-xs text-[#051C33] bg-transparent"
+                                                                        className="w-full min-w-0 border-none outline-none text-xs text-[#051C33] bg-transparent"
                                                                     />
                                                                     {option.is_correct && (
-                                                                        <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">
+                                                                        <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded shrink-0">
                                                                             Correcta
                                                                         </span>
                                                                     )}
@@ -601,7 +600,7 @@ export default function CreateCourse({ auth }) {
                                 </div>
 
                                 <div className="flex justify-end pt-6 border-t border-blue-100">
-                                    <button type="submit" disabled={loading} className="bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold px-8 py-3 rounded-xl shadow-lg transition text-sm">
+                                    <button type="submit" disabled={loading} className="w-full sm:w-auto bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold px-8 py-3 rounded-xl shadow-lg transition text-xs sm:text-sm">
                                         {loading ? 'Guardando Curso...' : 'Publicar Curso Completo'}
                                     </button>
                                 </div>

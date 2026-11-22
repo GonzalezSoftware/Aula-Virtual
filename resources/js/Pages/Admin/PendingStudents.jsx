@@ -55,51 +55,53 @@ export default function PendingStudents({ auth, students }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="pending" />
 
-                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Estudiantes en Espera de Confirmación</h2>
-                        <div className="flex items-center gap-5">
-                            <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Administrador'}</span>
-                            <Link href={route('admin.logout')} method="post" as="button" className="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition">Cerrar Sesión</Link>
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-10 shadow-sm">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">Estudiantes en Espera de Confirmación</h2>
+                        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+                            <span className="text-xs sm:text-sm font-bold text-[#051C33] hidden sm:inline">{auth?.user?.name || 'Administrador'}</span>
+                            <Link href={route('admin.logout')} method="post" as="button" className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-50 text-red-600 text-xs sm:text-sm font-semibold hover:bg-red-600 hover:text-white transition whitespace-nowrap">Cerrar Sesión</Link>
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-grow">
-                        <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-2xl font-extrabold text-[#051C33]">Solicitudes Pendientes</h1>
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow">
+                        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6 sm:mb-8">
+                            <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33]">Solicitudes Pendientes</h1>
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Buscar por nombre, cédula..."
-                                className="px-4 py-2.5 rounded-xl bg-white border border-blue-200 text-sm outline-none"
+                                className="w-full sm:w-72 px-4 py-2.5 rounded-xl bg-white border border-blue-200 text-xs sm:text-sm outline-none"
                             />
                         </div>
 
-                        <div className="bg-white rounded-3xl border border-blue-100 p-6 shadow-xl">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 p-4 sm:p-6 shadow-xl">
                             {filteredStudents.length === 0 ? (
-                                <p className="text-center text-slate-500 py-10">No hay estudiantes en espera.</p>
+                                <p className="text-center text-slate-500 py-10 text-xs sm:text-sm">No hay estudiantes en espera.</p>
                             ) : (
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b text-xs font-semibold text-slate-400 uppercase">
-                                            <th className="py-3 px-4">Estudiante</th>
-                                            <th className="py-3 px-4">Cédula</th>
-                                            <th className="py-3 px-4 text-center">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y text-sm">
-                                        {filteredStudents.map((student) => (
-                                            <tr key={student.id} className="hover:bg-slate-50">
-                                                <td className="py-4 px-4 font-semibold">{student.name} {student.lastname}</td>
-                                                <td className="py-4 px-4 text-slate-600">{student.cedula}</td>
-                                                <td className="py-4 px-4 text-center">
-                                                    <button onClick={() => openDetailsModal(student)} className="px-3.5 py-1.5 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold">Ver Detalles</button>
-                                                </td>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse min-w-[420px]">
+                                        <thead>
+                                            <tr className="border-b text-xs font-semibold text-slate-400 uppercase">
+                                                <th className="py-3 px-3 sm:px-4">Estudiante</th>
+                                                <th className="py-3 px-3 sm:px-4">Cédula</th>
+                                                <th className="py-3 px-3 sm:px-4 text-center">Acciones</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y text-xs sm:text-sm">
+                                            {filteredStudents.map((student) => (
+                                                <tr key={student.id} className="hover:bg-slate-50">
+                                                    <td className="py-4 px-3 sm:px-4 font-semibold">{student.name} {student.lastname}</td>
+                                                    <td className="py-4 px-3 sm:px-4 text-slate-600">{student.cedula}</td>
+                                                    <td className="py-4 px-3 sm:px-4 text-center">
+                                                        <button onClick={() => openDetailsModal(student)} className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold whitespace-nowrap">Ver Detalles</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                     </main>
@@ -108,11 +110,13 @@ export default function PendingStudents({ auth, students }) {
 
                 {isModalOpen && selectedStudent && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-                        <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 space-y-4">
-                            <h3 className="text-lg font-bold">Detalles de la Solicitud</h3>
-                            <p><strong>Nombre:</strong> {selectedStudent.name} {selectedStudent.lastname}</p>
-                            <button onClick={() => handleApprove(selectedStudent.id)} className="px-5 py-2.5 bg-[#0066FF] text-white rounded-xl text-sm font-semibold">Aceptar</button>
-                            <button onClick={closeModal} className="ml-2 px-4 py-2.5 bg-gray-200 rounded-xl text-sm">Cerrar</button>
+                        <div className="bg-white w-full max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4">
+                            <h3 className="text-base sm:text-lg font-bold">Detalles de la Solicitud</h3>
+                            <p className="text-xs sm:text-sm"><strong>Nombre:</strong> {selectedStudent.name} {selectedStudent.lastname}</p>
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                <button onClick={() => handleApprove(selectedStudent.id)} className="px-5 py-2.5 bg-[#0066FF] text-white rounded-xl text-xs sm:text-sm font-semibold">Aceptar</button>
+                                <button onClick={closeModal} className="px-4 py-2.5 bg-gray-200 rounded-xl text-xs sm:text-sm">Cerrar</button>
+                            </div>
                         </div>
                     </div>
                 )}

@@ -35,10 +35,10 @@ export default function ModuleView({ auth, course, module }) {
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
                 <StudentSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="dashboard" />
 
-                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden">
-                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-8 h-20 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                        <h2 className="text-lg font-extrabold text-[#051C33] tracking-tight">Contenido del Módulo</h2>
-                        <div className="flex items-center gap-5">
+                <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
+                    <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-10 shadow-sm">
+                        <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">Contenido del Módulo</h2>
+                        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
                             <div className="text-right hidden sm:block">
                                 <span className="text-xs text-[#4A607A] block">Estudiante Activo</span>
                                 <span className="text-sm font-bold text-[#051C33]">{auth?.user?.name || 'Estudiante'}</span>
@@ -47,51 +47,50 @@ export default function ModuleView({ auth, course, module }) {
                                 href={route('student.logout')}
                                 method="post"
                                 as="button"
-                                className="px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm"
+                                className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-semibold hover:bg-red-600 hover:text-white transition flex items-center gap-2 shadow-sm whitespace-nowrap"
                             >
                                 <span>Cerrar Sesión</span>
                             </Link>
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto px-8 py-10 w-full flex-grow space-y-8">
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow space-y-6 sm:space-y-8">
                         <div>
-                            <Link href={route('student.courses.show', course.id)} className="inline-flex items-center gap-2 text-xs font-bold text-[#0066FF] bg-white px-4 py-2.5 rounded-xl shadow-sm border border-blue-100">
+                            <Link href={route('student.courses.show', course.id)} className="inline-flex items-center gap-2 text-xs font-bold text-[#0066FF] bg-white px-4 py-2.5 rounded-xl shadow-sm border border-blue-100 max-w-full truncate">
                                 Volver al curso: {course.title}
                             </Link>
                         </div>
 
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
-                            <h1 className="text-2xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
-                            <p className="text-sm text-[#4A607A]">{module.description}</p>
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl p-5 sm:p-8">
+                            <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33] mb-2">{module.title}</h1>
+                            <p className="text-xs sm:text-sm text-[#4A607A]">{module.description}</p>
+                            <div className="flex flex-wrap gap-3 sm:gap-4 text-xs text-[#4A607A] mt-4 bg-blue-50/50 p-3 rounded-xl border border-blue-50">
+                                <span><strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}</span>
+                                <span><strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}</span>
+                            </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 text-xs text-[#4A607A] mt-2 bg-blue-50/50 p-3 rounded-xl border border-blue-50">
-                            <span><strong>Inicio del Módulo:</strong> {module.start_date || course.start_date || 'No definida'}</span>
-                            <span><strong>Cierre del Módulo:</strong> {module.end_date || course.end_date || 'No definida'}</span>
-                        </div>
-
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
-                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos Académicos</h2>
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl p-5 sm:p-8">
+                            <h2 className="text-lg sm:text-xl font-extrabold text-[#051C33] mb-6">Materiales y Recursos Académicos</h2>
                             {module.contents && module.contents.length > 0 ? (
-                                <div className="space-y-6">
+                                <div className="space-y-4 sm:space-y-6">
                                     {module.contents.map((content) => {
                                         const fileResource = content.file_url || content.file || content.path || content.file_path;
                                         const videoResource = content.video_url || content.url || content.link;
                                         return (
-                                            <div key={content.id} className="bg-white rounded-2xl border border-blue-100 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                                <div>
-                                                    <h3 className="font-extrabold text-[#051C33] text-lg">{content.title}</h3>
-                                                    <p className="text-sm text-[#4A607A] mt-1">{content.body || content.description}</p>
+                                            <div key={content.id} className="bg-white rounded-2xl border border-blue-100 p-4 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 min-w-0">
+                                                <div className="min-w-0">
+                                                    <h3 className="font-extrabold text-[#051C33] text-base sm:text-lg">{content.title}</h3>
+                                                    <p className="text-xs sm:text-sm text-[#4A607A] mt-1">{content.body || content.description}</p>
                                                 </div>
-                                                <div className="flex gap-3">
+                                                <div className="flex flex-wrap gap-2.5 sm:gap-3 w-full md:w-auto shrink-0">
                                                     {fileResource && (
                                                         <button
                                                             onClick={() => setActivePdf({
                                                                 url: route('student.contents.view-pdf', content.id),
                                                                 title: content.title
                                                             })}
-                                                            className="px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition shadow-sm"
+                                                            className="flex-1 md:flex-initial px-4 sm:px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition shadow-sm whitespace-nowrap"
                                                         >
                                                             Ver PDF Seguro
                                                         </button>
@@ -102,7 +101,7 @@ export default function ModuleView({ auth, course, module }) {
                                                                 url: videoResource,
                                                                 title: content.title
                                                             })}
-                                                            className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#051C33] text-xs font-semibold transition cursor-pointer"
+                                                            className="flex-1 md:flex-initial px-4 sm:px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#051C33] text-xs font-semibold transition cursor-pointer whitespace-nowrap"
                                                         >
                                                             Ver Video Seguro
                                                         </button>
@@ -113,17 +112,17 @@ export default function ModuleView({ auth, course, module }) {
                                     })}
                                 </div>
                             ) : (
-                                <p className="text-sm text-[#4A607A]">No hay contenidos cargados.</p>
+                                <p className="text-xs sm:text-sm text-[#4A607A]">No hay contenidos cargados.</p>
                             )}
                         </div>
 
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl p-8">
-                            <h2 className="text-xl font-extrabold text-[#051C33] mb-6">Evaluación del Módulo</h2>
-                            <div className="p-6 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div className="space-y-1">
-                                    <h3 className="font-extrabold text-[#051C33] text-base">Prueba Interactiva</h3>
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl p-5 sm:p-8">
+                            <h2 className="text-lg sm:text-xl font-extrabold text-[#051C33] mb-6">Evaluación del Módulo</h2>
+                            <div className="p-4 sm:p-6 rounded-2xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div className="space-y-1 min-w-0">
+                                    <h3 className="font-extrabold text-[#051C33] text-sm sm:text-base">Prueba Interactiva</h3>
                                     <p className="text-xs text-[#4A607A] mt-0.5">Presenta tu evaluación con preguntas aleatorias y cronómetro.</p>
-                                    <div className="flex flex-wrap gap-3 pt-1 text-xs text-[#051C33]">
+                                    <div className="flex flex-wrap gap-2 sm:gap-3 pt-1 text-xs text-[#051C33]">
                                         <span className="bg-white px-3 py-1 rounded-lg border border-amber-200/80 font-medium">
                                             <strong>Inicio del Examen:</strong> {module.exam_start_date || 'No definida'}
                                         </span>
