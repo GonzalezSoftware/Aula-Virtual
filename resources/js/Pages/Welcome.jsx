@@ -244,18 +244,15 @@ export default () => {
                 <main className="flex-grow pt-16 sm:pt-20">
                     {/* 2. SECCIÓN HERO */}
                     <div className="relative bg-[#051C33] text-white overflow-hidden py-14 sm:py-24 lg:py-32">
-                        <div className="absolute inset-0 z-0">
-                            <img
-                                src="https://i.pinimg.com/1200x/19/36/05/193605ef29b345c5675657a3f48dfc99.jpg"
-                                alt="Banner Cursos Aula Virtual"
-                                referrerPolicy="no-referrer"
-                                className="w-full h-full object-cover object-center opacity-45 scale-105"
-                            />
-                        </div>
+                        {/* Imagen de fondo local */}
+                        <img
+                            src="/images/hero-banner.jpg"
+                            alt="Banner Cursos Aula Virtual"
+                            className="absolute inset-0 z-0 w-full h-full object-cover object-center opacity-50"
+                        />
 
-                        {/* Degradado direccional: protege el texto a la izquierda y deja ver la imagen a la derecha */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#051C33]/85 to-[#0A3266]/55 z-0"></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#051C33]/90 via-transparent to-[#051C33]/40 z-0"></div>
+                        {/* Degradado sutil que conserva el contraste del texto */}
+                        <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#051C33]/90 via-[#051C33]/70 to-[#0A3266]/45"></div>
 
                         <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#0A3266]/95 to-[#051C33]/80 z-0"></div>
 
@@ -385,8 +382,8 @@ export default () => {
                                         type="button"
                                         onClick={() => setActiveStep(idx)}
                                         className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 border ${isActive
-                                                ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-md shadow-blue-600/25'
-                                                : 'bg-white text-[#0A2540] border-blue-100 hover:border-[#0066FF]/50'
+                                            ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-md shadow-blue-600/25'
+                                            : 'bg-white text-[#0A2540] border-blue-100 hover:border-[#0066FF]/50'
                                             }`}
                                     >
                                         <span>Paso {item.number}</span>
