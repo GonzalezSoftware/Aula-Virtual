@@ -1,16 +1,126 @@
 import { Link, Head } from '@inertiajs/react';
+import { useState } from 'react';
+
+const steps = [
+    {
+        number: '01',
+        badge: 'Paso 01 · Solicitud',
+        title: 'Completa tu registro de estudiante',
+        description:
+            'Ingresa tus nombres, apellidos, cédula de identidad, teléfono de 11 dígitos, correo @gmail.com y adjunta la foto de tu cédula para iniciar tu solicitud.',
+        detail: 'Validación estricta de datos y prevención de registros duplicados.',
+        icon: 'user-plus',
+    },
+    {
+        number: '02',
+        badge: 'Paso 02 · Correo',
+        title: 'Verifica el código de 6 dígitos',
+        description:
+            'Al enviar tus datos, recibirás un código de verificación de 6 dígitos en tu bandeja de entrada para confirmar que el correo electrónico te pertenece.',
+        detail: 'Confirmación rápida antes de pasar a revisión administrativa.',
+        icon: 'mail-check',
+    },
+    {
+        number: '03',
+        badge: 'Paso 03 · Validación',
+        title: 'Espera la verificación del administrador',
+        description:
+            'Tu cuenta queda en estado de espera mientras el equipo administrativo revisa tu información y la foto de tu cédula para aprobar tu acceso.',
+        detail: 'Control de seguridad para mantener una comunidad académica verificada.',
+        icon: 'shield-check',
+    },
+    {
+        number: '04',
+        badge: 'Paso 04 · Acceso',
+        title: 'Recibe tu clave temporal de 8 dígitos',
+        description:
+            'Una vez que el administrador apruebe tu cuenta, te llegará a tu correo una clave temporal de 8 dígitos con la que podrás iniciar sesión en tu panel de estudiante.',
+        detail: 'Ingreso directo a tus asignaturas, contenidos y evaluaciones.',
+        icon: 'key-round',
+    },
+    {
+        number: '05',
+        badge: 'Paso 05 · Seguridad',
+        title: 'Personaliza tu contraseña en el panel',
+        description:
+            'Cuando ya estés dentro de tu panel de estudiante, podrás cambiar esa clave temporal por una contraseña personal y segura cuando lo desees.',
+        detail: 'Gestión de seguridad de tu cuenta desde el panel estudiantil.',
+        icon: 'lock-reset',
+    },
+];
+
+const faqs = [
+    {
+        q: '¿Por qué debo esperar tras ingresar el código de 6 dígitos?',
+        a: 'Porque cada solicitud pasa por revisión del administrador para validar tus datos y la imagen de tu cédula antes de activar tu acceso al aula.',
+    },
+    {
+        q: '¿Cómo ingreso por primera vez luego de ser aprobado?',
+        a: 'Te llegará a tu correo una clave temporal de 8 dígitos. Con ella entras en Iniciar Sesión y accedes a tu panel de estudiante.',
+    },
+    {
+        q: '¿Puedo cambiar la clave temporal después de entrar?',
+        a: 'Sí. Dentro de tu panel de estudiante cuentas con la opción para actualizar y cambiar tu contraseña por una de tu preferencia.',
+    },
+];
+
+function StepIcon({ type }) {
+    switch (type) {
+        case 'user-plus':
+            return (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+            );
+        case 'mail-check':
+            return (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            );
+        case 'shield-check':
+            return (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            );
+        case 'key-round':
+            return (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+            );
+        default:
+            return (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            );
+    }
+}
 
 export default () => {
+    const [activeStep, setActiveStep] = useState(0);
+    const [openFaq, setOpenFaq] = useState(0);
+
+    const currentStep = steps[activeStep];
+
+    const prevStep = () => {
+        setActiveStep((prev) => (prev === 0 ? steps.length - 1 : prev - 1));
+    };
+
+    const nextStep = () => {
+        setActiveStep((prev) => (prev === steps.length - 1 ? 0 : prev + 1));
+    };
+
     return (
         <>
             <Head title="Aula Virtual Académica" />
-            
+
             <div className="min-h-screen overflow-x-hidden bg-[#F0F6FF] text-[#0A2540] flex flex-col justify-between font-['Poppins']">
-                
                 {/* 1. BARRA DE NAVEGACIÓN SUPERIOR */}
                 <header className="w-full bg-white/95 backdrop-blur-md shadow-sm fixed top-0 z-50 transition-all border-b border-blue-100">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
-                        
                         {/* Logotipo */}
                         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md shadow-blue-500/25 shrink-0">
@@ -21,8 +131,20 @@ export default () => {
                             </span>
                         </div>
 
-                        {/* Enlaces de Autenticación (Siempre Muestra Login y Registro Públicos) */}
+                        {/* Enlaces de Navegación y Autenticación */}
                         <nav className="flex items-center gap-2 sm:gap-5 shrink-0">
+                            <a
+                                href="#como-funciona"
+                                className="hidden md:inline text-sm font-semibold text-[#4A607A] hover:text-[#0066FF] transition"
+                            >
+                                Cómo funciona
+                            </a>
+                            <a
+                                href="#video-guia"
+                                className="hidden md:inline text-sm font-semibold text-[#4A607A] hover:text-[#0066FF] transition"
+                            >
+                                Vídeo guía
+                            </a>
                             <Link
                                 href={route('login')}
                                 className="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-base text-[#0066FF] font-semibold hover:text-[#0052CC] transition whitespace-nowrap"
@@ -39,31 +161,35 @@ export default () => {
                     </div>
                 </header>
 
-                {/* 2. SECCIÓN HERO CON IMAGEN DE BANNER */}
+                {/* CONTENIDO PRINCIPAL */}
                 <main className="flex-grow pt-16 sm:pt-20">
-                    <div className="relative bg-[#051C33] text-white overflow-hidden py-20 sm:py-28 lg:py-36">
-                        
+                    {/* 2. SECCIÓN HERO */}
+                    <div className="relative bg-[#051C33] text-white overflow-hidden py-20 sm:py-28 lg:py-32">
                         <div className="absolute inset-0 z-0 opacity-25 mix-blend-overlay">
-                            <img 
-                                src="https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=1200&auto=format&fit=crop&q=80" 
-                                alt="Banner Cursos Aula Virtual" 
+                            <img
+                                src="https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=1200&auto=format&fit=crop&q=80"
+                                alt="Banner Cursos Aula Virtual"
                                 className="w-full h-full object-cover"
                             />
                         </div>
-                        
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#0A3266]/90 to-transparent z-0"></div>
 
-                        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            <div className="space-y-5 sm:space-y-6">
-                                <span className="inline-block px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[11px] sm:text-xs font-semibold tracking-wider uppercase">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#0A3266]/95 to-[#051C33]/80 z-0"></div>
+
+                        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
+                                <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[11px] sm:text-xs font-semibold tracking-wider uppercase">
+                                    <span className="w-2 h-2 rounded-full bg-[#3385FF] animate-pulse"></span>
                                     Plataforma Educativa Oficial
                                 </span>
+
                                 <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
                                     Impulsa tu aprendizaje con <span className="text-[#3385FF]">cursos en línea</span>
                                 </h1>
-                                <p className="text-sm sm:text-base lg:text-lg text-[#E3F2FD] max-w-xl font-light leading-relaxed">
-                                    Un entorno virtual moderno e intuitivo diseñado para gestionar asignaturas, contenido académico y un seguimiento detallado del rendimiento de los estudiantes.
+
+                                <p className="text-sm sm:text-base lg:text-lg text-[#E3F2FD] max-w-2xl font-light leading-relaxed">
+                                    Un entorno virtual moderno, seguro y estructurado para cursar asignaturas, revisar materiales académicos, presentar evaluaciones y llevar un control claro de tu avance.
                                 </p>
+
                                 <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-3 sm:pt-4">
                                     <Link
                                         href={route('register')}
@@ -72,19 +198,267 @@ export default () => {
                                         Comenzar Ahora
                                     </Link>
                                     <a
-                                        href="#cursos"
+                                        href="#como-funciona"
                                         className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-white/10 backdrop-blur-md text-white border border-white/20 text-sm sm:text-base font-semibold hover:bg-white/20 transition text-center"
                                     >
-                                        Explorar Módulos
+                                        Ver Paso a Paso
                                     </a>
+                                </div>
+                            </div>
+
+                            {/* Tarjeta lateral de vista rápida del flujo */}
+                            <div className="lg:col-span-5">
+                                <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
+                                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                                        <div>
+                                            <span className="text-[11px] uppercase tracking-wider text-[#90caf9] font-semibold">
+                                                Comunidad Activa
+                                            </span>
+                                            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">
+                                                +500 <span className="text-sm font-medium text-[#90caf9]">estudiantes registrados</span>
+                                            </p>
+                                        </div>
+                                        <div className="w-12 h-12 rounded-2xl bg-[#0066FF] flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3 text-xs sm:text-sm text-[#E3F2FD]">
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0">
+                                                1
+                                            </span>
+                                            <span>Registro con validación de datos y foto de cédula</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0">
+                                                2
+                                            </span>
+                                            <span>Código de 6 dígitos al correo y aprobación administrativa</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0">
+                                                3
+                                            </span>
+                                            <span>Clave temporal de 8 dígitos y cambio libre desde tu panel</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* 3. SECCIÓN DE INFORMACIÓN Y CURSOS */}
+                    {/* 3. BARRA DE ESTADÍSTICAS DESTACADAS */}
+                    <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 -mt-8 sm:-mt-10">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-blue-100">
+                            <div className="p-5 sm:p-7 text-center sm:text-left">
+                                <p className="text-2xl sm:text-4xl font-extrabold text-[#0066FF]">+500</p>
+                                <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Estudiantes Registrados</p>
+                                <p className="text-[11px] text-[#4A607A] mt-0.5">Comunidad en crecimiento continuo</p>
+                            </div>
+                            <div className="p-5 sm:p-7 text-center sm:text-left">
+                                <p className="text-2xl sm:text-4xl font-extrabold text-[#051C33]">100%</p>
+                                <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Acceso Verificado</p>
+                                <p className="text-[11px] text-[#4A607A] mt-0.5">Código de correo y revisión admin</p>
+                            </div>
+                            <div className="p-5 sm:p-7 text-center sm:text-left">
+                                <p className="text-2xl sm:text-4xl font-extrabold text-[#0066FF]">8 Dígitos</p>
+                                <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Clave Temporal Inicial</p>
+                                <p className="text-[11px] text-[#4A607A] mt-0.5">Modificable dentro de tu panel</p>
+                            </div>
+                            <div className="p-5 sm:p-7 text-center sm:text-left">
+                                <p className="text-2xl sm:text-4xl font-extrabold text-[#051C33]">24/7</p>
+                                <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Disponibilidad en Línea</p>
+                                <p className="text-[11px] text-[#4A607A] mt-0.5">Consulta de cursos y calificaciones</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 4. CARRUSEL INTERACTIVO PASO A PASO */}
+                    <section id="como-funciona" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+                        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
+                            <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
+                                Guía de Ingreso
+                            </span>
+                            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#051C33]">
+                                ¿Cómo funciona el acceso a la plataforma?
+                            </h2>
+                            <p className="text-xs sm:text-sm text-[#4A607A]">
+                                Recorre cada etapa del proceso en el carrusel para saber exactamente qué ocurre desde que te registras hasta que personalizas tu contraseña.
+                            </p>
+                        </div>
+
+                        {/* Selector de pasos arriba del carrusel */}
+                        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
+                            {steps.map((item, idx) => {
+                                const isActive = idx === activeStep;
+                                return (
+                                    <button
+                                        key={item.number}
+                                        type="button"
+                                        onClick={() => setActiveStep(idx)}
+                                        className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 border ${
+                                            isActive
+                                                ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-md shadow-blue-600/25'
+                                                : 'bg-white text-[#0A2540] border-blue-100 hover:border-[#0066FF]/50'
+                                        }`}
+                                    >
+                                        <span>Paso {item.number}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Tarjeta principal del carrusel */}
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
+                            <div className="grid grid-cols-1 lg:grid-cols-12">
+                                {/* Panel izquierdo oscuro */}
+                                <div className="lg:col-span-5 bg-[#051C33] text-white p-7 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+                                    <div className="space-y-4 relative z-10">
+                                        <span className="inline-block px-3.5 py-1 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-xs font-semibold">
+                                            {currentStep.badge}
+                                        </span>
+                                        <div className="flex items-center gap-4 pt-2">
+                                            <div className="w-14 h-14 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
+                                                <StepIcon type={currentStep.icon} />
+                                            </div>
+                                            <span className="text-4xl sm:text-5xl font-extrabold text-white/20 select-none">
+                                                {currentStep.number}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs sm:text-sm text-[#E3F2FD] leading-relaxed pt-2">
+                                            {currentStep.detail}
+                                        </p>
+                                    </div>
+
+                                    {/* Controles del carrusel */}
+                                    <div className="pt-8 mt-8 border-t border-white/10 flex items-center justify-between gap-4 relative z-10">
+                                        <button
+                                            type="button"
+                                            onClick={prevStep}
+                                            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
+                                        >
+                                            <span>← Anterior</span>
+                                        </button>
+
+                                        <div className="flex items-center gap-2">
+                                            {steps.map((s, index) => (
+                                                <button
+                                                    key={s.number}
+                                                    type="button"
+                                                    aria-label={`Ir al paso ${s.number}`}
+                                                    onClick={() => setActiveStep(index)}
+                                                    className={`h-2.5 rounded-full transition-all ${
+                                                        index === activeStep ? 'w-7 bg-[#3385FF]' : 'w-2.5 bg-white/30 hover:bg-white/50'
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={nextStep}
+                                            className="px-4 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
+                                        >
+                                            <span>Siguiente →</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Panel derecho con detalle del paso */}
+                                <div className="lg:col-span-7 p-7 sm:p-12 flex flex-col justify-center space-y-5">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">
+                                        Etapa {activeStep + 1} de {steps.length}
+                                    </span>
+                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#051C33] leading-snug">
+                                        {currentStep.title}
+                                    </h3>
+                                    <p className="text-sm sm:text-base text-[#4A607A] leading-relaxed">
+                                        {currentStep.description}
+                                    </p>
+
+                                    <div className="pt-3 flex flex-wrap items-center gap-3">
+                                        <Link
+                                            href={route('register')}
+                                            className="px-5 py-3 rounded-xl bg-[#0066FF] text-white text-xs sm:text-sm font-semibold hover:bg-[#0052CC] transition shadow-md shadow-blue-600/20"
+                                        >
+                                            Ir al Registro
+                                        </Link>
+                                        <Link
+                                            href={route('login')}
+                                            className="px-5 py-3 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs sm:text-sm font-semibold hover:bg-[#0066FF] hover:text-white transition"
+                                        >
+                                            Ya tengo clave temporal
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 5. SECCIÓN DE VÍDEO EXPLICATIVO (LISTO PARA CONFIGURAR) */}
+                    <section id="video-guia" className="py-12 sm:py-20 bg-white border-y border-blue-100">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                                <div className="lg:col-span-5 space-y-4">
+                                    <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
+                                        Recorrido Visual
+                                    </span>
+                                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#051C33] leading-tight">
+                                        Vídeo explicativo del Aula Virtual
+                                    </h2>
+                                    <p className="text-xs sm:text-sm text-[#4A607A] leading-relaxed">
+                                        Aquí podrás ver un recorrido guiado sobre cómo registrarte, validar tu correo, esperar la aprobación del administrador y gestionar tus cursos y contraseñas dentro del panel.
+                                    </p>
+                                    <div className="bg-[#F0F6FF] border border-blue-100 rounded-2xl p-4 text-xs text-[#0A2540] space-y-1.5">
+                                        <p className="font-bold text-[#0066FF]">Espacio reservado para producción</p>
+                                        <p className="text-[#4A607A]">
+                                            Este contenedor ya está preparado en el diseño; cuando tengas el vídeo final, solo debes enlazar su fuente aquí.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Contenedor preparado para el vídeo */}
+                                <div className="lg:col-span-7">
+                                    <div className="relative rounded-3xl bg-[#051C33] border-2 border-blue-100 shadow-2xl shadow-blue-900/10 overflow-hidden aspect-video flex flex-col items-center justify-center p-6 sm:p-10 text-center text-white">
+                                        {/* Cuando el vídeo esté listo, reemplaza o activa este bloque:
+                                        <video
+                                            src="/videos/guia-aula-virtual.mp4"
+                                            controls
+                                            className="w-full h-full object-cover"
+                                        />
+                                        */}
+
+                                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-xl shadow-blue-600/40 mb-5">
+                                            <svg className="w-8 h-8 sm:w-10 sm:h-10 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </div>
+
+                                        <span className="px-3.5 py-1 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[11px] font-semibold uppercase tracking-wider mb-2">
+                                            Vídeo Explicativo · En Preparación
+                                        </span>
+                                        <h3 className="text-lg sm:text-2xl font-bold text-white max-w-md">
+                                            Guía completa para nuevos estudiantes
+                                        </h3>
+                                        <p className="text-xs sm:text-sm text-[#E3F2FD]/80 max-w-md mt-2">
+                                            Próximamente disponible en este espacio para acompañarte paso a paso dentro de la plataforma.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 6. MÓDULOS ACADÉMICOS PRINCIPALES */}
                     <section id="cursos" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
                         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3 sm:space-y-4">
+                            <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
+                                Herramientas del Sistema
+                            </span>
                             <h2 className="text-2xl sm:text-3xl font-bold text-[#051C33]">Módulos Académicos Principales</h2>
                             <p className="text-xs sm:text-sm text-[#4A607A]">
                                 Herramientas diseñadas bajo altos estándares de usabilidad para profesores y alumnos.
@@ -92,7 +466,6 @@ export default () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                            
                             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
                                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
                                     <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -128,19 +501,55 @@ export default () => {
                                     Interfaces especializadas y seguras para administradores, docentes y alumnos dentro de la plataforma.
                                 </p>
                             </div>
+                        </div>
+                    </section>
 
+                    {/* 7. PREGUNTAS FRECUENTES INTERACTIVAS */}
+                    <section className="pb-16 sm:pb-24 max-w-4xl mx-auto px-4 sm:px-6">
+                        <div className="text-center mb-8 sm:mb-10 space-y-2">
+                            <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
+                                Resolución de Dudas
+                            </span>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[#051C33]">Preguntas Frecuentes</h2>
+                        </div>
+
+                        <div className="space-y-3">
+                            {faqs.map((faq, idx) => {
+                                const isOpen = openFaq === idx;
+                                return (
+                                    <div
+                                        key={faq.q}
+                                        className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden"
+                                    >
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                                            className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-[#F8FAFC] transition"
+                                        >
+                                            <span className="text-xs sm:text-sm font-bold text-[#051C33]">{faq.q}</span>
+                                            <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center font-bold text-sm shrink-0">
+                                                {isOpen ? '−' : '+'}
+                                            </span>
+                                        </button>
+                                        {isOpen && (
+                                            <div className="px-5 sm:px-6 pb-5 text-xs sm:text-sm text-[#4A607A] leading-relaxed border-t border-blue-50 pt-3">
+                                                {faq.a}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 </main>
 
-                {/* 4. PIE DE PÁGINA */}
+                {/* 8. PIE DE PÁGINA */}
                 <footer className="bg-[#051C33] text-[#90caf9] py-6 sm:py-8 border-t border-blue-900">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-center sm:text-left">
                         <p>© 2026 Grupo Académico LEIL. Todos los derechos reservados.</p>
                         <p className="font-medium text-[#E3F2FD]">Plataforma Educativa Oficial</p>
                     </div>
                 </footer>
-
             </div>
         </>
     );
