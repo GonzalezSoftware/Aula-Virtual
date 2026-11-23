@@ -1,17 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 
 export default function AdminSidebar({ sidebarOpen, setSidebarOpen, activeMenu }) {
     const [internalOpen, setInternalOpen] = useState(false);
 
     const isOpen = typeof sidebarOpen === 'boolean' ? sidebarOpen : internalOpen;
-
-    useEffect(() => {
-        setInternalOpen(false);
-        if (typeof setSidebarOpen === 'function') {
-            setSidebarOpen(false);
-        }
-    }, [activeMenu]);
 
     const toggleSidebar = () => {
         const nextState = !isOpen;
@@ -22,7 +15,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen, activeMenu }
     };
 
     return (
-        <aside className={`${isOpen ? 'w-52 sm:w-64' : 'w-16 sm:w-20'} bg-[#051C33] text-white border-r border-slate-800 transition-all duration-300 flex flex-col sticky top-0 h-screen z-30 shadow-xl shrink-0`}>
+        <aside className={`${isOpen ? 'w-52 sm:w-64' : 'w-16 sm:w-20'} bg-[#051C33] text-white border-r border-slate-800 flex flex-col sticky top-0 h-screen z-30 shadow-xl shrink-0`}>
             {/* CABECERA SUPERIOR */}
             <div className="h-16 sm:h-20 px-3 sm:px-5 flex items-center gap-2.5 sm:gap-3 border-b border-white/10 shrink-0">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md shadow-blue-500/25 shrink-0">
