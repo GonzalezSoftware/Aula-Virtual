@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import * as pdfjsLib from 'pdfjs-dist';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url
+).toString();
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -55,9 +61,9 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                 setTotalPages(doc.numPages || 1);
                 setLoadingPdf(false);
             })
-            .catch(() => {
+            .catch((err) => {
                 if (cancelled) return;
-                setErrorMsg('No se pudo cargar el documento PDF en el visor.');
+                setErrorMsg(err?.message || 'No se pudo cargar el documento PDF en el visor.');
                 setLoadingPdf(false);
             });
 
@@ -139,7 +145,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 select-none">
             <div className="bg-white w-full max-w-5xl h-[94vh] sm:h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-blue-100">
-                
+
                 {/* Header corporativo con Paginación Integrada */}
                 <div className="px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-center gap-2.5 sm:gap-3 select-none">
                     <h3 className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-full sm:max-w-md text-white text-center sm:text-left">
@@ -148,7 +154,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
 
                     {/* Controles de Paginación Centrales */}
                     <div className="flex items-center justify-center gap-2 sm:gap-3 bg-slate-800/80 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 w-full sm:w-auto">
-                        <button 
+                        <button
                             type="button"
                             onClick={prevPage}
                             disabled={currentPage === 1 || loadingPdf}
@@ -159,7 +165,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                         <span className="text-[11px] sm:text-xs font-medium text-slate-200 whitespace-nowrap">
                             Página <strong className="text-white">{currentPage}</strong> de <strong className="text-white">{totalPages}</strong>
                         </span>
-                        <button 
+                        <button
                             type="button"
                             onClick={nextPage}
                             disabled={currentPage >= totalPages || loadingPdf}
@@ -169,7 +175,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                         </button>
                     </div>
 
-                    <button 
+                    <button
                         type="button"
                         onClick={onClose}
                         className="w-full sm:w-auto px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0"
@@ -184,7 +190,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                     className="flex-1 bg-slate-950 relative overflow-y-auto overflow-x-hidden select-none flex items-start justify-center p-2 sm:p-4"
                 >
                     {/* CAPA INVISIBLE ANTIRROBO (z-20) */}
-                    <div 
+                    <div
                         className="absolute inset-0 z-20 bg-transparent cursor-default"
                         onMouseDown={(e) => e.preventDefault()}
                         onSelectStart={(e) => e.preventDefault()}
@@ -205,9 +211,8 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
 
                     <canvas
                         ref={canvasRef}
-                        className={`max-w-full h-auto rounded-lg shadow-lg bg-white pointer-events-none select-none z-10 ${
-                            loadingPdf || errorMsg ? 'hidden' : 'block'
-                        }`}
+                        className={`max-w-full h-auto rounded-lg shadow-lg bg-white pointer-events-none select-none z-10 ${loadingPdf || errorMsg ? 'hidden' : 'block'
+                            }`}
                     />
                 </div>
 
