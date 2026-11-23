@@ -12,6 +12,7 @@ class ExamAttempt extends Model
     protected $fillable = [
         'user_id',
         'module_id',
+        'course_user_id',
         'attempt_number',
         'answers',
         'score',

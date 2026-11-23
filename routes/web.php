@@ -4,14 +4,13 @@ use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentPasswordController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\StudentCourseController;
-use App\Http\Controllers\Auth\StudentContentController; 
+use App\Http\Controllers\Auth\StudentContentController;
 use App\Http\Controllers\Auth\StudentExamController;
 use App\Http\Controllers\Auth\StudentGradeController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\AdminGradeController;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -81,25 +80,14 @@ Route::post('/student/logout', [StudentAuthController::class, 'destroy'])->name(
 
 // Dashboard general de estudiantes y gestión de contenidos (Protegido por el guardia 'web')
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        $user = Auth::guard('web')->user();
-        if ($user && $user->email === 'admin_oculto') {
-            return redirect()->route('admin.dashboard');
-        }
-
-        // Cargamos los cursos asociados al estudiante autenticado junto con sus módulos
-        $user->load('courses.modules');
-
-        return Inertia::render('Student/Dashboard', [
-            'courses' => $user->courses
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', [StudentCourseController::class, 'dashboard'])->name('dashboard');
 
     // ==========================================
     // RUTAS PARA CURSOS Y MÓDULOS DEL ESTUDIANTE
     // ==========================================
+    Route::get('/student/courses/completed', [StudentCourseController::class, 'completedCourses'])->name('student.courses.completed');
     Route::get('/student/courses/{id}', [StudentCourseController::class, 'showCourse'])->name('student.courses.show');
-    
+
     Route::get('/student/courses/{course}/modules/{module}', [StudentCourseController::class, 'showModule'])->name('student.courses.modules.show');
 
     // ==========================================

@@ -14,6 +14,7 @@ class StudentModuleProgress extends Model
     protected $fillable = [
         'user_id',
         'module_id',
+        'course_user_id',
         'completed',
         'exam_score',
         'completed_at',
@@ -25,13 +26,11 @@ class StudentModuleProgress extends Model
         'exam_score' => 'decimal:2',
     ];
 
-    // Relación con el estudiante (Usuario)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relación con el módulo
     public function module()
     {
         return $this->belongsTo(Module::class);

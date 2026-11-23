@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Course; 
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -29,13 +29,64 @@ class AdminStudentController extends Controller
         ]);
     }
 
-    // Método para asignar o actualizar los cursos de un estudiante
+    // Método para asignar o actualizar los cursos de un estudiante sin afectar cursos terminados ni notas
     public function assignCourses(Request $request, $id)
     {
         $student = User::findOrFail($id);
-        
-        // Sincroniza los cursos seleccionados (guarda los IDs enviados desde el frontend)
-        $student->courses()->sync($request->input('courses', []));
+
+        $selectedCourseIds = collect($request->input('courses', []))
+            ->map(fn ($courseId) => (int) $courseId)
+            ->unique()
+            ->values();
+
+        $existingEnrollments = $student->courses()->get()->keyBy('id');
+
+        // 1. Preservar siempre los cursos ya completados para proteger su historial y calificaciones
+        $completedCourseIds = $existingEnrollments
+            ->filter(fn ($course) => ($course->pivot?->status ?? null) === 'completed')
+            ->keys();
+
+        $finalCourseIds = $selectedCourseIds->merge($completedCourseIds)->unique()->values();
+
+        // 2. Consultar cursos para registrar snapshot de fechas en inscripciones nuevas o activas
+        $coursesMap = Course::whereIn('id', $finalCourseIds)->get()->keyBy('id');
+
+        foreach ($finalCourseIds as $courseId) {
+            $courseModel = $coursesMap->get($courseId);
+            if (!$courseModel) {
+                continue;
+            }
+
+            $existing = $existingEnrollments->get($courseId);
+
+            if (!$existing) {
+                $student->courses()->attach($courseId, [
+                    'enrolled_start_date' => $courseModel->start_date,
+                    'enrolled_end_date' => $courseModel->end_date,
+                    'status' => 'active',
+                    'completed_at' => null,
+                ]);
+            } elseif (($existing->pivot?->status ?? null) !== 'completed') {
+                $student->courses()->updateExistingPivot($courseId, [
+                    'enrolled_start_date' => $existing->pivot?->enrolled_start_date ?? $courseModel->start_date,
+                    'enrolled_end_date' => $existing->pivot?->enrolled_end_date ?? $courseModel->end_date,
+                    'status' => 'active',
+                ]);
+            }
+        }
+
+        // 3. Desvincular únicamente inscripciones no completadas que fueron desmarcadas por el admin
+        $coursesToDetach = $existingEnrollments
+            ->filter(function ($course) use ($finalCourseIds) {
+                $isCompleted = ($course->pivot?->status ?? null) === 'completed';
+                return !$isCompleted && !$finalCourseIds->contains((int) $course->id);
+            })
+            ->keys()
+            ->all();
+
+        if (!empty($coursesToDetach)) {
+            $student->courses()->detach($coursesToDetach);
+        }
 
         return back()->with('success', 'Cursos asignados correctamente.');
     }
@@ -70,7 +121,7 @@ class AdminStudentController extends Controller
 
         // 3. Enviar el correo electrónico con la misma interfaz limpia y minimalista
         $subject = '¡Cuenta Aprobada - Clave Temporal de Acceso!';
-        
+
         Mail::send([], [], function ($message) use ($student, $temporaryPassword, $subject) {
             $message->to($student->email)
                     ->subject($subject)
@@ -100,7 +151,7 @@ class AdminStudentController extends Controller
 
         return back()->with('success', 'Estudiante aprobado y contraseña temporal enviada por correo.');
     }
-    
+
     /**
      * Rechazar / Eliminar estudiante en espera y su archivo de cédula.
      */

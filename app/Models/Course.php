@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Course extends Model
 {
@@ -16,8 +17,10 @@ class Course extends Model
         return $this->hasMany(Module::class)->orderBy('order');
     }
 
-    public function students()
-{
-    return $this->belongsToMany(User::class, 'course_user');
-}
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'course_user')
+            ->withPivot(['id', 'enrolled_start_date', 'enrolled_end_date', 'status', 'completed_at'])
+            ->withTimestamps();
+    }
 }

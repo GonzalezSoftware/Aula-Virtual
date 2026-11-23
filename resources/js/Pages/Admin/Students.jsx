@@ -6,7 +6,7 @@ import AdminSidebar from '@/Components/AdminSidebar';
 export default function Students({ auth, students, courses = [] }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [search, setSearch] = useState('');
-    
+
     // Estados para el Modal de Asignación de Cursos
     const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -15,12 +15,12 @@ export default function Students({ auth, students, courses = [] }) {
     // Filtrar estudiantes activos (en_espera === 0) que coincidan con la búsqueda
     const filteredStudents = students.filter(student => {
         const isActive = student.en_espera === 0 && student.email !== 'admin_oculto';
-        const matchesSearch = 
+        const matchesSearch =
             student.name.toLowerCase().includes(search.toLowerCase()) ||
             (student.lastname && student.lastname.toLowerCase().includes(search.toLowerCase())) ||
             (student.cedula && student.cedula.toLowerCase().includes(search.toLowerCase())) ||
             student.email.toLowerCase().includes(search.toLowerCase());
-        
+
         return isActive && matchesSearch;
     });
 
@@ -94,15 +94,15 @@ export default function Students({ auth, students, courses = [] }) {
     return (
         <>
             <Head title="Listado de Estudiantes - Panel Admin" />
-            
+
             <div className="min-h-screen bg-[#F8FAFC] text-[#0A2540] font-['Poppins'] flex">
-                
+
                 {/* SIDEBAR IMPORTADO */}
                 <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeMenu="students" />
 
                 {/* CONTENEDOR PRINCIPAL */}
                 <div className="flex-1 flex flex-col justify-between min-h-screen overflow-x-hidden min-w-0">
-                    
+
                     <header className="w-full bg-white/95 backdrop-blur-md border-b border-blue-100 px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sticky top-0 z-20 shadow-sm">
                         <h2 className="text-base sm:text-lg font-extrabold text-[#051C33] tracking-tight truncate">
                             Gestión de Estudiantes
@@ -126,7 +126,7 @@ export default function Students({ auth, students, courses = [] }) {
                     </header>
 
                     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-grow">
-                        
+
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
                             <div>
                                 <h1 className="text-xl sm:text-2xl font-extrabold text-[#051C33]">Lista General de Alumnos</h1>
@@ -213,13 +213,13 @@ export default function Students({ auth, students, courses = [] }) {
                 {isCourseModalOpen && selectedStudent && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                         <div className="bg-white w-full max-w-lg rounded-2xl sm:rounded-3xl shadow-2xl border border-blue-100 overflow-hidden transform transition-all">
-                            
+
                             <div className="bg-[#051C33] text-white px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-2">
                                 <div className="min-w-0">
                                     <h3 className="text-base sm:text-lg font-bold truncate">Asignar Cursos al Estudiante</h3>
                                     <p className="text-xs text-slate-300 truncate">{selectedStudent.name} {selectedStudent.lastname}</p>
                                 </div>
-                                <button 
+                                <button
                                     onClick={closeCourseModal}
                                     className="text-slate-300 hover:text-white text-lg font-bold px-2 py-1 outline-none shrink-0"
                                 >
@@ -229,7 +229,7 @@ export default function Students({ auth, students, courses = [] }) {
 
                             <div className="p-4 sm:p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                                 <p className="text-xs text-[#4A607A]">
-                                    Selecciona los cursos a los que este estudiante tendrá acceso. Si desmarcas un curso, perderá acceso al mismo.
+                                    Selecciona los cursos a los que este estudiante tendrá acceso. Los cursos ya terminados conservan su historial protegido.
                                 </p>
 
                                 {courses.length === 0 ? (
@@ -239,23 +239,38 @@ export default function Students({ auth, students, courses = [] }) {
                                 ) : (
                                     <div className="space-y-2.5">
                                         {courses.map((course) => {
-                                            const isChecked = assignedCourseIds.includes(course.id);
+                                            const studentCourse = selectedStudent.courses?.find(c => c.id === course.id);
+                                            const isCompletedForStudent = studentCourse?.pivot?.status === 'completed';
+                                            const isChecked = assignedCourseIds.includes(course.id) || isCompletedForStudent;
+
                                             return (
-                                                <label 
+                                                <label
                                                     key={course.id}
                                                     className={`flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border transition cursor-pointer ${
-                                                        isChecked ? 'bg-blue-50/70 border-[#0066FF]' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                                        isCompletedForStudent
+                                                            ? 'bg-emerald-50/60 border-emerald-200'
+                                                            : isChecked
+                                                                ? 'bg-blue-50/70 border-[#0066FF]'
+                                                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                                                     }`}
                                                 >
                                                     <div className="flex items-center gap-3 min-w-0">
-                                                        <input 
+                                                        <input
                                                             type="checkbox"
                                                             checked={isChecked}
-                                                            onChange={() => handleCheckboxChange(course.id)}
-                                                            className="w-4 h-4 text-[#0066FF] rounded focus:ring-[#0066FF] cursor-pointer shrink-0"
+                                                            disabled={isCompletedForStudent}
+                                                            onChange={() => !isCompletedForStudent && handleCheckboxChange(course.id)}
+                                                            className="w-4 h-4 text-[#0066FF] rounded focus:ring-[#0066FF] cursor-pointer shrink-0 disabled:opacity-60"
                                                         />
                                                         <div className="min-w-0">
-                                                            <span className="block text-xs sm:text-sm font-bold text-[#051C33] truncate">{course.title}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="block text-xs sm:text-sm font-bold text-[#051C33] truncate">{course.title}</span>
+                                                                {isCompletedForStudent && (
+                                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 shrink-0">
+                                                                        Terminado
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <span className="text-xs text-[#4A607A] line-clamp-1">{course.description}</span>
                                                         </div>
                                                     </div>
