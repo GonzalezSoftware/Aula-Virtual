@@ -28,32 +28,77 @@ class StudentAuthController extends Controller
     // Paso 1: Recibe los datos, valida, sube la foto, genera el código y lo envía al correo
     public function sendCode(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'cedula' => 'required|string|unique:users,cedula',
-            'phone' => 'required|string|max:50',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'cedula_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        $request->merge([
+            'name' => trim((string) $request->name),
+            'lastname' => trim((string) $request->lastname),
+            'cedula' => trim((string) $request->cedula),
+            'phone' => trim((string) $request->phone),
+            'email' => strtolower(trim((string) $request->email)),
         ]);
 
-        $imagePath = $request->file('cedula_image')->store('cedulas', 'public');
-        $code = rand(100000, 999999);
+        // Solo letras (incluyendo tildes, diéresis y ñ) y espacios simples entre palabras
+        $lettersOnlyRegex = '/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/';
+
+        // Correo válido con formato estándar y dominio exacto gmail.com
+        $gmailRegex = '/^[a-z0-9]+([._+-]?[a-z0-9]+)*@gmail\.com$/';
+
+        $validated =$request->validate([
+            'name' => ['required', 'string', 'max:30', "regex:{$lettersOnlyRegex}"],
+            'lastname' => ['required', 'string', 'max:30', "regex:{$lettersOnlyRegex}"],
+            'cedula' => ['required', 'string', 'regex:/^[0-9]{6,8}$/', 'unique:users,cedula'],
+            'phone' => ['required', 'string', 'regex:/^[0-9]{11}$/'],
+            'email' => [
+                'required',
+                'string',
+                'max:255',
+                'email:rfc',
+                "regex:{$gmailRegex}",
+                'unique:users,email',
+            ],
+            'cedula_image' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        ], [
+            'name.required' => 'El campo nombres es obligatorio.',
+            'name.max' => 'Los nombres no pueden tener más de 30 caracteres.',
+            'name.regex' => 'Los nombres solo pueden contener letras y espacios (sin números, comas ni caracteres especiales).',
+
+            'lastname.required' => 'El campo apellidos es obligatorio.',
+            'lastname.max' => 'Los apellidos no pueden tener más de 30 caracteres.',
+            'lastname.regex' => 'Los apellidos solo pueden contener letras y espacios (sin números, comas ni caracteres especiales).',
+
+            'cedula.required' => 'La cédula es obligatoria.',
+            'cedula.regex' => 'La cédula debe contener solo números, entre 6 y 8 dígitos.',
+            'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
+
+            'phone.required' => 'El teléfono es obligatorio.',
+            'phone.regex' => 'El teléfono debe contener exactamente 11 dígitos numéricos (sin letras ni caracteres especiales).',
+
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'Ingresa una dirección de correo electrónico válida.',
+            'email.regex' => 'El correo debe ser válido y terminar en @gmail.com.',
+            'email.unique' => 'Este correo electrónico ya está registrado en el sistema.',
+
+            'cedula_image.required' => 'Debes subir la foto de la cédula.',
+            'cedula_image.image' => 'El archivo de la cédula debe ser una imagen.',
+            'cedula_image.mimes' => 'La foto de la cédula debe ser de tipo JPG, JPEG o PNG.',
+            'cedula_image.max' => 'La foto de la cédula no debe superar los 2 MB.',
+        ]);
+
+        $imagePath = $request->file('cedula_image')->store('cedulas', 'public');$code = rand(100000, 999999);
 
         session([
             'temp_student_data' => [
-                'name' => $request->name,
-                'lastname' => $request->lastname,
-                'cedula' => $request->cedula,
-                'phone' => $request->phone,
-                'email' => $request->email,
+                'name' => $validated['name'],
+                'lastname' => $validated['lastname'],
+                'cedula' => $validated['cedula'],
+                'phone' => $validated['phone'],
+                'email' => $validated['email'],
                 'cedula_image' => $imagePath,
                 'password' => Hash::make(Str::random(16)),
                 'verification_code' => (string) $code,
             ]
         ]);
 
-        Mail::to($request->email)->send(new StudentVerificationMail($code));
+        Mail::to($validated['email'])->send(new StudentVerificationMail($code));
 
         return back()->with('status', 'Código de verificación enviado al correo.');
     }
@@ -67,8 +112,17 @@ class StudentAuthController extends Controller
 
         $tempData = session('temp_student_data');
 
-        if (!$tempData || $tempData['verification_code'] !== $request->verification_code) {
+        if (!$tempData || $tempData['verification_code'] !==$request->verification_code) {
             return back()->withErrors(['verification_code' => 'El código de verificación es incorrecto o ha expirado.']);
+        }
+
+        // Doble verificación por si la cédula o correo se registraron mientras se verificaba el código
+        if (User::where('cedula', $tempData['cedula'])->exists()) {
+            return back()->withErrors(['cedula' => 'Esta cédula ya está registrada en el sistema.']);
+        }
+
+        if (User::where('email', $tempData['email'])->exists()) {
+            return back()->withErrors(['email' => 'Este correo electrónico ya está registrado en el sistema.']);
         }
 
         User::create([
@@ -90,7 +144,7 @@ class StudentAuthController extends Controller
     /// Inicio de sesión para estudiantes
     public function store(Request $request)
     {
-        $credentials = $request->validate([
+        $credentials =$request->validate([
             'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
@@ -107,9 +161,9 @@ class StudentAuthController extends Controller
             return redirect()->route('admin.login');
         }
 
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('email',$credentials['email'])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($credentials['password'],$user->password)) {
             return back()->withErrors([
                 'email' => 'Las credenciales proporcionadas son incorrectas.',
             ]);
@@ -125,7 +179,7 @@ class StudentAuthController extends Controller
         $request->session()->forget('url.intended');
 
         // Autenticamos con el guardia web para los estudiantes
-        Auth::guard('web')->login($user, $request->boolean('remember'));
+        Auth::guard('web')->login($user,$request->boolean('remember'));
 
         $request->session()->regenerate();
 

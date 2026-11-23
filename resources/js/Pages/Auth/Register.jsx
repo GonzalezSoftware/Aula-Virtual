@@ -3,8 +3,8 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 
 export default function Register({ status }) {
-    const [step, setStep] = useState('form'); 
-    
+    const [step, setStep] = useState('form');
+
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
 
@@ -17,6 +17,32 @@ export default function Register({ status }) {
         cedula_image: null,
         verification_code: '',
     });
+
+    const lettersOnlyRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
+    const gmailRegex = /^[a-z0-9]+([._+-]?[a-z0-9]+)*@gmail\.com$/;
+
+    const sanitizeLetters = (value) => {
+        return value
+            .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '')
+            .replace(/\s{2,}/g, ' ')
+            .replace(/^\s+/, '')
+            .slice(0, 30);
+    };
+
+    const sanitizeDigits = (value, maxLength) => {
+        return value.replace(/\D/g, '').slice(0, maxLength);
+    };
+
+    const showAlertError = (message) => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Atención',
+            text: message,
+            confirmButtonColor: '#0066FF',
+            background: '#ffffff',
+            customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
+        });
+    };
 
     useEffect(() => {
         const errorMsg = errors.name || errors.lastname || errors.cedula || errors.phone || errors.email || errors.cedula_image || errors.verification_code;
@@ -34,14 +60,50 @@ export default function Register({ status }) {
 
     const handleRegisterSubmit = (e) => {
         e.preventDefault();
-        
+
+        const cleanName = data.name.trim();
+        const cleanLastname = data.lastname.trim();
+        const cleanCedula = data.cedula.trim();
+        const cleanPhone = data.phone.trim();
+        const cleanEmail = data.email.trim().toLowerCase();
+
+        if (!cleanName || cleanName.length > 30 || !lettersOnlyRegex.test(cleanName)) {
+            showAlertError('Los nombres solo pueden contener letras y espacios (sin números, comas ni caracteres especiales), máximo 30 caracteres.');
+            return;
+        }
+
+        if (!cleanLastname || cleanLastname.length > 30 || !lettersOnlyRegex.test(cleanLastname)) {
+            showAlertError('Los apellidos solo pueden contener letras y espacios (sin números, comas ni caracteres especiales), máximo 30 caracteres.');
+            return;
+        }
+
+        if (!/^[0-9]{6,8}$/.test(cleanCedula)) {
+            showAlertError('La cédula debe contener solo números, entre 6 y 8 dígitos.');
+            return;
+        }
+
+        if (!/^[0-9]{11}$/.test(cleanPhone)) {
+            showAlertError('El teléfono debe contener exactamente 11 dígitos numéricos, sin letras ni caracteres especiales.');
+            return;
+        }
+
+        if (!cleanEmail || !gmailRegex.test(cleanEmail)) {
+            showAlertError('El correo electrónico debe ser válido y terminar en @gmail.com.');
+            return;
+        }
+
+        if (!data.cedula_image) {
+            showAlertError('Debes seleccionar una foto de tu cédula.');
+            return;
+        }
+
         post(route('register.send-code'), {
             onSuccess: () => {
                 setStep('verify');
                 Swal.fire({
                     icon: 'success',
                     title: '¡Código enviado!',
-                    text: `Hemos enviado un código de 6 dígitos a ${data.email}. Revisa tu correo.`,
+                    text: `Hemos enviado un código de 6 dígitos a ${cleanEmail}. Revisa tu correo.`,
                     confirmButtonColor: '#0066FF',
                     customClass: { popup: 'rounded-2xl font-[\'Poppins\']' }
                 });
@@ -180,8 +242,9 @@ export default function Register({ status }) {
                                                 <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Nombres</label>
                                                 <input
                                                     type="text"
+                                                    maxLength={30}
                                                     value={data.name}
-                                                    onChange={(e) => setData('name', e.target.value)}
+                                                    onChange={(e) => setData('name', sanitizeLetters(e.target.value))}
                                                     placeholder="Ej. Juan Carlos"
                                                     className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                                     required
@@ -191,8 +254,9 @@ export default function Register({ status }) {
                                                 <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Apellidos</label>
                                                 <input
                                                     type="text"
+                                                    maxLength={30}
                                                     value={data.lastname}
-                                                    onChange={(e) => setData('lastname', e.target.value)}
+                                                    onChange={(e) => setData('lastname', sanitizeLetters(e.target.value))}
                                                     placeholder="Ej. Pérez Gómez"
                                                     className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                                     required
@@ -205,9 +269,11 @@ export default function Register({ status }) {
                                                 <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Cédula de Identidad</label>
                                                 <input
                                                     type="text"
+                                                    inputMode="numeric"
+                                                    maxLength={8}
                                                     value={data.cedula}
-                                                    onChange={(e) => setData('cedula', e.target.value)}
-                                                    placeholder="Ej. V-28123456"
+                                                    onChange={(e) => setData('cedula', sanitizeDigits(e.target.value, 8))}
+                                                    placeholder="Ej. 28123456 (6 a 8 dígitos)"
                                                     className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                                     required
                                                 />
@@ -216,9 +282,11 @@ export default function Register({ status }) {
                                                 <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Teléfono</label>
                                                 <input
                                                     type="text"
+                                                    inputMode="numeric"
+                                                    maxLength={11}
                                                     value={data.phone}
-                                                    onChange={(e) => setData('phone', e.target.value)}
-                                                    placeholder="Ej. 0412-1234567"
+                                                    onChange={(e) => setData('phone', sanitizeDigits(e.target.value, 11))}
+                                                    placeholder="Ej. 04121234567 (11 dígitos)"
                                                     className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                                     required
                                                 />
@@ -230,8 +298,8 @@ export default function Register({ status }) {
                                             <input
                                                 type="email"
                                                 value={data.email}
-                                                onChange={(e) => setData('email', e.target.value)}
-                                                placeholder="ejemplo@correo.com"
+                                                onChange={(e) => setData('email', e.target.value.toLowerCase())}
+                                                placeholder="ejemplo@gmail.com"
                                                 autoComplete="email"
                                                 className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-blue-200/80 text-[#051C33] text-xs sm:text-sm focus:bg-white focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 transition outline-none"
                                                 required
