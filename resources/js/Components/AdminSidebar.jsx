@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 
-export default function AdminSidebar({ sidebarOpen, setSidebarOpen, activeMenu }) {
-    const [internalOpen, setInternalOpen] = useState(false);
-
-    const isOpen = typeof sidebarOpen === 'boolean' ? sidebarOpen : internalOpen;
+export default function AdminSidebar({ setSidebarOpen, activeMenu }) {
+    const [isOpen, setIsOpen] = useState(false);
 
     const toggleSidebar = () => {
         const nextState = !isOpen;
-        setInternalOpen(nextState);
+        setIsOpen(nextState);
         if (typeof setSidebarOpen === 'function') {
             setSidebarOpen(nextState);
         }
