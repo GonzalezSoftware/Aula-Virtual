@@ -30,22 +30,51 @@ class AdminGradeController extends Controller
 
         $allProgress = StudentModuleProgress::whereIn('user_id', $studentIds)
             ->get()
-            ->groupBy('user_id')
-            ->map(fn ($items) => $items->keyBy('module_id'));
+            ->groupBy('user_id');
 
         $allAttempts = ExamAttempt::whereIn('user_id', $studentIds)
             ->orderByDesc('attempt_number')
             ->get()
-            ->groupBy('user_id')
-            ->map(fn ($items) => $items->groupBy('module_id'));
+            ->groupBy('user_id');
 
         $records = [];
 
         foreach ($students as $student) {
-            $userProgressByModule = $allProgress->get($student->id, collect());
-            $userAttemptsByModule = $allAttempts->get($student->id, collect());
+            $userProgressAll = $allProgress->get($student->id, collect());
+            $userAttemptsAll = $allAttempts->get($student->id, collect());
 
             foreach ($student->courses as $course) {
+                $enrollmentId = $course->pivot?->id;
+
+                $courseProgress = $userProgressAll->filter(function ($item) use ($enrollmentId) {
+                    if ($enrollmentId) {
+                        return (int) $item->course_user_id === (int) $enrollmentId || $item->course_user_id === null;
+                    }
+                    return true;
+                });
+
+                $courseAttempts = $userAttemptsAll->filter(function ($item) use ($enrollmentId) {
+                    if ($enrollmentId) {
+                        return (int) $item->course_user_id === (int) $enrollmentId || $item->course_user_id === null;
+                    }
+                    return true;
+                });
+
+                if ($enrollmentId) {
+                    $exactProgress = $courseProgress->where('course_user_id', $enrollmentId);
+                    if ($exactProgress->isNotEmpty()) {
+                        $courseProgress = $exactProgress;
+                    }
+
+                    $exactAttempts = $courseAttempts->where('course_user_id', $enrollmentId);
+                    if ($exactAttempts->isNotEmpty()) {
+                        $courseAttempts = $exactAttempts;
+                    }
+                }
+
+                $userProgressByModule = $courseProgress->keyBy('module_id');
+                $userAttemptsByModule = $courseAttempts->groupBy('module_id');
+
                 $evaluatedScores = [];
 
                 $modulesList = $course->modules->map(function ($module) use ($userProgressByModule, $userAttemptsByModule, &$evaluatedScores) {
