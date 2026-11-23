@@ -13,17 +13,24 @@ use Inertia\Inertia;
 
 class StudentExamController extends Controller
 {
-    private function validateExamAvailability(Course $course, Module $module)
+    private function validateExamAvailability(Course $course, Module $module, $enrollment = null)
     {
         $today = Carbon::today();
 
-        if ($course->start_date && $today->lt(Carbon::parse($course->start_date)->startOfDay())) {
-            $dateStr = Carbon::parse($course->start_date)->format('d/m/Y');
+        $effectiveStartDate = $enrollment?->pivot?->enrolled_start_date ?? $course->start_date;
+        $effectiveEndDate = $enrollment?->pivot?->enrolled_end_date ?? $course->end_date;
+
+        if (($enrollment?->pivot?->status ?? null) === 'completed') {
+            return "El curso \"{$course->title}\" ya finalizó para tu inscripción.";
+        }
+
+        if ($effectiveStartDate && $today->lt(Carbon::parse($effectiveStartDate)->startOfDay())) {
+            $dateStr = Carbon::parse($effectiveStartDate)->format('d/m/Y');
             return "El curso \"{$course->title}\" aún no ha iniciado (inicia el {$dateStr}).";
         }
 
-        if ($course->end_date && $today->gt(Carbon::parse($course->end_date)->endOfDay())) {
-            $dateStr = Carbon::parse($course->end_date)->format('d/m/Y');
+        if ($effectiveEndDate && $today->gt(Carbon::parse($effectiveEndDate)->endOfDay())) {
+            $dateStr = Carbon::parse($effectiveEndDate)->format('d/m/Y');
             return "El curso \"{$course->title}\" ya finalizó (cerró el {$dateStr}).";
         }
 
@@ -67,22 +74,34 @@ class StudentExamController extends Controller
                 ->with('error', 'El módulo no pertenece a este curso.');
         }
 
-        $isEnrolled = $user->courses()->where('courses.id', $course->id)->exists();
+        $enrollment = $user->courses()->where('courses.id', $course->id)->first();
+        $isEnrolled = (bool) $enrollment;
+
         if (!$isEnrolled && $user->email !== 'admin_oculto') {
             return redirect()
                 ->route('dashboard')
                 ->with('error', 'No tienes acceso a este curso.');
         }
 
-        if ($dateMessage = $this->validateExamAvailability($course, $module)) {
+        if ($dateMessage = $this->validateExamAvailability($course, $module, $enrollment)) {
             return redirect()
                 ->route('student.courses.modules.show', [$course->id, $module->id])
                 ->with('error', $dateMessage);
         }
 
-        $attemptsCount = ExamAttempt::where('user_id', $userId)
-            ->where('module_id', $module->id)
-            ->count();
+        $enrollmentId = $enrollment?->pivot?->id;
+
+        $attemptsQuery = ExamAttempt::where('user_id', $userId)
+            ->where('module_id', $module->id);
+
+        if ($enrollmentId) {
+            $attemptsQuery->where(function ($q) use ($enrollmentId) {
+                $q->where('course_user_id', $enrollmentId)
+                  ->orWhereNull('course_user_id');
+            });
+        }
+
+        $attemptsCount = $attemptsQuery->count();
 
         if ($attemptsCount >= 3) {
             return redirect()
@@ -147,15 +166,26 @@ class StudentExamController extends Controller
                 ->with('error', 'El módulo no pertenece a este curso.');
         }
 
-        if ($dateMessage = $this->validateExamAvailability($course, $module)) {
+        $enrollment = $user->courses()->where('courses.id', $course->id)->first();
+        $enrollmentId = $enrollment?->pivot?->id;
+
+        if ($dateMessage = $this->validateExamAvailability($course, $module, $enrollment)) {
             return redirect()
                 ->route('student.courses.modules.show', [$course->id, $module->id])
                 ->with('error', $dateMessage);
         }
 
-        $attemptsCount = ExamAttempt::where('user_id', $userId)
-            ->where('module_id', $module->id)
-            ->count();
+        $attemptsQuery = ExamAttempt::where('user_id', $userId)
+            ->where('module_id', $module->id);
+
+        if ($enrollmentId) {
+            $attemptsQuery->where(function ($q) use ($enrollmentId) {
+                $q->where('course_user_id', $enrollmentId)
+                  ->orWhereNull('course_user_id');
+            });
+        }
+
+        $attemptsCount = $attemptsQuery->count();
 
         if ($attemptsCount >= 3) {
             return redirect()
@@ -193,18 +223,26 @@ class StudentExamController extends Controller
         ExamAttempt::create([
             'user_id' => $userId,
             'module_id' => $module->id,
+            'course_user_id' => $enrollmentId,
             'attempt_number' => $nextAttemptNumber,
             'answers' => $answers,
             'score' => $score,
             'submitted_at' => Carbon::now(),
         ]);
 
+        $progressAttributes = [
+            'user_id' => $userId,
+            'module_id' => $module->id,
+        ];
+
+        if ($enrollmentId) {
+            $progressAttributes['course_user_id'] = $enrollmentId;
+        }
+
         StudentModuleProgress::updateOrCreate(
+            $progressAttributes,
             [
-                'user_id' => $userId,
-                'module_id' => $module->id,
-            ],
-            [
+                'course_user_id' => $enrollmentId,
                 'completed' => true,
                 'exam_score' => $score,
                 'completed_at' => Carbon::now(),
