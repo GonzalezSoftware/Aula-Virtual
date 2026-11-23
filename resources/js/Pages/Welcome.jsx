@@ -49,6 +49,48 @@ const steps = [
     },
 ];
 
+const communitySlides = [
+    {
+        tag: 'Comunidad Activa',
+        stat: '+500',
+        statLabel: 'estudiantes registrados',
+        title: 'Una comunidad académica en crecimiento',
+        description:
+            'Estudiantes ya forman parte del entorno virtual gestionando asignaturas, materiales y seguimiento de notas desde un solo lugar.',
+        items: [
+            'Registro con validación de datos y foto de cédula',
+            'Código de 6 dígitos al correo y aprobación administrativa',
+            'Clave temporal de 8 dígitos y cambio libre desde tu panel',
+        ],
+    },
+    {
+        tag: 'Flujo Transparente',
+        stat: '5 Pasos',
+        statLabel: 'de ingreso guiado',
+        title: 'Del registro inicial hasta tu panel personal',
+        description:
+            'Cada etapa está pensada para que sepas qué sigue: correo de 6 dígitos, revisión del administrador, clave temporal de 8 dígitos y contraseña propia.',
+        items: [
+            'Solicitud con cédula, teléfono de 11 dígitos y correo @gmail.com',
+            'Verificación de identidad antes de habilitar tu cuenta',
+            'Control total de tu contraseña una vez dentro del sistema',
+        ],
+    },
+    {
+        tag: 'Seguridad y Acceso',
+        stat: '8 Dígitos',
+        statLabel: 'clave temporal al aprobarse',
+        title: 'Acceso seguro y personalizable en todo momento',
+        description:
+            'Al recibir la aprobación del administrador, entra con tu clave temporal de 8 dígitos y cámbiala cuando quieras desde tu panel de estudiante.',
+        items: [
+            'Notificación directa al correo registrado tras la aprobación',
+            'Inicio de sesión rápido con tu clave temporal inicial',
+            'Posibilidad de actualizar tu contraseña dentro del panel',
+        ],
+    },
+];
+
 const faqs = [
     {
         q: '¿Por qué debo esperar tras ingresar el código de 6 dígitos?',
@@ -103,8 +145,11 @@ export default () => {
     const [activeStep, setActiveStep] = useState(0);
     const [openFaq, setOpenFaq] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeCommunitySlide, setActiveCommunitySlide] = useState(0);
+    const [autoRotateCommunity, setAutoRotateCommunity] = useState(true);
 
     const currentStep = steps[activeStep];
+    const currentSlide = communitySlides[activeCommunitySlide];
 
     const prevStep = () => {
         setActiveStep((prev) => (prev === 0 ? steps.length - 1 : prev - 1));
@@ -112,6 +157,14 @@ export default () => {
 
     const nextStep = () => {
         setActiveStep((prev) => (prev === steps.length - 1 ? 0 : prev + 1));
+    };
+
+    const prevCommunitySlide = () => {
+        setActiveCommunitySlide((prev) => (prev === 0 ? communitySlides.length - 1 : prev - 1));
+    };
+
+    const nextCommunitySlide = () => {
+        setActiveCommunitySlide((prev) => (prev === communitySlides.length - 1 ? 0 : prev + 1));
     };
 
     const closeMobileMenu = () => {
@@ -128,9 +181,44 @@ export default () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
+    useEffect(() => {
+        if (!autoRotateCommunity) return;
+        const interval = setInterval(() => {
+            setActiveCommunitySlide((prev) => (prev === communitySlides.length - 1 ? 0 : prev + 1));
+        }, 4200);
+        return () => clearInterval(interval);
+    }, [autoRotateCommunity]);
+
     return (
         <>
             <Head title="Aula Virtual Académica" />
+
+            <style>{`
+                @keyframes orbitSpin {
+                    from {
+                        transform: rotate(0deg);
+                    }
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+                @keyframes slideReveal {
+                    from {
+                        opacity: 0.35;
+                        transform: translateY(8px) rotate(-0.6deg);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) rotate(0deg);
+                    }
+                }
+                .orbit-ring-slow {
+                    animation: orbitSpin 18s linear infinite;
+                }
+                .community-slide-enter {
+                    animation: slideReveal 0.45s ease-out;
+                }
+            `}</style>
 
             <div className="min-h-screen overflow-x-hidden bg-[#F0F6FF] text-[#0A2540] flex flex-col justify-between font-['Poppins']">
                 {/* 1. BARRA DE NAVEGACIÓN SUPERIOR */}
@@ -281,49 +369,6 @@ export default () => {
                                     >
                                         Ver Paso a Paso
                                     </a>
-                                </div>
-                            </div>
-
-                            {/* Tarjeta lateral de vista rápida del flujo */}
-                            <div className="lg:col-span-5">
-                                <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4 sm:space-y-5">
-                                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
-                                        <div className="min-w-0">
-                                            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#90caf9] font-semibold">
-                                                Comunidad Activa
-                                            </span>
-                                            <p className="text-xl sm:text-3xl font-extrabold text-white mt-0.5 leading-snug">
-                                                +500 <span className="text-xs sm:text-sm font-medium text-[#90caf9]">estudiantes registrados</span>
-                                            </p>
-                                        </div>
-                                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0066FF] flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
-                                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3 text-xs sm:text-sm text-[#E3F2FD]">
-                                        <div className="flex items-start sm:items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
-                                                1
-                                            </span>
-                                            <span>Registro con validación de datos y foto de cédula</span>
-                                        </div>
-                                        <div className="flex items-start sm:items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
-                                                2
-                                            </span>
-                                            <span>Código de 6 dígitos al correo y aprobación administrativa</span>
-                                        </div>
-                                        <div className="flex items-start sm:items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
-                                                3
-                                            </span>
-                                            <span>Clave temporal de 8 dígitos y cambio libre desde tu panel</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -561,6 +606,111 @@ export default () => {
                                 <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
                                     Interfaces especializadas y seguras para administradores, docentes y alumnos dentro de la plataforma.
                                 </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 6.5 CARRUSEL AUTOMÁTICO GIRATORIO DE COMUNIDAD Y FLUJO (ANTES DE PREGUNTAS FRECUENTES) */}
+                    <section className="pb-12 sm:pb-16 max-w-5xl mx-auto px-4 sm:px-6">
+                        <div className="relative bg-gradient-to-br from-[#051C33] via-[#0A3266] to-[#051C33] text-white rounded-3xl border border-blue-200/30 shadow-2xl shadow-blue-900/15 p-6 sm:p-10 overflow-hidden">
+                            {/* Anillo decorativo giratorio sutil en esquina */}
+                            <div className="pointer-events-none absolute -right-14 -top-14 w-48 h-48 rounded-full border border-dashed border-[#3385FF]/40 flex items-center justify-center orbit-ring-slow">
+                                <div className="w-32 h-32 rounded-full border border-[#90caf9]/25"></div>
+                            </div>
+
+                            <div key={activeCommunitySlide} className="relative z-10 community-slide-enter space-y-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/15 pb-5">
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/40 shrink-0">
+                                            <span className="absolute inset-0 rounded-2xl border border-[#90caf9]/40 orbit-ring-slow"></span>
+                                            <svg className="w-6 h-6 sm:w-7 sm:h-7 relative z-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#90caf9] font-semibold">
+                                                {currentSlide.tag}
+                                            </span>
+                                            <p className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                                                {currentSlide.stat}{' '}
+                                                <span className="text-xs sm:text-base font-medium text-[#90caf9]">
+                                                    {currentSlide.statLabel}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 self-start sm:self-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setAutoRotateCommunity((prev) => !prev)}
+                                            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[11px] sm:text-xs font-semibold text-[#E3F2FD] transition"
+                                        >
+                                            {autoRotateCommunity ? 'Pausar giro' : 'Reanudar giro'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                                    <div className="lg:col-span-6 space-y-2.5">
+                                        <h3 className="text-lg sm:text-2xl font-extrabold text-white leading-snug">
+                                            {currentSlide.title}
+                                        </h3>
+                                        <p className="text-xs sm:text-sm text-[#E3F2FD]/90 leading-relaxed">
+                                            {currentSlide.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="lg:col-span-6 space-y-2.5 text-xs sm:text-sm text-[#E3F2FD]">
+                                        {currentSlide.items.map((text, index) => (
+                                            <div
+                                                key={text}
+                                                className="flex items-start sm:items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-3.5 py-2.5"
+                                            >
+                                                <span className="w-6 h-6 rounded-full bg-[#0066FF]/40 border border-[#3385FF]/60 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
+                                                    {index + 1}
+                                                </span>
+                                                <span>{text}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Controles y puntos del carrusel automático */}
+                            <div className="relative z-10 mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+                                <button
+                                    type="button"
+                                    onClick={prevCommunitySlide}
+                                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition"
+                                >
+                                    ← Anterior
+                                </button>
+
+                                <div className="flex items-center gap-2">
+                                    {communitySlides.map((slide, idx) => (
+                                        <button
+                                            key={slide.tag}
+                                            type="button"
+                                            aria-label={`Ver diapositiva ${idx + 1}`}
+                                            onClick={() => setActiveCommunitySlide(idx)}
+                                            className={`h-2.5 rounded-full transition-all ${
+                                                idx === activeCommunitySlide
+                                                    ? 'w-7 bg-[#3385FF]'
+                                                    : 'w-2.5 bg-white/30 hover:bg-white/50'
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={nextCommunitySlide}
+                                    className="px-3.5 py-2 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition"
+                                >
+                                    Siguiente →
+                                </button>
                             </div>
                         </div>
                     </section>
