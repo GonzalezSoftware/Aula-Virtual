@@ -610,107 +610,50 @@ export default () => {
                         </div>
                     </section>
 
-                    {/* 6.5 CARRUSEL AUTOMÁTICO GIRATORIO DE COMUNIDAD Y FLUJO (ANTES DE PREGUNTAS FRECUENTES) */}
-                    <section className="pb-12 sm:pb-16 max-w-5xl mx-auto px-4 sm:px-6">
-                        <div className="relative bg-gradient-to-br from-[#051C33] via-[#0A3266] to-[#051C33] text-white rounded-3xl border border-blue-200/30 shadow-2xl shadow-blue-900/15 p-6 sm:p-10 overflow-hidden">
-                            {/* Anillo decorativo giratorio sutil en esquina */}
-                            <div className="pointer-events-none absolute -right-14 -top-14 w-48 h-48 rounded-full border border-dashed border-[#3385FF]/40 flex items-center justify-center orbit-ring-slow">
-                                <div className="w-32 h-32 rounded-full border border-[#90caf9]/25"></div>
-                            </div>
+                    {/* 6.5 APARTADO DE CERTIFICACIÓN DE CURSOS */}
+                    <section className="pb-14 sm:pb-20 max-w-6xl mx-auto px-4 sm:px-6">
+                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 p-6 sm:p-10 lg:p-12">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+                                {/* Columna izquierda: texto informativo */}
+                                <div className="lg:col-span-6 space-y-4">
+                                    <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
+                                        Acreditación Académica
+                                    </span>
 
-                            <div key={activeCommunitySlide} className="relative z-10 community-slide-enter space-y-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/15 pb-5">
-                                    <div className="flex items-center gap-3.5">
-                                        <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/40 shrink-0">
-                                            <span className="absolute inset-0 rounded-2xl border border-[#90caf9]/40 orbit-ring-slow"></span>
-                                            <svg className="w-6 h-6 sm:w-7 sm:h-7 relative z-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                                            </svg>
+                                    <h2 className="text-2xl sm:text-4xl font-extrabold text-[#051C33] leading-tight">
+                                        Obtén un <span className="text-[#0066FF]">Certificado</span> al completar tus cursos
+                                    </h2>
+
+                                    <p className="text-xs sm:text-sm text-[#4A607A] leading-relaxed">
+                                        Nuestros cursos cuentan con certificación que respalda tu dedicación, el avance de tus módulos y las evaluaciones aprobadas dentro del Aula Virtual.
+                                    </p>
+
+                                    <p className="text-xs sm:text-sm text-[#4A607A] leading-relaxed">
+                                        Contar con constancia de tus estudios es un excelente respaldo para validar tus conocimientos y fortalecer tu perfil académico y profesional.
+                                    </p>
+
+                                    <div className="pt-2 flex flex-wrap gap-2.5 text-xs font-semibold text-[#0A2540]">
+                                        <span className="px-3.5 py-1.5 rounded-xl bg-[#F0F6FF] border border-blue-100">
+                                            ✓ Cursos con certificado
+                                        </span>
+                                        <span className="px-3.5 py-1.5 rounded-xl bg-[#F0F6FF] border border-blue-100">
+                                            ✓ Respaldo de aprobación
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Columna derecha: imagen enmarcada certificado.jpg */}
+                                <div className="lg:col-span-6">
+                                    <div className="bg-[#F0F6FF] border border-blue-100 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-inner">
+                                        <div className="bg-white p-2 sm:p-3 rounded-2xl border-4 border-white shadow-lg overflow-hidden">
+                                            <img
+                                                src="/images/certificado.jpg"
+                                                alt="Certificado de finalización de cursos del Aula Virtual"
+                                                className="w-full h-auto max-h-[380px] object-contain mx-auto rounded-xl"
+                                            />
                                         </div>
-                                        <div>
-                                            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#90caf9] font-semibold">
-                                                {currentSlide.tag}
-                                            </span>
-                                            <p className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                                                {currentSlide.stat}{' '}
-                                                <span className="text-xs sm:text-base font-medium text-[#90caf9]">
-                                                    {currentSlide.statLabel}
-                                                </span>
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 self-start sm:self-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => setAutoRotateCommunity((prev) => !prev)}
-                                            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[11px] sm:text-xs font-semibold text-[#E3F2FD] transition"
-                                        >
-                                            {autoRotateCommunity ? 'Pausar giro' : 'Reanudar giro'}
-                                        </button>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                                    <div className="lg:col-span-6 space-y-2.5">
-                                        <h3 className="text-lg sm:text-2xl font-extrabold text-white leading-snug">
-                                            {currentSlide.title}
-                                        </h3>
-                                        <p className="text-xs sm:text-sm text-[#E3F2FD]/90 leading-relaxed">
-                                            {currentSlide.description}
-                                        </p>
-                                    </div>
-
-                                    <div className="lg:col-span-6 space-y-2.5 text-xs sm:text-sm text-[#E3F2FD]">
-                                        {currentSlide.items.map((text, index) => (
-                                            <div
-                                                key={text}
-                                                className="flex items-start sm:items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-3.5 py-2.5"
-                                            >
-                                                <span className="w-6 h-6 rounded-full bg-[#0066FF]/40 border border-[#3385FF]/60 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
-                                                    {index + 1}
-                                                </span>
-                                                <span>{text}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Controles y puntos del carrusel automático */}
-                            <div className="relative z-10 mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                                <button
-                                    type="button"
-                                    onClick={prevCommunitySlide}
-                                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition"
-                                >
-                                    ← Anterior
-                                </button>
-
-                                <div className="flex items-center gap-2">
-                                    {communitySlides.map((slide, idx) => (
-                                        <button
-                                            key={slide.tag}
-                                            type="button"
-                                            aria-label={`Ver diapositiva ${idx + 1}`}
-                                            onClick={() => setActiveCommunitySlide(idx)}
-                                            className={`h-2.5 rounded-full transition-all ${
-                                                idx === activeCommunitySlide
-                                                    ? 'w-7 bg-[#3385FF]'
-                                                    : 'w-2.5 bg-white/30 hover:bg-white/50'
-                                            }`}
-                                        />
-                                    ))}
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={nextCommunitySlide}
-                                    className="px-3.5 py-2 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition"
-                                >
-                                    Siguiente →
-                                </button>
                             </div>
                         </div>
                     </section>
