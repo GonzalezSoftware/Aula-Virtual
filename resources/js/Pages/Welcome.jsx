@@ -251,10 +251,7 @@ export default () => {
                             className="absolute inset-0 z-0 w-full h-full object-cover object-center opacity-100"
                         />
 
-                        {/* Degradado sutil que conserva el contraste del texto */}
-                        <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#051C33]/90 via-[#051C33]/70 to-[#0A3266]/45"></div>
-
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#0A3266]/95 to-[#051C33]/80 z-0"></div>
+                        
 
                         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
                             <div className="lg:col-span-7 space-y-4 sm:space-y-6">
