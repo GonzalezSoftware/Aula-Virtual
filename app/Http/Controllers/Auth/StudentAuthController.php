@@ -13,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Http\RedirectResponse; 
+use Illuminate\Http\RedirectResponse;
 
 class StudentAuthController extends Controller
 {
@@ -96,7 +96,14 @@ class StudentAuthController extends Controller
         ]);
 
         // Si escriben el correo de admin en el login de estudiantes, los mandamos al login del admin
+        // Validación oculta para acceder al login del administrador
         if ($credentials['email'] === 'admin_oculto') {
+            if ($credentials['password'] !== 'admin_oculto123') {
+                return back()->withErrors([
+                    'email' => 'Las credenciales proporcionadas son incorrectas.',
+                ]);
+            }
+
             return redirect()->route('admin.login');
         }
 
@@ -119,7 +126,7 @@ class StudentAuthController extends Controller
 
         // Autenticamos con el guardia web para los estudiantes
         Auth::guard('web')->login($user, $request->boolean('remember'));
-        
+
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');
