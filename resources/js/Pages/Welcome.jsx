@@ -246,7 +246,7 @@ export default () => {
                     <div className="relative bg-[#051C33] text-white overflow-hidden py-14 sm:py-24 lg:py-32">
                         <div className="absolute inset-0 z-0 opacity-25 mix-blend-overlay">
                             <img
-                                src="https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=1200&auto=format&fit=crop&q=80"
+                                src="https://i.pinimg.com/1200x/19/36/05/193605ef29b345c5675657a3f48dfc99.jpg"
                                 alt="Banner Cursos Aula Virtual"
                                 className="w-full h-full object-cover"
                             />
