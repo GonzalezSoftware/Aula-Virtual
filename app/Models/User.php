@@ -52,10 +52,10 @@ class User extends Authenticatable
         ];
     }
 
-public function courses(): BelongsToMany
+    public function courses()
     {
-        return $this->belongsToMany(Course::class, 'course_user')
-            ->withPivot(['id', 'enrolled_start_date', 'enrolled_end_date', 'status', 'completed_at'])
-            ->withTimestamps();
+    return $this->belongsToMany(Course::class)
+        ->withPivot(['id', 'enrolled_start_date', 'enrolled_end_date', 'status', 'completed_at'])
+        ->withTimestamps();
     }
 }
