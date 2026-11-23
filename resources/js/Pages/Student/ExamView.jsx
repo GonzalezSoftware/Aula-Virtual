@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import Swal from 'sweetalert2';
 
@@ -7,6 +7,12 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
     const [answers, setAnswers] = useState({});
     const [timeLeft, setTimeLeft] = useState(45);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [examSubmitted, setExamSubmitted] = useState(false);
+    const answersRef = useRef(answers);
+
+    useEffect(() => {
+        answersRef.current = answers;
+    }, [answers]);
 
     const currentExam = exams[currentQuestionIndex] || null;
     const currentOptions = Array.isArray(currentExam?.options)
@@ -14,7 +20,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
         : Object.values(currentExam?.options || {});
 
     const submitExam = useCallback((finalAnswers) => {
-        if (isSubmitting) return;
+        if (isSubmitting || examSubmitted) return;
         setIsSubmitting(true);
 
         Swal.fire({
@@ -30,6 +36,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
             { answers: finalAnswers },
             {
                 onSuccess: (page) => {
+                    setExamSubmitted(true);
                     Swal.close();
                     const successMsg =
                         page?.props?.flash?.success ||
@@ -65,7 +72,51 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
                 },
             }
         );
-    }, [course.id, module.id, isSubmitting]);
+    }, [course.id, module.id, isSubmitting, examSubmitted]);
+
+    useEffect(() => {
+        if (examSubmitted) return;
+
+        const handleBeforeUnload = (e) => {
+            if (!isSubmitting) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+
+        window.history.pushState({ examLocked: true }, '', window.location.href);
+
+        const handlePopState = () => {
+            if (examSubmitted || isSubmitting) return;
+
+            window.history.pushState({ examLocked: true }, '', window.location.href);
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Examen en curso',
+                html: 'No puedes retroceder sin finalizar el examen.<br>¿Deseas <strong>enviar y terminar el examen ahora</strong> con tus respuestas actuales o continuar respondiendo?',
+                showCancelButton: true,
+                confirmButtonText: 'Enviar examen ahora',
+                cancelButtonText: 'Continuar examen',
+                confirmButtonColor: '#0066FF',
+                cancelButtonColor: '#64748B',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitExam(answersRef.current);
+                }
+            });
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [examSubmitted, isSubmitting, submitExam]);
 
     const handleNextQuestion = useCallback(() => {
         if (currentQuestionIndex < exams.length - 1) {
@@ -77,7 +128,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
     }, [currentQuestionIndex, exams.length, answers, submitExam]);
 
     useEffect(() => {
-        if (!currentExam || isSubmitting) return;
+        if (!currentExam || isSubmitting || examSubmitted) return;
 
         if (timeLeft <= 0) {
             handleNextQuestion();
@@ -89,7 +140,7 @@ export default function ExamView({ course, module, exams = [], attemptNumber = 1
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [timeLeft, currentExam, isSubmitting, handleNextQuestion]);
+    }, [timeLeft, currentExam, isSubmitting, examSubmitted, handleNextQuestion]);
 
     const handleSelectOption = (examId, optionId) => {
         setAnswers((prev) => ({

@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import StudentSidebar from '@/Components/StudentSidebar';
@@ -27,6 +27,25 @@ export default function ModuleView({ auth, course, module }) {
             });
         }
     }, [flash?.error, errors?.error]);
+
+    const handleStartExam = () => {
+        Swal.fire({
+            icon: 'info',
+            title: 'Iniciar Evaluación',
+            html: 'Vas a presentar el examen de este módulo.<br><br><strong>Importante:</strong> si ya realizaste un intento anterior y vuelves a presentarlo, <strong>quedarás con la nota nueva</strong>.',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, presentar examen',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#0066FF',
+            cancelButtonColor: '#64748B',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.visit(route('student.courses.modules.exam', [course.id, module.id]));
+            }
+        });
+    };
 
     return (
         <>
@@ -134,12 +153,13 @@ export default function ModuleView({ auth, course, module }) {
                                         </span>
                                     </div>
                                 </div>
-                                <Link
-                                    href={route('student.courses.modules.exam', [course.id, module.id])}
-                                    className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap text-center shrink-0"
+                                <button
+                                    type="button"
+                                    onClick={handleStartExam}
+                                    className="w-full sm:w-auto px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/20 transition whitespace-nowrap text-center shrink-0 cursor-pointer"
                                 >
                                     Presentar Examen
-                                </Link>
+                                </button>
                             </div>
                         </div>
                     </main>
