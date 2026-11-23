@@ -300,11 +300,10 @@ export default () => {
                                         key={item.number}
                                         type="button"
                                         onClick={() => setActiveStep(idx)}
-                                        className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 border ${
-                                            isActive
+                                        className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 border ${isActive
                                                 ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-md shadow-blue-600/25'
                                                 : 'bg-white text-[#0A2540] border-blue-100 hover:border-[#0066FF]/50'
-                                        }`}
+                                            }`}
                                     >
                                         <span>Paso {item.number}</span>
                                     </button>
@@ -351,9 +350,8 @@ export default () => {
                                                     type="button"
                                                     aria-label={`Ir al paso ${s.number}`}
                                                     onClick={() => setActiveStep(index)}
-                                                    className={`h-2.5 rounded-full transition-all ${
-                                                        index === activeStep ? 'w-7 bg-[#3385FF]' : 'w-2.5 bg-white/30 hover:bg-white/50'
-                                                    }`}
+                                                    className={`h-2.5 rounded-full transition-all ${index === activeStep ? 'w-7 bg-[#3385FF]' : 'w-2.5 bg-white/30 hover:bg-white/50'
+                                                        }`}
                                                 />
                                             ))}
                                         </div>
@@ -399,7 +397,7 @@ export default () => {
                         </div>
                     </section>
 
-                    {/* 5. SECCIÓN DE VÍDEO EXPLICATIVO (LISTO PARA CONFIGURAR) */}
+                    {/* 5. SECCIÓN DE VÍDEO EXPLICATIVO */}
                     <section id="video-guia" className="py-12 sm:py-20 bg-white border-y border-blue-100">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6">
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -414,39 +412,24 @@ export default () => {
                                         Aquí podrás ver un recorrido guiado sobre cómo registrarte, validar tu correo, esperar la aprobación del administrador y gestionar tus cursos y contraseñas dentro del panel.
                                     </p>
                                     <div className="bg-[#F0F6FF] border border-blue-100 rounded-2xl p-4 text-xs text-[#0A2540] space-y-1.5">
-                                        <p className="font-bold text-[#0066FF]">Espacio reservado para producción</p>
+                                        <p className="font-bold text-[#0066FF]">Guía disponible en línea</p>
                                         <p className="text-[#4A607A]">
-                                            Este contenedor ya está preparado en el diseño; cuando tengas el vídeo final, solo debes enlazar su fuente aquí.
+                                            Reproduce el vídeo directamente desde aquí para conocer cada paso del acceso estudiantil.
                                         </p>
                                     </div>
                                 </div>
 
-                                {/* Contenedor preparado para el vídeo */}
+                                {/* Contenedor con vídeo de YouTube */}
                                 <div className="lg:col-span-7">
-                                    <div className="relative rounded-3xl bg-[#051C33] border-2 border-blue-100 shadow-2xl shadow-blue-900/10 overflow-hidden aspect-video flex flex-col items-center justify-center p-6 sm:p-10 text-center text-white">
-                                        {/* Cuando el vídeo esté listo, reemplaza o activa este bloque:
-                                        <video
-                                            src="/videos/guia-aula-virtual.mp4"
-                                            controls
-                                            className="w-full h-full object-cover"
+                                    <div className="relative rounded-3xl bg-[#051C33] border-2 border-blue-100 shadow-2xl shadow-blue-900/10 overflow-hidden aspect-video">
+                                        <iframe
+                                            src="https://www.youtube.com/embed/76wN-o5zIwI?rel=0&modestbranding=1"
+                                            title="Vídeo explicativo del Aula Virtual"
+                                            className="w-full h-full border-0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerPolicy="strict-origin-when-cross-origin"
+                                            allowFullScreen
                                         />
-                                        */}
-
-                                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-xl shadow-blue-600/40 mb-5">
-                                            <svg className="w-8 h-8 sm:w-10 sm:h-10 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                        </div>
-
-                                        <span className="px-3.5 py-1 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[11px] font-semibold uppercase tracking-wider mb-2">
-                                            Vídeo Explicativo · En Preparación
-                                        </span>
-                                        <h3 className="text-lg sm:text-2xl font-bold text-white max-w-md">
-                                            Guía completa para nuevos estudiantes
-                                        </h3>
-                                        <p className="text-xs sm:text-sm text-[#E3F2FD]/80 max-w-md mt-2">
-                                            Próximamente disponible en este espacio para acompañarte paso a paso dentro de la plataforma.
-                                        </p>
                                     </div>
                                 </div>
                             </div>
