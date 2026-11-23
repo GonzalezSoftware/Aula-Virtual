@@ -1,19 +1,43 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
-use App\Models\Content; // Ajusta al nombre real de tu modelo de contenido
+use App\Http\Controllers\Controller;
+use App\Models\ModuleContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 
 class StudentContentController extends Controller
 {
+    public function viewPdf(Request $request, $contentId)
+    {
+        $content = ModuleContent::findOrFail($contentId);
+        $relativePath = $content->file_path ?? $content->file ?? $content->path ?? $content->file_url;
+
+        if (!$relativePath) {
+            abort(404, 'Archivo PDF no encontrado.');
+        }
+
+        $cleanPath = ltrim(preg_replace('#^/?storage/#', '', $relativePath), '/');
+        $pdfPath = Storage::disk('public')->exists($cleanPath)
+            ? Storage::disk('public')->path($cleanPath)
+            : Storage::path($cleanPath);
+
+        if (!file_exists($pdfPath)) {
+            abort(404, 'El archivo PDF no existe en el servidor.');
+        }
+
+        return response()->file($pdfPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="documento.pdf"',
+        ]);
+    }
+
     public function renderPage(Request $request, $contentId, int $page)
     {
-        $content = Content::findOrFail($contentId);
+        $content = ModuleContent::findOrFail($contentId);
 
-        // Ajusta el campo donde guardas la ruta del PDF en tu tabla contents
         $relativePath = $content->file_path ?? $content->file ?? $content->path ?? $content->file_url;
 
         if (!$relativePath) {
@@ -50,8 +74,6 @@ class StudentContentController extends Controller
         $prefix = "{$cacheDir}/page-{$targetPage}";
         $expectedPng = "{$prefix}-{$targetPage}.png";
 
-        // pdftoppm con -f y -l numera con ceros a la izquierda según totalPages;
-        // si generamos en un subdirectorio temporal o buscamos el *.png generado:
         if (!file_exists($expectedPng)) {
             $existing = glob("{$prefix}*.png");
             if (!empty($existing)) {
@@ -60,7 +82,7 @@ class StudentContentController extends Controller
                 $renderProcess = new Process([
                     'pdftoppm',
                     '-png',
-                    '-r', '140', // Resolución balanceada para móvil y lectura nítida
+                    '-r', '140',
                     '-f', (string) $targetPage,
                     '-l', (string) $targetPage,
                     $pdfPath,
