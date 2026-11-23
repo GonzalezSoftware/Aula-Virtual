@@ -94,7 +94,7 @@ export default function ModuleView({ auth, course, module }) {
                                                             })}
                                                             className="flex-1 md:flex-initial px-4 sm:px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition shadow-sm whitespace-nowrap"
                                                         >
-                                                            Ver PDF Seguro
+                                                            Ver PDF
                                                         </button>
                                                     )}
                                                     {videoResource && (
@@ -106,7 +106,7 @@ export default function ModuleView({ auth, course, module }) {
                                                             })}
                                                             className="flex-1 md:flex-initial px-4 sm:px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#051C33] text-xs font-semibold transition cursor-pointer whitespace-nowrap"
                                                         >
-                                                            Ver Video Seguro
+                                                            Ver Video
                                                         </button>
                                                     )}
                                                 </div>
