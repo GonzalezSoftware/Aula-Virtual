@@ -1,5 +1,5 @@
 import { Link, Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const steps = [
     {
@@ -102,6 +102,7 @@ function StepIcon({ type }) {
 export default () => {
     const [activeStep, setActiveStep] = useState(0);
     const [openFaq, setOpenFaq] = useState(0);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const currentStep = steps[activeStep];
 
@@ -113,6 +114,20 @@ export default () => {
         setActiveStep((prev) => (prev === steps.length - 1 ? 0 : prev + 1));
     };
 
+    const closeMobileMenu = () => {
+        setMobileMenuOpen(false);
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setMobileMenuOpen(false);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     return (
         <>
             <Head title="Aula Virtual Académica" />
@@ -122,49 +137,113 @@ export default () => {
                 <header className="w-full bg-white/95 backdrop-blur-md shadow-sm fixed top-0 z-50 transition-all border-b border-blue-100">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
                         {/* Logotipo */}
-                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md shadow-blue-500/25 shrink-0">
+                        <a href="#" className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-base sm:text-xl shadow-md shadow-blue-500/25 shrink-0">
                                 AV
                             </div>
-                            <span className="text-base sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
+                            <span className="text-sm sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
                                 Aula Virtual <span className="text-[#0066FF]">Académica</span>
                             </span>
-                        </div>
+                        </a>
 
-                        {/* Enlaces de Navegación y Autenticación */}
-                        <nav className="flex items-center gap-2 sm:gap-5 shrink-0">
+                        {/* Navegación Escritorio (md+) */}
+                        <nav className="hidden md:flex items-center gap-4 lg:gap-6 shrink-0">
                             <a
                                 href="#como-funciona"
-                                className="hidden md:inline text-sm font-semibold text-[#4A607A] hover:text-[#0066FF] transition"
+                                className="text-sm font-semibold text-[#4A607A] hover:text-[#0066FF] transition whitespace-nowrap"
                             >
                                 Cómo funciona
                             </a>
                             <a
                                 href="#video-guia"
-                                className="hidden md:inline text-sm font-semibold text-[#4A607A] hover:text-[#0066FF] transition"
+                                className="text-sm font-semibold text-[#4A607A] hover:text-[#0066FF] transition whitespace-nowrap"
                             >
                                 Vídeo guía
                             </a>
                             <Link
                                 href={route('login')}
-                                className="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-base text-[#0066FF] font-semibold hover:text-[#0052CC] transition whitespace-nowrap"
+                                className="px-4 lg:px-5 py-2.5 text-sm lg:text-base text-[#0066FF] font-semibold hover:text-[#0052CC] transition whitespace-nowrap"
                             >
                                 Iniciar Sesión
                             </Link>
                             <Link
                                 href={route('register')}
-                                className="px-3.5 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-base rounded-xl bg-[#0066FF] text-white font-medium hover:bg-[#0052CC] transition shadow-md shadow-blue-600/30 whitespace-nowrap"
+                                className="px-5 lg:px-6 py-2.5 text-sm lg:text-base rounded-xl bg-[#0066FF] text-white font-medium hover:bg-[#0052CC] transition shadow-md shadow-blue-600/30 whitespace-nowrap"
                             >
                                 Registrarse
                             </Link>
                         </nav>
+
+                        {/* Botón Menú Hamburguesa Móvil (< md) */}
+                        <div className="flex md:hidden items-center shrink-0">
+                            <button
+                                type="button"
+                                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                                aria-expanded={mobileMenuOpen}
+                                aria-controls="mobile-nav-menu"
+                                aria-label={mobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+                                className="w-10 h-10 rounded-xl bg-[#F0F6FF] border border-blue-100 text-[#051C33] hover:text-[#0066FF] hover:border-[#0066FF]/40 flex items-center justify-center transition"
+                            >
+                                {mobileMenuOpen ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Panel Desplegable Móvil */}
+                    {mobileMenuOpen && (
+                        <div
+                            id="mobile-nav-menu"
+                            className="md:hidden bg-white border-t border-blue-100 shadow-lg px-4 py-4 space-y-2"
+                        >
+                            <a
+                                href="#como-funciona"
+                                onClick={closeMobileMenu}
+                                className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#051C33] hover:bg-[#F0F6FF] hover:text-[#0066FF] transition"
+                            >
+                                <span>Cómo funciona</span>
+                                <span className="text-xs text-[#4A607A]">→</span>
+                            </a>
+                            <a
+                                href="#video-guia"
+                                onClick={closeMobileMenu}
+                                className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#051C33] hover:bg-[#F0F6FF] hover:text-[#0066FF] transition"
+                            >
+                                <span>Vídeo guía</span>
+                                <span className="text-xs text-[#4A607A]">→</span>
+                            </a>
+
+                            <div className="pt-2 border-t border-blue-50 grid grid-cols-2 gap-2.5">
+                                <Link
+                                    href={route('login')}
+                                    onClick={closeMobileMenu}
+                                    className="py-2.5 px-3 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs font-bold text-center hover:bg-[#0066FF] hover:text-white transition"
+                                >
+                                    Iniciar Sesión
+                                </Link>
+                                <Link
+                                    href={route('register')}
+                                    onClick={closeMobileMenu}
+                                    className="py-2.5 px-3 rounded-xl bg-[#0066FF] text-white text-xs font-bold text-center hover:bg-[#0052CC] transition shadow-md shadow-blue-600/20"
+                                >
+                                    Registrarse
+                                </Link>
+                            </div>
+                        </div>
+                    )}
                 </header>
 
                 {/* CONTENIDO PRINCIPAL */}
                 <main className="flex-grow pt-16 sm:pt-20">
                     {/* 2. SECCIÓN HERO */}
-                    <div className="relative bg-[#051C33] text-white overflow-hidden py-20 sm:py-28 lg:py-32">
+                    <div className="relative bg-[#051C33] text-white overflow-hidden py-14 sm:py-24 lg:py-32">
                         <div className="absolute inset-0 z-0 opacity-25 mix-blend-overlay">
                             <img
                                 src="https://images.unsplash.com/photo-1448932223592-d1fc686e76ea?w=1200&auto=format&fit=crop&q=80"
@@ -175,31 +254,31 @@ export default () => {
 
                         <div className="absolute inset-0 bg-gradient-to-r from-[#051C33] via-[#0A3266]/95 to-[#051C33]/80 z-0"></div>
 
-                        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-                            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
-                                <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[11px] sm:text-xs font-semibold tracking-wider uppercase">
+                        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
+                            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+                                <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[10px] sm:text-xs font-semibold tracking-wider uppercase">
                                     <span className="w-2 h-2 rounded-full bg-[#3385FF] animate-pulse"></span>
                                     Plataforma Educativa Oficial
                                 </span>
 
-                                <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                                <h1 className="text-2xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
                                     Impulsa tu aprendizaje con <span className="text-[#3385FF]">cursos en línea</span>
                                 </h1>
 
-                                <p className="text-sm sm:text-base lg:text-lg text-[#E3F2FD] max-w-2xl font-light leading-relaxed">
+                                <p className="text-xs sm:text-base lg:text-lg text-[#E3F2FD] max-w-2xl font-light leading-relaxed">
                                     Un entorno virtual moderno, seguro y estructurado para cursar asignaturas, revisar materiales académicos, presentar evaluaciones y llevar un control claro de tu avance.
                                 </p>
 
-                                <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-3 sm:pt-4">
+                                <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2 sm:pt-4">
                                     <Link
                                         href={route('register')}
-                                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-[#0066FF] text-white text-sm sm:text-base font-semibold hover:bg-[#0052CC] transition shadow-lg shadow-blue-500/40 text-center"
+                                        className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-[#0066FF] text-white text-xs sm:text-base font-semibold hover:bg-[#0052CC] transition shadow-lg shadow-blue-500/40 text-center"
                                     >
                                         Comenzar Ahora
                                     </Link>
                                     <a
                                         href="#como-funciona"
-                                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl bg-white/10 backdrop-blur-md text-white border border-white/20 text-sm sm:text-base font-semibold hover:bg-white/20 transition text-center"
+                                        className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-white/10 backdrop-blur-md text-white border border-white/20 text-xs sm:text-base font-semibold hover:bg-white/20 transition text-center"
                                     >
                                         Ver Paso a Paso
                                     </a>
@@ -208,18 +287,18 @@ export default () => {
 
                             {/* Tarjeta lateral de vista rápida del flujo */}
                             <div className="lg:col-span-5">
-                                <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
-                                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                                        <div>
-                                            <span className="text-[11px] uppercase tracking-wider text-[#90caf9] font-semibold">
+                                <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4 sm:space-y-5">
+                                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+                                        <div className="min-w-0">
+                                            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#90caf9] font-semibold">
                                                 Comunidad Activa
                                             </span>
-                                            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">
-                                                +500 <span className="text-sm font-medium text-[#90caf9]">estudiantes registrados</span>
+                                            <p className="text-xl sm:text-3xl font-extrabold text-white mt-0.5 leading-snug">
+                                                +500 <span className="text-xs sm:text-sm font-medium text-[#90caf9]">estudiantes registrados</span>
                                             </p>
                                         </div>
-                                        <div className="w-12 h-12 rounded-2xl bg-[#0066FF] flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#0066FF] flex items-center justify-center text-white shadow-lg shadow-blue-500/30 shrink-0">
+                                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                                             </svg>
@@ -227,20 +306,20 @@ export default () => {
                                     </div>
 
                                     <div className="space-y-3 text-xs sm:text-sm text-[#E3F2FD]">
-                                        <div className="flex items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0">
+                                        <div className="flex items-start sm:items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
                                                 1
                                             </span>
                                             <span>Registro con validación de datos y foto de cédula</span>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0">
+                                        <div className="flex items-start sm:items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
                                                 2
                                             </span>
                                             <span>Código de 6 dígitos al correo y aprobación administrativa</span>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0">
+                                        <div className="flex items-start sm:items-center gap-3">
+                                            <span className="w-6 h-6 rounded-full bg-[#0066FF]/30 border border-[#3385FF]/50 text-[#90caf9] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 sm:mt-0">
                                                 3
                                             </span>
                                             <span>Clave temporal de 8 dígitos y cambio libre desde tu panel</span>
@@ -252,38 +331,38 @@ export default () => {
                     </div>
 
                     {/* 3. BARRA DE ESTADÍSTICAS DESTACADAS */}
-                    <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 -mt-8 sm:-mt-10">
-                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-blue-100">
-                            <div className="p-5 sm:p-7 text-center sm:text-left">
-                                <p className="text-2xl sm:text-4xl font-extrabold text-[#0066FF]">+500</p>
+                    <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 -mt-6 sm:-mt-10">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-blue-100">
+                            <div className="p-4 sm:p-7 text-center sm:text-left">
+                                <p className="text-xl sm:text-4xl font-extrabold text-[#0066FF]">+500</p>
                                 <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Estudiantes Registrados</p>
-                                <p className="text-[11px] text-[#4A607A] mt-0.5">Comunidad en crecimiento continuo</p>
+                                <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Comunidad en crecimiento continuo</p>
                             </div>
-                            <div className="p-5 sm:p-7 text-center sm:text-left">
-                                <p className="text-2xl sm:text-4xl font-extrabold text-[#051C33]">100%</p>
+                            <div className="p-4 sm:p-7 text-center sm:text-left">
+                                <p className="text-xl sm:text-4xl font-extrabold text-[#051C33]">100%</p>
                                 <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Acceso Verificado</p>
-                                <p className="text-[11px] text-[#4A607A] mt-0.5">Código de correo y revisión admin</p>
+                                <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Código de correo y revisión admin</p>
                             </div>
-                            <div className="p-5 sm:p-7 text-center sm:text-left">
-                                <p className="text-2xl sm:text-4xl font-extrabold text-[#0066FF]">8 Dígitos</p>
+                            <div className="p-4 sm:p-7 text-center sm:text-left">
+                                <p className="text-xl sm:text-4xl font-extrabold text-[#0066FF]">8 Dígitos</p>
                                 <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Clave Temporal Inicial</p>
-                                <p className="text-[11px] text-[#4A607A] mt-0.5">Modificable dentro de tu panel</p>
+                                <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Modificable dentro de tu panel</p>
                             </div>
-                            <div className="p-5 sm:p-7 text-center sm:text-left">
-                                <p className="text-2xl sm:text-4xl font-extrabold text-[#051C33]">24/7</p>
+                            <div className="p-4 sm:p-7 text-center sm:text-left">
+                                <p className="text-xl sm:text-4xl font-extrabold text-[#051C33]">24/7</p>
                                 <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Disponibilidad en Línea</p>
-                                <p className="text-[11px] text-[#4A607A] mt-0.5">Consulta de cursos y calificaciones</p>
+                                <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Consulta de cursos y calificaciones</p>
                             </div>
                         </div>
                     </section>
 
                     {/* 4. CARRUSEL INTERACTIVO PASO A PASO */}
-                    <section id="como-funciona" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
-                        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3">
+                    <section id="como-funciona" className="scroll-mt-20 py-14 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+                        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14 space-y-2.5 sm:space-y-3">
                             <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
                                 Guía de Ingreso
                             </span>
-                            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#051C33]">
+                            <h2 className="text-xl sm:text-4xl font-extrabold text-[#051C33]">
                                 ¿Cómo funciona el acceso a la plataforma?
                             </h2>
                             <p className="text-xs sm:text-sm text-[#4A607A]">
@@ -292,7 +371,7 @@ export default () => {
                         </div>
 
                         {/* Selector de pasos arriba del carrusel */}
-                        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
+                        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-5 sm:mb-6">
                             {steps.map((item, idx) => {
                                 const isActive = idx === activeStep;
                                 return (
@@ -300,10 +379,11 @@ export default () => {
                                         key={item.number}
                                         type="button"
                                         onClick={() => setActiveStep(idx)}
-                                        className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 border ${isActive
+                                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 border ${
+                                            isActive
                                                 ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-md shadow-blue-600/25'
                                                 : 'bg-white text-[#0A2540] border-blue-100 hover:border-[#0066FF]/50'
-                                            }`}
+                                        }`}
                                     >
                                         <span>Paso {item.number}</span>
                                     </button>
@@ -312,46 +392,47 @@ export default () => {
                         </div>
 
                         {/* Tarjeta principal del carrusel */}
-                        <div className="bg-white rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
+                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 overflow-hidden">
                             <div className="grid grid-cols-1 lg:grid-cols-12">
                                 {/* Panel izquierdo oscuro */}
-                                <div className="lg:col-span-5 bg-[#051C33] text-white p-7 sm:p-10 flex flex-col justify-between relative overflow-hidden">
-                                    <div className="space-y-4 relative z-10">
-                                        <span className="inline-block px-3.5 py-1 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-xs font-semibold">
+                                <div className="lg:col-span-5 bg-[#051C33] text-white p-5 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+                                    <div className="space-y-3 sm:space-y-4 relative z-10">
+                                        <span className="inline-block px-3 py-1 rounded-full bg-[#1e88e5]/20 text-[#90caf9] border border-[#1e88e5]/40 text-[11px] sm:text-xs font-semibold">
                                             {currentStep.badge}
                                         </span>
-                                        <div className="flex items-center gap-4 pt-2">
-                                            <div className="w-14 h-14 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
+                                        <div className="flex items-center gap-3 sm:gap-4 pt-1 sm:pt-2">
+                                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
                                                 <StepIcon type={currentStep.icon} />
                                             </div>
-                                            <span className="text-4xl sm:text-5xl font-extrabold text-white/20 select-none">
+                                            <span className="text-3xl sm:text-5xl font-extrabold text-white/20 select-none">
                                                 {currentStep.number}
                                             </span>
                                         </div>
-                                        <p className="text-xs sm:text-sm text-[#E3F2FD] leading-relaxed pt-2">
+                                        <p className="text-xs sm:text-sm text-[#E3F2FD] leading-relaxed pt-1 sm:pt-2">
                                             {currentStep.detail}
                                         </p>
                                     </div>
 
                                     {/* Controles del carrusel */}
-                                    <div className="pt-8 mt-8 border-t border-white/10 flex items-center justify-between gap-4 relative z-10">
+                                    <div className="pt-5 sm:pt-8 mt-5 sm:mt-8 border-t border-white/10 flex items-center justify-between gap-2 sm:gap-4 relative z-10">
                                         <button
                                             type="button"
                                             onClick={prevStep}
-                                            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
+                                            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1 shrink-0"
                                         >
-                                            <span>← Anterior</span>
+                                            <span>← Ant.</span>
                                         </button>
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 sm:gap-2">
                                             {steps.map((s, index) => (
                                                 <button
                                                     key={s.number}
                                                     type="button"
                                                     aria-label={`Ir al paso ${s.number}`}
                                                     onClick={() => setActiveStep(index)}
-                                                    className={`h-2.5 rounded-full transition-all ${index === activeStep ? 'w-7 bg-[#3385FF]' : 'w-2.5 bg-white/30 hover:bg-white/50'
-                                                        }`}
+                                                    className={`h-2 sm:h-2.5 rounded-full transition-all ${
+                                                        index === activeStep ? 'w-5 sm:w-7 bg-[#3385FF]' : 'w-2 sm:w-2.5 bg-white/30 hover:bg-white/50'
+                                                    }`}
                                                 />
                                             ))}
                                         </div>
@@ -359,35 +440,35 @@ export default () => {
                                         <button
                                             type="button"
                                             onClick={nextStep}
-                                            className="px-4 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
+                                            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1 shrink-0"
                                         >
-                                            <span>Siguiente →</span>
+                                            <span>Sig. →</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Panel derecho con detalle del paso */}
-                                <div className="lg:col-span-7 p-7 sm:p-12 flex flex-col justify-center space-y-5">
+                                <div className="lg:col-span-7 p-5 sm:p-12 flex flex-col justify-center space-y-4 sm:space-y-5">
                                     <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">
                                         Etapa {activeStep + 1} de {steps.length}
                                     </span>
-                                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#051C33] leading-snug">
+                                    <h3 className="text-xl sm:text-3xl font-extrabold text-[#051C33] leading-snug">
                                         {currentStep.title}
                                     </h3>
-                                    <p className="text-sm sm:text-base text-[#4A607A] leading-relaxed">
+                                    <p className="text-xs sm:text-base text-[#4A607A] leading-relaxed">
                                         {currentStep.description}
                                     </p>
 
-                                    <div className="pt-3 flex flex-wrap items-center gap-3">
+                                    <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3">
                                         <Link
                                             href={route('register')}
-                                            className="px-5 py-3 rounded-xl bg-[#0066FF] text-white text-xs sm:text-sm font-semibold hover:bg-[#0052CC] transition shadow-md shadow-blue-600/20"
+                                            className="px-5 py-3 rounded-xl bg-[#0066FF] text-white text-xs sm:text-sm font-semibold hover:bg-[#0052CC] transition shadow-md shadow-blue-600/20 text-center"
                                         >
                                             Ir al Registro
                                         </Link>
                                         <Link
                                             href={route('login')}
-                                            className="px-5 py-3 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs sm:text-sm font-semibold hover:bg-[#0066FF] hover:text-white transition"
+                                            className="px-5 py-3 rounded-xl bg-[#E3F2FD] text-[#0066FF] text-xs sm:text-sm font-semibold hover:bg-[#0066FF] hover:text-white transition text-center"
                                         >
                                             Ya tengo clave temporal
                                         </Link>
@@ -398,14 +479,14 @@ export default () => {
                     </section>
 
                     {/* 5. SECCIÓN DE VÍDEO EXPLICATIVO */}
-                    <section id="video-guia" className="py-12 sm:py-20 bg-white border-y border-blue-100">
+                    <section id="video-guia" className="scroll-mt-20 py-12 sm:py-20 bg-white border-y border-blue-100">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6">
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                                <div className="lg:col-span-5 space-y-4">
+                                <div className="lg:col-span-5 space-y-3 sm:space-y-4">
                                     <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
                                         Recorrido Visual
                                     </span>
-                                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#051C33] leading-tight">
+                                    <h2 className="text-xl sm:text-3xl font-extrabold text-[#051C33] leading-tight">
                                         Vídeo explicativo del Aula Virtual
                                     </h2>
                                     <p className="text-xs sm:text-sm text-[#4A607A] leading-relaxed">
@@ -421,7 +502,7 @@ export default () => {
 
                                 {/* Contenedor con vídeo de YouTube */}
                                 <div className="lg:col-span-7">
-                                    <div className="relative rounded-3xl bg-[#051C33] border-2 border-blue-100 shadow-2xl shadow-blue-900/10 overflow-hidden aspect-video">
+                                    <div className="relative rounded-2xl sm:rounded-3xl bg-[#051C33] border-2 border-blue-100 shadow-2xl shadow-blue-900/10 overflow-hidden aspect-video">
                                         <iframe
                                             src="https://www.youtube.com/embed/76wN-o5zIwI?rel=0&modestbranding=1"
                                             title="Vídeo explicativo del Aula Virtual"
@@ -437,49 +518,49 @@ export default () => {
                     </section>
 
                     {/* 6. MÓDULOS ACADÉMICOS PRINCIPALES */}
-                    <section id="cursos" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
-                        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3 sm:space-y-4">
+                    <section id="cursos" className="scroll-mt-20 py-14 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+                        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-2.5 sm:space-y-4">
                             <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
                                 Herramientas del Sistema
                             </span>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-[#051C33]">Módulos Académicos Principales</h2>
+                            <h2 className="text-xl sm:text-3xl font-bold text-[#051C33]">Módulos Académicos Principales</h2>
                             <p className="text-xs sm:text-sm text-[#4A607A]">
                                 Herramientas diseñadas bajo altos estándares de usabilidad para profesores y alumnos.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
+                            <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
+                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
+                                    <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg sm:text-xl font-bold text-[#051C33] mb-2.5 sm:mb-3">Gestión de Cursos</h3>
+                                <h3 className="text-base sm:text-xl font-bold text-[#051C33] mb-2 sm:mb-3">Gestión de Cursos</h3>
                                 <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
                                     Consulta materiales didácticos, guías de estudio y recursos organizados temáticamente por cada unidad.
                                 </p>
                             </div>
 
-                            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
+                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
+                                    <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg sm:text-xl font-bold text-[#051C33] mb-2.5 sm:mb-3">Seguimiento y Notas</h3>
+                                <h3 className="text-base sm:text-xl font-bold text-[#051C33] mb-2 sm:mb-3">Seguimiento y Notas</h3>
                                 <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
                                     Monitorea calificaciones, entregas de asignaciones y reportes de rendimiento académico en tiempo real.
                                 </p>
                             </div>
 
-                            <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-5 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
+                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
+                                    <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg sm:text-xl font-bold text-[#051C33] mb-2.5 sm:mb-3">Roles y Accesos</h3>
+                                <h3 className="text-base sm:text-xl font-bold text-[#051C33] mb-2 sm:mb-3">Roles y Accesos</h3>
                                 <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
                                     Interfaces especializadas y seguras para administradores, docentes y alumnos dentro de la plataforma.
                                 </p>
@@ -488,12 +569,12 @@ export default () => {
                     </section>
 
                     {/* 7. PREGUNTAS FRECUENTES INTERACTIVAS */}
-                    <section className="pb-16 sm:pb-24 max-w-4xl mx-auto px-4 sm:px-6">
+                    <section className="pb-14 sm:pb-24 max-w-4xl mx-auto px-4 sm:px-6">
                         <div className="text-center mb-8 sm:mb-10 space-y-2">
                             <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
                                 Resolución de Dudas
                             </span>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-[#051C33]">Preguntas Frecuentes</h2>
+                            <h2 className="text-xl sm:text-3xl font-bold text-[#051C33]">Preguntas Frecuentes</h2>
                         </div>
 
                         <div className="space-y-3">
@@ -507,7 +588,7 @@ export default () => {
                                         <button
                                             type="button"
                                             onClick={() => setOpenFaq(isOpen ? -1 : idx)}
-                                            className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-[#F8FAFC] transition"
+                                            className="w-full px-4 sm:px-6 py-3.5 sm:py-4 text-left flex items-center justify-between gap-3 sm:gap-4 hover:bg-[#F8FAFC] transition"
                                         >
                                             <span className="text-xs sm:text-sm font-bold text-[#051C33]">{faq.q}</span>
                                             <span className="w-7 h-7 rounded-lg bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center font-bold text-sm shrink-0">
@@ -515,7 +596,7 @@ export default () => {
                                             </span>
                                         </button>
                                         {isOpen && (
-                                            <div className="px-5 sm:px-6 pb-5 text-xs sm:text-sm text-[#4A607A] leading-relaxed border-t border-blue-50 pt-3">
+                                            <div className="px-4 sm:px-6 pb-4 sm:pb-5 text-xs sm:text-sm text-[#4A607A] leading-relaxed border-t border-blue-50 pt-3">
                                                 {faq.a}
                                             </div>
                                         )}
@@ -528,7 +609,7 @@ export default () => {
 
                 {/* 8. PIE DE PÁGINA */}
                 <footer className="bg-[#051C33] text-[#90caf9] py-6 sm:py-8 border-t border-blue-900">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-center sm:text-left">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-center sm:text-left">
                         <p>© 2026 Grupo Académico LEIL. Todos los derechos reservados.</p>
                         <p className="font-medium text-[#E3F2FD]">Plataforma Educativa Oficial</p>
                     </div>
