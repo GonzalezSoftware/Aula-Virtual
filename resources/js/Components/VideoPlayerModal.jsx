@@ -48,7 +48,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                 }
             }
         } catch {
-            // Fallback si viene un ID directo o formato no estándar
             const match = url.match(/(?:v=|\/embed\/|\/shorts\/|\/live\/|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
             return match ? match[1] : null;
         }
@@ -81,11 +80,16 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
 
     const isEmbeddedPlayer = Boolean(youtubeId || vimeoId);
 
+    const blockInteraction = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 select-none"
-            onContextMenu={(e) => e.preventDefault()}
-            onDragStart={(e) => e.preventDefault()}
+            onContextMenu={blockInteraction}
+            onDragStart={blockInteraction}
         >
             <div className="bg-slate-900 w-full max-w-5xl rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-700">
                 {/* Header corporativo */}
@@ -108,12 +112,38 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                 {/* Contenedor del Reproductor */}
                 <div
                     className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden"
-                    onContextMenu={(e) => e.preventDefault()}
+                    onContextMenu={blockInteraction}
                 >
+                    {isEmbeddedPlayer && (
+                        <>
+                            {/* Bloquea clic en título/canal e info (esquina superior izquierda) */}
+                            <div
+                                onClick={blockInteraction}
+                                onContextMenu={blockInteraction}
+                                className="absolute top-0 left-0 w-64 h-16 z-20 bg-transparent cursor-default"
+                                aria-hidden="true"
+                            />
+                            {/* Bloquea clic en ícono de enlace (esquina inferior izquierda) */}
+                            <div
+                                onClick={blockInteraction}
+                                onContextMenu={blockInteraction}
+                                className="absolute bottom-8 left-0 w-14 h-10 z-20 bg-transparent cursor-default"
+                                aria-hidden="true"
+                            />
+                            {/* Bloquea clic en logo de YouTube (esquina inferior derecha) */}
+                            <div
+                                onClick={blockInteraction}
+                                onContextMenu={blockInteraction}
+                                className="absolute bottom-8 right-0 w-28 h-10 z-20 bg-transparent cursor-default"
+                                aria-hidden="true"
+                            />
+                        </>
+                    )}
+
                     {isEmbeddedPlayer ? (
                         <iframe
                             src={getEmbedSrc()}
-                            className="w-full h-full border-none"
+                            className="w-full h-full border-none z-10"
                             title={title}
                             referrerPolicy="strict-origin-when-cross-origin"
                             sandbox="allow-scripts allow-same-origin allow-presentation"
@@ -126,8 +156,8 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                             controls
                             controlsList="nodownload noplaybackrate"
                             disablePictureInPicture
-                            onContextMenu={(e) => e.preventDefault()}
-                            className="w-full h-full object-contain"
+                            onContextMenu={blockInteraction}
+                            className="w-full h-full object-contain z-10"
                             autoPlay
                         >
                             Tu navegador no soporta la reproducción de video.
