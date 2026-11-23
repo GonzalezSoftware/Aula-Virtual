@@ -248,7 +248,7 @@ export default () => {
                         <img
                             src="/images/hero-banner.jpg"
                             alt="Banner Cursos Aula Virtual"
-                            className="absolute inset-0 z-0 w-full h-full object-cover object-center opacity-80"
+                            className="absolute inset-0 z-0 w-full h-full object-cover object-center opacity-60"
                         />
 
                         <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#051C33]/85 via-[#051C33]/50 to-[#0A3266]/25"></div>
