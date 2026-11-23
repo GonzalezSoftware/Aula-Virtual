@@ -1,14 +1,18 @@
 import { useEffect } from 'react';
 
-export default function VideoPlayerModal({ videoUrl, title, onClose }) {
-    
-    // Bloquear clic derecho, atajos de teclado para inspeccionar código o copiar URLs
+export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
     useEffect(() => {
         const handleContextMenu = (e) => e.preventDefault();
+
         const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose?.();
+                return;
+            }
+
             if (
-                (e.ctrlKey && (e.key === 's' || e.key === 'u' || e.key === 'c' || e.key === 'i' || e.key === 'I')) ||
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'C')) ||
+                (e.ctrlKey && ['s', 'S', 'u', 'U', 'c', 'C', 'i', 'I'].includes(e.key)) ||
+                (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
                 e.key === 'F12'
             ) {
                 e.preventDefault();
@@ -22,43 +26,78 @@ export default function VideoPlayerModal({ videoUrl, title, onClose }) {
             window.removeEventListener('contextmenu', handleContextMenu);
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, []);
+    }, [onClose]);
 
-    // Detectar si la URL es de YouTube o Vimeo para usar el reproductor embebido adecuado
-    const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
-    const isVimeo = videoUrl.includes('vimeo.com');
+    const extractYouTubeId = (url) => {
+        if (!url) return null;
+        try {
+            const parsed = new URL(url);
+            const host = parsed.hostname.replace(/^www\./, '');
 
-    // Función auxiliar para limpiar y formatear la URL de YouTube si es necesario
-    const getEmbedUrl = (url) => {
-        if (isYouTube) {
-            let videoId = '';
-            if (url.includes('youtu.be/')) {
-                videoId = url.split('youtu.be/')[1]?.split('?')[0];
-            } else if (url.includes('watch?v=')) {
-                videoId = url.split('watch?v=')[1]?.split('&')[0];
-            } else if (url.includes('embed/')) {
-                videoId = url.split('embed/')[1]?.split('?')[0];
+            if (host === 'youtu.be') {
+                return parsed.pathname.split('/').filter(Boolean)[0] || null;
             }
-            // Parámetros estrictos para ocultar marca de agua, recomendaciones y controles de compartir
-            return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&controls=1`;
+
+            if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+                if (parsed.pathname === '/watch') {
+                    return parsed.searchParams.get('v');
+                }
+                const parts = parsed.pathname.split('/').filter(Boolean);
+                if (parts[0] === 'embed' || parts[0] === 'shorts' || parts[0] === 'live') {
+                    return parts[1] || null;
+                }
+            }
+        } catch {
+            // Fallback si viene un ID directo o formato no estándar
+            const match = url.match(/(?:v=|\/embed\/|\/shorts\/|\/live\/|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+            return match ? match[1] : null;
         }
-        if (isVimeo) {
-            const vimeoId = url.split('vimeo.com/')[1]?.split('?')[0];
-            return `https://player.vimeo.com/video/${vimeoId}?autoplay=1&title=0&byline=0&portrait=0`;
-        }
-        return url; // Si es un archivo de video directo (mp4, webm, etc.)
+        return null;
     };
 
+    const extractVimeoId = (url) => {
+        if (!url) return null;
+        const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        return match ? match[1] : null;
+    };
+
+    const youtubeId = extractYouTubeId(videoUrl);
+    const vimeoId = !youtubeId ? extractVimeoId(videoUrl) : null;
+
+    const getEmbedSrc = () => {
+        if (youtubeId) {
+            const originParam = typeof window !== 'undefined'
+                ? `&origin=${encodeURIComponent(window.location.origin)}`
+                : '';
+            return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1&controls=1${originParam}`;
+        }
+
+        if (vimeoId) {
+            return `https://player.vimeo.com/video/${encodeURIComponent(vimeoId)}?autoplay=1&title=0&byline=0&portrait=0`;
+        }
+
+        return videoUrl;
+    };
+
+    const isEmbeddedPlayer = Boolean(youtubeId || vimeoId);
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 select-none">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 select-none"
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
+        >
             <div className="bg-slate-900 w-full max-w-5xl rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-                
                 {/* Header corporativo */}
                 <div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 sm:gap-3 select-none">
                     <h3 className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-full sm:max-w-xl text-white">
-                        🎬 {title} <span className="text-[11px] sm:text-xs text-blue-400 font-normal ml-1.5 sm:ml-2">(Reproducción Protegida)</span>
+                        {title}{' '}
+                        <span className="text-[11px] sm:text-xs text-blue-400 font-normal ml-1.5 sm:ml-2">
+                            (Reproducción Protegida)
+                        </span>
                     </h3>
-                    <button 
+                    <button
+                        type="button"
                         onClick={onClose}
                         className="w-full sm:w-auto px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0"
                     >
@@ -66,37 +105,35 @@ export default function VideoPlayerModal({ videoUrl, title, onClose }) {
                     </button>
                 </div>
 
-                {/* Contenedor del Reproductor con Capa Antirrobo */}
-                <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
-                    
-                    {/* 🛡️ Capa invisible de protección: evita que hagan clic derecho sobre el iframe o video */}
-                    <div 
-                        className="absolute inset-0 z-20 bg-transparent pointer-events-none" 
-                    />
-
-                    {isYouTube || isVimeo ? (
-                        <iframe 
-                            src={getEmbedUrl(videoUrl)}
-                            className="w-full h-full border-none pointer-events-auto"
+                {/* Contenedor del Reproductor */}
+                <div
+                    className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden"
+                    onContextMenu={(e) => e.preventDefault()}
+                >
+                    {isEmbeddedPlayer ? (
+                        <iframe
+                            src={getEmbedSrc()}
+                            className="w-full h-full border-none"
                             title={title}
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            sandbox="allow-scripts allow-same-origin allow-presentation"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen={false}
                         />
                     ) : (
-                        <video 
-                            src={videoUrl} 
-                            controls 
-                            controlsList="nodownload noplaybackrate" 
+                        <video
+                            src={videoUrl}
+                            controls
+                            controlsList="nodownload noplaybackrate"
                             disablePictureInPicture
                             onContextMenu={(e) => e.preventDefault()}
-                            className="w-full h-full object-contain pointer-events-auto"
+                            className="w-full h-full object-contain"
                             autoPlay
                         >
                             Tu navegador no soporta la reproducción de video.
                         </video>
                     )}
                 </div>
-
             </div>
         </div>
     );
