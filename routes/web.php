@@ -117,6 +117,9 @@ Route::middleware(['auth'])->group(function () {
     // NUEVA RUTA PARA VISUALIZACIÓN SEGURA DE PDFs
     // ==========================================
     Route::get('/student/contents/{content}/view-pdf', [StudentContentController::class, 'viewPdf'])->name('student.contents.view-pdf');
+    Route::get('/student/contents/{content}/page/{page}', [StudentContentController::class, 'renderPage'])
+        ->whereNumber('page')
+        ->name('student.contents.page');
 
     // Gestión de contraseña del estudiante
     Route::get('/student/password', [StudentPasswordController::class, 'edit'])->name('student.password.edit');

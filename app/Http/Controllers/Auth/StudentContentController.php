@@ -1,31 +1,89 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\ModuleContent; // ⚠️ Cambia 'Content' por el nombre real de tu modelo (ej. ModuleContent)
+use App\Models\Content; // Ajusta al nombre real de tu modelo de contenido
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
 
 class StudentContentController extends Controller
 {
-    public function viewPdf($contentId)
+    public function renderPage(Request $request, $contentId, int $page)
     {
-        // 1. Buscar el contenido usando el modelo correcto
-        $content = ModuleContent::findOrFail($contentId);
-        
-        // 2. Obtener la ruta física del archivo (ajusta la propiedad según tu columna en BD, ej: file_path o path)
-        $path = storage_path('app/public/' . $content->file_path);
+        $content = Content::findOrFail($contentId);
 
-        // 3. Validar si el archivo existe
-        if (!file_exists($path)) {
-            abort(404, 'El archivo PDF no fue encontrado en el servidor.');
+        // Ajusta el campo donde guardas la ruta del PDF en tu tabla contents
+        $relativePath = $content->file_path ?? $content->file ?? $content->path ?? $content->file_url;
+
+        if (!$relativePath) {
+            abort(404, 'Archivo PDF no encontrado.');
         }
 
-        // 4. Retornar el PDF en modo visualización protegida 'inline'
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="documento-protegido.pdf"'
+        // Resuelve ruta local ya sea en storage/app/public o storage/app
+        $cleanPath = ltrim(preg_replace('#^/?storage/#', '', $relativePath), '/');
+        $pdfPath = Storage::disk('public')->exists($cleanPath)
+            ? Storage::disk('public')->path($cleanPath)
+            : Storage::path($cleanPath);
+
+        if (!file_exists($pdfPath)) {
+            abort(404, 'El archivo PDF no existe en el servidor.');
+        }
+
+        // Obtener número total de páginas con pdfinfo
+        $infoProcess = new Process(['pdfinfo', $pdfPath]);
+        $infoProcess->run();
+
+        $totalPages = 1;
+        if ($infoProcess->isSuccessful() && preg_match('/Pages:\s+(\d+)/', $infoProcess->getOutput(), $matches)) {
+            $totalPages = max(1, (int) $matches[1]);
+        }
+
+        $targetPage = max(1, min($page, $totalPages));
+
+        // Cachear la imagen renderizada en storage/framework/cache/pdf-pages
+        $cacheDir = storage_path("framework/cache/pdf-pages/{$content->id}");
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
+
+        $prefix = "{$cacheDir}/page-{$targetPage}";
+        $expectedPng = "{$prefix}-{$targetPage}.png";
+
+        // pdftoppm con -f y -l numera con ceros a la izquierda según totalPages;
+        // si generamos en un subdirectorio temporal o buscamos el *.png generado:
+        if (!file_exists($expectedPng)) {
+            $existing = glob("{$prefix}*.png");
+            if (!empty($existing)) {
+                $expectedPng = $existing[0];
+            } else {
+                $renderProcess = new Process([
+                    'pdftoppm',
+                    '-png',
+                    '-r', '140', // Resolución balanceada para móvil y lectura nítida
+                    '-f', (string) $targetPage,
+                    '-l', (string) $targetPage,
+                    $pdfPath,
+                    $prefix,
+                ]);
+                $renderProcess->run();
+
+                if (!$renderProcess->isSuccessful()) {
+                    abort(500, 'No se pudo convertir la página del PDF a imagen.');
+                }
+
+                $generated = glob("{$prefix}*.png");
+                if (empty($generated)) {
+                    abort(500, 'No se generó la imagen de la página.');
+                }
+                $expectedPng = $generated[0];
+            }
+        }
+
+        return response()->file($expectedPng, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'inline; filename="pagina-' . $targetPage . '.png"',
+            'X-Total-Pages' => (string) $totalPages,
         ]);
     }
 }

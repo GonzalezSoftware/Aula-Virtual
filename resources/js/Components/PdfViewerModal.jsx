@@ -1,25 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import * as pdfjsLib from 'pdfjs-dist';
+import { useEffect, useState } from 'react';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url
-).toString();
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
-
-export default function PdfViewerModal({ pdfUrl, title, onClose }) {
+export default function PdfViewerModal({ pdfUrl, title, onClose, contentId }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [loadingPdf, setLoadingPdf] = useState(true);
+    const [imageSrc, setImageSrc] = useState('');
+    const [loadingPage, setLoadingPage] = useState(true);
     const [errorMsg, setErrorMsg] = useState('');
-
-    const pdfDocRef = useRef(null);
-    const renderTaskRef = useRef(null);
-    const canvasRef = useRef(null);
-    const containerRef = useRef(null);
 
     // Bloquear clic derecho, atajos de teclado y copiado
     useEffect(() => {
@@ -42,97 +28,67 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
         };
     }, []);
 
-    // Cargar documento PDF con pdfjs-dist
+    // Reiniciar a página 1 al abrir otro documento
     useEffect(() => {
-        let cancelled = false;
-        setLoadingPdf(true);
-        setErrorMsg('');
         setCurrentPage(1);
+        setTotalPages(1);
+    }, [pdfUrl, contentId]);
 
-        const loadingTask = pdfjsLib.getDocument({
-            url: pdfUrl,
-            withCredentials: true,
-        });
-
-        loadingTask.promise
-            .then((doc) => {
-                if (cancelled) return;
-                pdfDocRef.current = doc;
-                setTotalPages(doc.numPages || 1);
-                setLoadingPdf(false);
-            })
-            .catch((err) => {
-                if (cancelled) return;
-                setErrorMsg(err?.message || 'No se pudo cargar el documento PDF en el visor.');
-                setLoadingPdf(false);
-            });
-
-        return () => {
-            cancelled = true;
-            if (renderTaskRef.current?.cancel) {
-                renderTaskRef.current.cancel();
-            }
-            if (pdfDocRef.current?.destroy) {
-                pdfDocRef.current.destroy();
-                pdfDocRef.current = null;
-            }
-        };
-    }, [pdfUrl]);
-
-    // Renderizar la página actual en el canvas ajustada al ancho disponible
+    // Cargar la imagen de la página actual desde Laravel
     useEffect(() => {
-        const doc = pdfDocRef.current;
-        const canvas = canvasRef.current;
-        const container = containerRef.current;
-
-        if (!doc || !canvas || !container || loadingPdf || errorMsg) return;
-
+        let revokedUrl = '';
         let cancelled = false;
 
-        const renderPage = async () => {
+        const fetchPageImage = async () => {
+            setLoadingPage(true);
+            setErrorMsg('');
+
+            // Construye /student/contents/{id}/page/{currentPage} a partir de pdfUrl o contentId
+            const pageUrl = contentId
+                ? `/student/contents/${contentId}/page/${currentPage}`
+                : `${pdfUrl.replace(/\/view-pdf\/?$/, '')}/page/${currentPage}`;
+
             try {
-                if (renderTaskRef.current?.cancel) {
-                    renderTaskRef.current.cancel();
+                const response = await fetch(pageUrl, {
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar la página del documento.');
                 }
 
-                const page = await doc.getPage(currentPage);
+                const headerTotal = parseInt(response.headers.get('X-Total-Pages') || '1', 10);
+                const blob = await response.blob();
                 if (cancelled) return;
 
-                const availableWidth = Math.max(container.clientWidth - 16, 260);
-                const unscaledViewport = page.getViewport({ scale: 1 });
-                const scale = availableWidth / unscaledViewport.width;
-                const viewport = page.getViewport({ scale });
-
-                const context = canvas.getContext('2d');
-                canvas.width = Math.floor(viewport.width);
-                canvas.height = Math.floor(viewport.height);
-
-                const renderTask = page.render({
-                    canvasContext: context,
-                    viewport,
+                revokedUrl = URL.createObjectURL(blob);
+                setImageSrc((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return revokedUrl;
                 });
-                renderTaskRef.current = renderTask;
-
-                await renderTask.promise;
-            } catch (err) {
-                if (err?.name !== 'RenderingCancelledException' && !cancelled) {
-                    setErrorMsg('Ocurrió un error al renderizar la página del PDF.');
+                if (!Number.isNaN(headerTotal) && headerTotal > 0) {
+                    setTotalPages(headerTotal);
                 }
+                setLoadingPage(false);
+            } catch (err) {
+                if (cancelled) return;
+                setErrorMsg(err?.message || 'Error al cargar la página.');
+                setLoadingPage(false);
             }
         };
 
-        renderPage();
+        fetchPageImage();
 
-        const handleResize = () => {
-            if (!cancelled) renderPage();
-        };
-
-        window.addEventListener('resize', handleResize);
         return () => {
             cancelled = true;
-            window.removeEventListener('resize', handleResize);
+            if (revokedUrl) {
+                URL.revokeObjectURL(revokedUrl);
+            }
         };
-    }, [currentPage, loadingPdf, errorMsg]);
+    }, [currentPage, pdfUrl, contentId]);
 
     const nextPage = () => {
         if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
@@ -145,7 +101,7 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 select-none">
             <div className="bg-white w-full max-w-5xl h-[94vh] sm:h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-blue-100">
-
+                
                 {/* Header corporativo con Paginación Integrada */}
                 <div className="px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-center gap-2.5 sm:gap-3 select-none">
                     <h3 className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-full sm:max-w-md text-white text-center sm:text-left">
@@ -154,10 +110,10 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
 
                     {/* Controles de Paginación Centrales */}
                     <div className="flex items-center justify-center gap-2 sm:gap-3 bg-slate-800/80 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 w-full sm:w-auto">
-                        <button
+                        <button 
                             type="button"
                             onClick={prevPage}
-                            disabled={currentPage === 1 || loadingPdf}
+                            disabled={currentPage === 1 || loadingPage}
                             className="px-2.5 sm:px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer shrink-0"
                         >
                             Anterior
@@ -165,17 +121,17 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                         <span className="text-[11px] sm:text-xs font-medium text-slate-200 whitespace-nowrap">
                             Página <strong className="text-white">{currentPage}</strong> de <strong className="text-white">{totalPages}</strong>
                         </span>
-                        <button
+                        <button 
                             type="button"
                             onClick={nextPage}
-                            disabled={currentPage >= totalPages || loadingPdf}
+                            disabled={currentPage >= totalPages || loadingPage}
                             className="px-2.5 sm:px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600 text-white text-xs font-semibold transition cursor-pointer shrink-0"
                         >
                             Siguiente
                         </button>
                     </div>
 
-                    <button
+                    <button 
                         type="button"
                         onClick={onClose}
                         className="w-full sm:w-auto px-4 py-1.5 rounded-xl bg-red-500/25 hover:bg-red-600 text-red-200 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0"
@@ -184,36 +140,37 @@ export default function PdfViewerModal({ pdfUrl, title, onClose }) {
                     </button>
                 </div>
 
-                {/* Contenedor principal con visor paginado y capa de seguridad */}
-                <div
-                    ref={containerRef}
-                    className="flex-1 bg-slate-950 relative overflow-y-auto overflow-x-hidden select-none flex items-start justify-center p-2 sm:p-4"
-                >
+                {/* Contenedor principal con imagen de página y capa de seguridad */}
+                <div className="flex-1 bg-slate-950 relative overflow-y-auto overflow-x-hidden select-none flex items-start justify-center p-2 sm:p-4">
+                    
                     {/* CAPA INVISIBLE ANTIRROBO (z-20) */}
-                    <div
+                    <div 
                         className="absolute inset-0 z-20 bg-transparent cursor-default"
                         onMouseDown={(e) => e.preventDefault()}
                         onSelectStart={(e) => e.preventDefault()}
                         onContextMenu={(e) => e.preventDefault()}
                     />
 
-                    {loadingPdf && (
+                    {loadingPage && (
                         <div className="my-auto text-xs sm:text-sm font-medium text-slate-300 z-10">
-                            Cargando documento PDF...
+                            Cargando página {currentPage}...
                         </div>
                     )}
 
-                    {!loadingPdf && errorMsg && (
+                    {!loadingPage && errorMsg && (
                         <div className="my-auto px-4 py-3 rounded-xl bg-red-950/70 border border-red-500/40 text-xs sm:text-sm text-red-200 z-10 text-center">
                             {errorMsg}
                         </div>
                     )}
 
-                    <canvas
-                        ref={canvasRef}
-                        className={`max-w-full h-auto rounded-lg shadow-lg bg-white pointer-events-none select-none z-10 ${loadingPdf || errorMsg ? 'hidden' : 'block'
-                            }`}
-                    />
+                    {!loadingPage && !errorMsg && imageSrc && (
+                        <img
+                            src={imageSrc}
+                            alt={`${title} - Página ${currentPage}`}
+                            draggable={false}
+                            className="max-w-full h-auto rounded-xl shadow-lg bg-white pointer-events-none select-none z-10"
+                        />
+                    )}
                 </div>
 
             </div>
