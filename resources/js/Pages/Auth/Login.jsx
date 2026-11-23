@@ -162,7 +162,7 @@ export default function Login({ status, canResetPassword }) {
                                 <div>
                                     <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                                         <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-[#0A2540]">
-                                            Clave Temporal (8 dígitos)
+                                            Contraseña
                                         </label>
                                     </div>
                                     <div className="relative">
@@ -199,19 +199,6 @@ export default function Login({ status, canResetPassword }) {
                                             )}
                                         </button>
                                     </div>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                                        <input
-                                            type="checkbox"
-                                            name="remember"
-                                            checked={data.remember}
-                                            onChange={(e) => setData('remember', e.target.checked)}
-                                            className="w-4 h-4 rounded border-blue-300 text-[#0066FF] focus:ring-[#0066FF]/30 transition"
-                                        />
-                                        <span className="text-xs sm:text-sm text-[#4A607A]">Mantener sesión iniciada</span>
-                                    </label>
                                 </div>
 
                                 <button
