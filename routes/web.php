@@ -11,9 +11,14 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\AdminGradeController;
+use App\Http\Controllers\Auth\ForgotPasswordCodeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// Recuperación de contraseña con código de 6 dígitos
+Route::post('/forgot-password/send-code', [ForgotPasswordCodeController::class, 'sendCode'])->name('password.code.send');
+Route::post('/forgot-password/reset', [ForgotPasswordCodeController::class, 'resetPassword'])->name('password.code.reset');
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
