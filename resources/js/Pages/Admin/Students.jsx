@@ -12,6 +12,11 @@ export default function Students({ auth, students, courses = [] }) {
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [assignedCourseIds, setAssignedCourseIds] = useState([]);
 
+    // Estados para el Modal de Detalles del Estudiante
+    const [detailsStudent, setDetailsStudent] = useState(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+
     // Filtrar estudiantes activos (en_espera === 0) que coincidan con la búsqueda
     const filteredStudents = students.filter(student => {
         const isActive = student.en_espera === 0 && student.email !== 'admin_oculto';
@@ -19,10 +24,32 @@ export default function Students({ auth, students, courses = [] }) {
             student.name.toLowerCase().includes(search.toLowerCase()) ||
             (student.lastname && student.lastname.toLowerCase().includes(search.toLowerCase())) ||
             (student.cedula && student.cedula.toLowerCase().includes(search.toLowerCase())) ||
+            (student.phone && student.phone.toLowerCase().includes(search.toLowerCase())) ||
             student.email.toLowerCase().includes(search.toLowerCase());
 
         return isActive && matchesSearch;
     });
+
+    const getCedulaUrl = (cedulaImage) => {
+        if (!cedulaImage) return null;
+        if (cedulaImage.startsWith('http://') || cedulaImage.startsWith('https://')) {
+            return cedulaImage;
+        }
+        const cleaned = cedulaImage.replace(/^\/?storage\//, '');
+        return `/storage/${cleaned}`;
+    };
+
+    const openDetailsModal = (student) => {
+        setDetailsStudent(student);
+        setImagePreviewOpen(false);
+        setIsDetailsModalOpen(true);
+    };
+
+    const closeDetailsModal = () => {
+        setIsDetailsModalOpen(false);
+        setImagePreviewOpen(false);
+        setDetailsStudent(null);
+    };
 
     const openCourseModal = (student) => {
         setSelectedStudent(student);
@@ -78,6 +105,7 @@ export default function Students({ auth, students, courses = [] }) {
             if (result.isConfirmed) {
                 router.delete(route('admin.students.reject', id), {
                     onSuccess: () => {
+                        closeDetailsModal();
                         Swal.fire({
                             icon: 'success',
                             title: '¡Estudiante Eliminado!',
@@ -90,6 +118,8 @@ export default function Students({ auth, students, courses = [] }) {
             }
         });
     };
+
+    const detailsCedulaSrc = getCedulaUrl(detailsStudent?.cedula_image);
 
     return (
         <>
@@ -157,7 +187,7 @@ export default function Students({ auth, students, courses = [] }) {
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse min-w-[640px]">
+                                    <table className="w-full text-left border-collapse min-w-[680px]">
                                         <thead>
                                             <tr className="border-b border-slate-100 text-xs font-semibold text-[#4A607A] uppercase tracking-wider">
                                                 <th className="py-3 px-3 sm:px-4">Estudiante</th>
@@ -183,12 +213,21 @@ export default function Students({ auth, students, courses = [] }) {
                                                     <td className="py-4 px-3 sm:px-4 text-center">
                                                         <div className="flex flex-wrap items-center justify-center gap-2">
                                                             <button
+                                                                type="button"
+                                                                onClick={() => openDetailsModal(student)}
+                                                                className="px-3 py-1.5 rounded-xl bg-[#E3F2FD] text-[#0066FF] hover:bg-[#0066FF] hover:text-white text-xs font-semibold transition shadow-sm whitespace-nowrap"
+                                                            >
+                                                                Ver Detalles
+                                                            </button>
+                                                            <button
+                                                                type="button"
                                                                 onClick={() => openCourseModal(student)}
                                                                 className="px-3 py-1.5 rounded-xl bg-[#0066FF] text-white text-xs font-semibold hover:bg-[#0052CC] transition shadow-sm whitespace-nowrap"
                                                             >
                                                                 Asignar Cursos
                                                             </button>
                                                             <button
+                                                                type="button"
                                                                 onClick={() => handleDelete(student.id, `${student.name} ${student.lastname}`)}
                                                                 className="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-600 hover:text-white transition shadow-sm border border-red-200 whitespace-nowrap"
                                                             >
@@ -208,6 +247,122 @@ export default function Students({ auth, students, courses = [] }) {
 
                     <footer className="h-12 bg-white border-t border-slate-100"></footer>
                 </div>
+
+                {/* MODAL COMPLETO DE DETALLES DEL ESTUDIANTE ACTIVO */}
+                {isDetailsModalOpen && detailsStudent && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
+                        <div className="bg-white w-full max-w-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-blue-100 overflow-hidden my-auto">
+                            {/* Encabezado del modal */}
+                            <div className="bg-[#051C33] text-white px-5 sm:px-6 py-4 flex items-center justify-between gap-3">
+                                <div>
+                                    <span className="text-[11px] uppercase tracking-wider text-[#90caf9] font-semibold">
+                                        Información del Registro
+                                    </span>
+                                    <h3 className="text-base sm:text-lg font-extrabold">
+                                        Detalles del Estudiante
+                                    </h3>
+                                </div>
+                                <span className="px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-300/30 text-xs font-semibold shrink-0">
+                                    Activo
+                                </span>
+                            </div>
+
+                            {/* Cuerpo con toda la información y foto de cédula */}
+                            <div className="p-5 sm:p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm">
+                                    <div className="bg-[#F8FAFC] border border-blue-100 rounded-xl p-3.5">
+                                        <p className="text-[11px] font-semibold uppercase text-[#4A607A]">Nombres</p>
+                                        <p className="font-bold text-[#051C33] mt-0.5">{detailsStudent.name}</p>
+                                    </div>
+
+                                    <div className="bg-[#F8FAFC] border border-blue-100 rounded-xl p-3.5">
+                                        <p className="text-[11px] font-semibold uppercase text-[#4A607A]">Apellidos</p>
+                                        <p className="font-bold text-[#051C33] mt-0.5">{detailsStudent.lastname || '—'}</p>
+                                    </div>
+
+                                    <div className="bg-[#F8FAFC] border border-blue-100 rounded-xl p-3.5">
+                                        <p className="text-[11px] font-semibold uppercase text-[#4A607A]">Cédula de Identidad</p>
+                                        <p className="font-bold text-[#051C33] mt-0.5">{detailsStudent.cedula || '—'}</p>
+                                    </div>
+
+                                    <div className="bg-[#F8FAFC] border border-blue-100 rounded-xl p-3.5">
+                                        <p className="text-[11px] font-semibold uppercase text-[#4A607A]">Teléfono</p>
+                                        <p className="font-bold text-[#051C33] mt-0.5">{detailsStudent.phone || '—'}</p>
+                                    </div>
+
+                                    <div className="bg-[#F8FAFC] border border-blue-100 rounded-xl p-3.5">
+                                        <p className="text-[11px] font-semibold uppercase text-[#4A607A]">Correo Electrónico</p>
+                                        <p className="font-bold text-[#051C33] mt-0.5 break-all">{detailsStudent.email}</p>
+                                    </div>
+
+                                    <div className="bg-[#F8FAFC] border border-blue-100 rounded-xl p-3.5">
+                                        <p className="text-[11px] font-semibold uppercase text-[#4A607A]">Cursos Asignados</p>
+                                        <p className="font-bold text-[#0066FF] mt-0.5">
+                                            {detailsStudent.courses ? detailsStudent.courses.length : 0} Cursos
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Apartado de la foto de cédula */}
+                                <div className="bg-[#F0F6FF] border border-blue-100 rounded-2xl p-4 space-y-3">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <p className="text-xs sm:text-sm font-bold text-[#051C33]">
+                                            Foto de la Cédula de Identidad
+                                        </p>
+                                        {detailsCedulaSrc && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setImagePreviewOpen((prev) => !prev)}
+                                                className="text-xs font-semibold text-[#0066FF] hover:underline"
+                                            >
+                                                {imagePreviewOpen ? 'Tamaño normal' : 'Ampliar foto'}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {detailsCedulaSrc ? (
+                                        <div className="bg-white rounded-xl border border-blue-100 p-2.5 flex justify-center">
+                                            <img
+                                                src={detailsCedulaSrc}
+                                                alt={`Cédula de ${detailsStudent.name} ${detailsStudent.lastname || ''}`}
+                                                onClick={() => setImagePreviewOpen((prev) => !prev)}
+                                                className={`rounded-lg object-contain cursor-zoom-in transition-all ${
+                                                    imagePreviewOpen ? 'max-h-[460px] w-full' : 'max-h-56 w-auto'
+                                                }`}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-slate-500 py-4 text-center">
+                                            No se adjuntó imagen de cédula para este estudiante.
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Botones de acción */}
+                                <div className="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+                                    <button
+                                        type="button"
+                                        onClick={closeDetailsModal}
+                                        className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs sm:text-sm font-semibold transition"
+                                    >
+                                        Cerrar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const studentToAssign = detailsStudent;
+                                            closeDetailsModal();
+                                            openCourseModal(studentToAssign);
+                                        }}
+                                        className="px-4 py-2.5 rounded-xl bg-[#0066FF] text-white hover:bg-[#0052CC] text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/20 transition"
+                                    >
+                                        Asignar Cursos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* MODAL PARA ASIGNAR CURSOS */}
                 {isCourseModalOpen && selectedStudent && (
