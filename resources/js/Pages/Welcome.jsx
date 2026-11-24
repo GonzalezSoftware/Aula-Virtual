@@ -378,7 +378,7 @@ export default () => {
                     <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 -mt-6 sm:-mt-10">
                         <div className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl shadow-blue-900/5 grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-blue-100">
                             <div className="p-4 sm:p-7 text-center sm:text-left">
-                                <p className="text-xl sm:text-4xl font-extrabold text-[#0066FF]">+500</p>
+                                <p className="text-xl sm:text-4xl font-extrabold text-[#0066FF]">+100</p>
                                 <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Estudiantes Registrados</p>
                                 <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Comunidad en crecimiento continuo</p>
                             </div>
@@ -388,9 +388,9 @@ export default () => {
                                 <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Código de correo y revisión admin</p>
                             </div>
                             <div className="p-4 sm:p-7 text-center sm:text-left">
-                                <p className="text-xl sm:text-4xl font-extrabold text-[#0066FF]">8 Dígitos</p>
-                                <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Clave Temporal Inicial</p>
-                                <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Modificable dentro de tu panel</p>
+                                <p className="text-xl sm:text-4xl font-extrabold text-[#0066FF]">Certificado</p>
+                                <p className="text-xs sm:text-sm font-semibold text-[#051C33] mt-1">Acreditación Oficial</p>
+                                <p className="text-[10px] sm:text-[11px] text-[#4A607A] mt-0.5">Al aprobar tus cursos</p>
                             </div>
                             <div className="p-4 sm:p-7 text-center sm:text-left">
                                 <p className="text-xl sm:text-4xl font-extrabold text-[#051C33]">24/7</p>
@@ -555,57 +555,6 @@ export default () => {
                                         />
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* 6. MÓDULOS ACADÉMICOS PRINCIPALES */}
-                    <section id="cursos" className="scroll-mt-20 py-14 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
-                        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-2.5 sm:space-y-4">
-                            <span className="inline-block px-3.5 py-1 rounded-full bg-[#E3F2FD] text-[#0066FF] text-xs font-semibold uppercase tracking-wider">
-                                Herramientas del Sistema
-                            </span>
-                            <h2 className="text-xl sm:text-3xl font-bold text-[#051C33]">Módulos Académicos Principales</h2>
-                            <p className="text-xs sm:text-sm text-[#4A607A]">
-                                Herramientas diseñadas bajo altos estándares de usabilidad para profesores y alumnos.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
-                            <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
-                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-base sm:text-xl font-bold text-[#051C33] mb-2 sm:mb-3">Gestión de Cursos</h3>
-                                <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
-                                    Consulta materiales didácticos, guías de estudio y recursos organizados temáticamente por cada unidad.
-                                </p>
-                            </div>
-
-                            <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
-                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-base sm:text-xl font-bold text-[#051C33] mb-2 sm:mb-3">Seguimiento y Notas</h3>
-                                <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
-                                    Monitorea calificaciones, entregas de asignaciones y reportes de rendimiento académico en tiempo real.
-                                </p>
-                            </div>
-
-                            <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition group">
-                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-[#E3F2FD] text-[#0066FF] flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-[#0066FF] group-hover:text-white transition shadow-sm">
-                                    <svg className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-base sm:text-xl font-bold text-[#051C33] mb-2 sm:mb-3">Roles y Accesos</h3>
-                                <p className="text-[#4A607A] leading-relaxed text-xs sm:text-sm">
-                                    Interfaces especializadas y seguras para administradores, docentes y alumnos dentro de la plataforma.
-                                </p>
                             </div>
                         </div>
                     </section>
