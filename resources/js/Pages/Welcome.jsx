@@ -226,9 +226,11 @@ export default () => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
                         {/* Logotipo */}
                         <a href="#" className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-base sm:text-xl shadow-md shadow-blue-500/25 shrink-0">
-                                AV
-                            </div>
+                            <img
+                                src="/images/icono_1.png"
+                                alt="Logo Aula Virtual Académica"
+                                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl object-contain bg-white p-1 shadow-md shadow-blue-500/25 shrink-0"
+                            />
                             <span className="text-sm sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
                                 Aula Virtual <span className="text-[#0066FF]">Académica</span>
                             </span>
@@ -606,6 +608,8 @@ export default () => {
                             </div>
                         </div>
                     </section>
+
+
 
                     {/* 7. PREGUNTAS FRECUENTES INTERACTIVAS */}
                     <section className="pb-14 sm:pb-24 max-w-4xl mx-auto px-4 sm:px-6">
