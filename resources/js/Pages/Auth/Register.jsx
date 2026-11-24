@@ -166,9 +166,11 @@ export default function Register({ status }) {
                 <header className="w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-blue-100">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
                         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
-                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#3385FF] flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md shadow-blue-500/25 group-hover:scale-105 transition shrink-0">
-                                AV
-                            </div>
+                            <img
+                                src="/images/logo_1.png"
+                                alt="Logo Aula Virtual Académica"
+                                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl object-contain bg-white p-1 shadow-md shadow-blue-500/25 shrink-0"
+                            />
                             <span className="text-base sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
                                 Aula Virtual <span className="text-[#0066FF]">Académica</span>
                             </span>
