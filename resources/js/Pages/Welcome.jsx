@@ -227,9 +227,9 @@ export default () => {
                         {/* Logotipo */}
                         <a href="#" className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                             <img
-                                src="/images/logo_1.png"
+                                src="/images/logo_2.png"
                                 alt="Logo Aula Virtual Académica"
-                                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl object-cover shadow-md shadow-blue-500/25 shrink-0"
+                                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl object-contain bg-white p-1 shadow-md shadow-blue-500/25 shrink-0"
                             />
                             <span className="text-sm sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
                                 Aula Virtual <span className="text-[#0066FF]">Académica</span>
