@@ -55,6 +55,38 @@ class ForgotPasswordCodeController extends Controller
         ]);
     }
 
+    public function verifyCode(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'digits:6'],
+        ], [
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'code.required' => 'Ingresa el código de 6 dígitos.',
+            'code.digits' => 'El código debe tener exactamente 6 dígitos.',
+        ]);
+
+        $email = strtolower(trim($request->email));
+        $cached = Cache::get($this->cacheKey($email));
+
+        if (! $cached || now()->timestamp > ($cached['expires_at'] ?? 0)) {
+            return response()->json([
+                'message' => 'El código ha expirado o no es válido. Solicita uno nuevo.',
+            ], 422);
+        }
+
+        if ((string) $cached['code'] !== (string) $request->code) {
+            return response()->json([
+                'message' => 'El código de 6 dígitos ingresado es incorrecto.',
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Código verificado correctamente.',
+        ]);
+    }
+
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
@@ -63,7 +95,7 @@ class ForgotPasswordCodeController extends Controller
             'password' => [
                 'required',
                 'string',
-                'size:8',
+                'min:8',
                 'regex:/[a-z]/',
                 'regex:/[A-Z]/',
                 'regex:/[0-9]/',
@@ -74,7 +106,7 @@ class ForgotPasswordCodeController extends Controller
             'code.required' => 'Ingresa el código de 6 dígitos.',
             'code.digits' => 'El código debe tener exactamente 6 dígitos.',
             'password.required' => 'Debes ingresar una nueva contraseña.',
-            'password.size' => 'La contraseña debe tener exactamente 8 caracteres.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.regex' => 'La contraseña debe incluir al menos una minúscula, una mayúscula, un número y un carácter especial.',
         ]);
 

@@ -19,6 +19,7 @@ use Inertia\Inertia;
 // Recuperación de contraseña con código de 6 dígitos
 Route::post('/forgot-password/send-code', [ForgotPasswordCodeController::class, 'sendCode'])->name('password.code.send');
 Route::post('/forgot-password/reset', [ForgotPasswordCodeController::class, 'resetPassword'])->name('password.code.reset');
+Route::post('/forgot-password/verify-code', [ForgotPasswordCodeController::class, 'verifyCode'])->name('password.code.verify');
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [

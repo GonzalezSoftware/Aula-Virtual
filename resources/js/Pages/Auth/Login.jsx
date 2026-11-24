@@ -3,7 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -144,27 +144,51 @@ export default function Login({ status, canResetPassword }) {
             html: `
                 <div class="text-left space-y-3 pt-1 font-['Poppins']">
                     <p class="text-xs text-[#4A607A] leading-relaxed">
-                        Debe tener <strong>exactamente 8 caracteres</strong>, mínimo <strong>una letra minúscula</strong>, <strong>una mayúscula</strong>, <strong>un número</strong> y <strong>un carácter especial</strong>.
+                        Debe tener <strong>mínimo 8 caracteres</strong>, incluyendo al menos <strong>una letra minúscula</strong>, <strong>una mayúscula</strong>, <strong>un número</strong> y <strong>un carácter especial</strong>.
                     </p>
                     <div>
-                        <label class="block text-xs font-semibold text-[#051C33] mb-1">Nueva contraseña (8 caracteres)</label>
-                        <input
-                            id="swal-new-password"
-                            type="password"
-                            maxlength="8"
-                            placeholder="Ej: Abc123!@"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm text-[#051C33] focus:border-[#0066FF] outline-none"
-                        />
+                        <label class="block text-xs font-semibold text-[#051C33] mb-1">Nueva contraseña (mínimo 8 caracteres)</label>
+                        <div class="relative">
+                            <input
+                                id="swal-new-password"
+                                type="password"
+                                placeholder="Ej: Abc123!@"
+                                class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-blue-200 text-sm text-[#051C33] focus:border-[#0066FF] outline-none"
+                            />
+                            <button
+                                id="swal-toggle-new"
+                                type="button"
+                                aria-label="Mostrar u ocultar nueva contraseña"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-[#4A607A] hover:text-[#0066FF]"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-[#051C33] mb-1">Confirmar contraseña</label>
-                        <input
-                            id="swal-confirm-password"
-                            type="password"
-                            maxlength="8"
-                            placeholder="Repite tu nueva contraseña"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm text-[#051C33] focus:border-[#0066FF] outline-none"
-                        />
+                        <div class="relative">
+                            <input
+                                id="swal-confirm-password"
+                                type="password"
+                                placeholder="Repite tu nueva contraseña"
+                                class="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-blue-200 text-sm text-[#051C33] focus:border-[#0066FF] outline-none"
+                            />
+                            <button
+                                id="swal-toggle-confirm"
+                                type="button"
+                                aria-label="Mostrar u ocultar confirmación de contraseña"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-[#4A607A] hover:text-[#0066FF]"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `,
@@ -177,12 +201,28 @@ export default function Login({ status, canResetPassword }) {
             customClass: {
                 popup: 'rounded-2xl font-[\'Poppins\']',
             },
+            didOpen: () => {
+                const newInput = document.getElementById('swal-new-password');
+                const confirmInput = document.getElementById('swal-confirm-password');
+                const toggleNew = document.getElementById('swal-toggle-new');
+                const toggleConfirm = document.getElementById('swal-toggle-confirm');
+
+                toggleNew?.addEventListener('click', () => {
+                    if (!newInput) return;
+                    newInput.type = newInput.type === 'password' ? 'text' : 'password';
+                });
+
+                toggleConfirm?.addEventListener('click', () => {
+                    if (!confirmInput) return;
+                    confirmInput.type = confirmInput.type === 'password' ? 'text' : 'password';
+                });
+            },
             preConfirm: () => {
                 const newPassword = document.getElementById('swal-new-password')?.value || '';
                 const confirmPassword = document.getElementById('swal-confirm-password')?.value || '';
 
-                if (newPassword.length !== 8) {
-                    Swal.showValidationMessage('La contraseña debe tener exactamente 8 caracteres.');
+                if (newPassword.length < 8) {
+                    Swal.showValidationMessage('La contraseña debe tener mínimo 8 caracteres.');
                     return false;
                 }
                 if (!/[a-z]/.test(newPassword)) {
@@ -275,7 +315,31 @@ export default function Login({ status, canResetPassword }) {
             return;
         }
 
-        await openNewPasswordSweetAlert(fullCode);
+        setVerifyingCode(true);
+        try {
+            await axios.post(route('password.code.verify'), {
+                email: recoveryEmail.trim(),
+                code: fullCode,
+            });
+            setVerifyingCode(false);
+            await openNewPasswordSweetAlert(fullCode);
+        } catch (err) {
+            setVerifyingCode(false);
+            const apiMessage =
+                err.response?.data?.message ||
+                Object.values(err.response?.data?.errors || {})?.flat()?.[0] ||
+                'El código ingresado no es válido.';
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Código incorrecto',
+                text: apiMessage,
+                confirmButtonColor: '#0066FF',
+                customClass: {
+                    popup: 'rounded-2xl font-[\'Poppins\']',
+                }
+            });
+        }
     };
 
     return (
@@ -559,7 +623,7 @@ export default function Login({ status, canResetPassword }) {
                                             disabled={verifyingCode}
                                             className="w-full max-w-md mx-auto py-3 sm:py-3.5 px-6 rounded-xl bg-[#0066FF] text-white font-semibold text-xs sm:text-sm hover:bg-[#0052CC] focus:ring-4 focus:ring-[#0066FF]/30 transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                         >
-                                            <span>{verifyingCode ? 'Verificando...' : 'Confirmar Código y Cambiar Clave'}</span>
+                                            <span>{verifyingCode ? 'Verificando código...' : 'Verificar Código'}</span>
                                         </button>
                                     </form>
 
