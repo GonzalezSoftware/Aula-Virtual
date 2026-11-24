@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\StudentCourseController;
 use App\Http\Controllers\Auth\StudentContentController;
 use App\Http\Controllers\Auth\StudentExamController;
 use App\Http\Controllers\Auth\StudentGradeController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\AdminGradeController;
@@ -30,9 +31,7 @@ Route::post('/admin/login', [AdminAuthenticatedSessionController::class, 'store'
 
 // Grupo protegido estrictamente para el panel de administración con el guardia 'admin'
 Route::middleware(['auth:admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Rutas de Cursos del Administrador
     Route::get('/admin/courses/create', function () {
