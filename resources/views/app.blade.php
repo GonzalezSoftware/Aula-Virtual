@@ -7,8 +7,8 @@
         <title inertia>{{ config('app.name', 'Aula Virtual Académica') }}</title>
 
         <!-- Favicon para todas las páginas -->
-        <link rel="icon" type="image/png" href="/images/icono_1.png?v=1">
-        <link rel="apple-touch-icon" href="/images/icono_1.png?v=1">
+        <link rel="icon" type="image/png" href="/images/logo_1.png?v=1">
+        <link rel="apple-touch-icon" href="/images/logo_1.png?v=1">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
