@@ -232,7 +232,7 @@ export default () => {
                                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl object-contain bg-white p-1 shadow-md shadow-blue-500/25 shrink-0"
                             />
                             <span className="text-sm sm:text-xl font-bold tracking-tight text-[#0A2540] truncate">
-                                Aula Virtual <span className="text-[#0066FF]">Académica</span>
+                                Grupo Académico<span className="text-[#0066FF]">LEIL</span>
                             </span>
                         </a>
 
