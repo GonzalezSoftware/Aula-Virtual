@@ -602,7 +602,7 @@ export default () => {
                                     <div className="bg-[#F0F6FF] border border-blue-100 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-inner">
                                         <div className="bg-white p-2 sm:p-3 rounded-2xl border-4 border-white shadow-lg overflow-hidden">
                                             <img
-                                                src="/images/certificado.jpg"
+                                                src="/images/certificado_leil.jpg"
                                                 alt="Certificado de finalización de cursos del Aula Virtual"
                                                 className="w-full h-auto max-h-[380px] object-contain mx-auto rounded-xl"
                                             />
