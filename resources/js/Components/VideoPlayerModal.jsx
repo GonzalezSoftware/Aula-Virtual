@@ -92,7 +92,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
             onDragStart={blockInteraction}
         >
             <div className="bg-slate-900 w-full max-w-5xl rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-                {/* Header corporativo */}
                 <div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#051C33] text-white flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 sm:gap-3 select-none">
                     <h3 className="font-extrabold text-xs sm:text-sm tracking-tight truncate max-w-full sm:max-w-xl text-white">
                         {title}{' '}
@@ -109,28 +108,24 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                     </button>
                 </div>
 
-                {/* Contenedor del Reproductor */}
                 <div
                     className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden"
                     onContextMenu={blockInteraction}
                 >
                     {isEmbeddedPlayer && (
                         <>
-                            {/* Bloquea clic en título/canal e info (esquina superior izquierda) */}
                             <div
                                 onClick={blockInteraction}
                                 onContextMenu={blockInteraction}
                                 className="absolute top-0 left-0 w-64 h-16 z-20 bg-transparent cursor-default"
                                 aria-hidden="true"
                             />
-                            {/* Bloquea clic en ícono de enlace (esquina inferior izquierda) */}
                             <div
                                 onClick={blockInteraction}
                                 onContextMenu={blockInteraction}
                                 className="absolute bottom-8 left-0 w-14 h-10 z-20 bg-transparent cursor-default"
                                 aria-hidden="true"
                             />
-                            {/* Bloquea clic en logo de YouTube (esquina inferior derecha) */}
                             <div
                                 onClick={blockInteraction}
                                 onContextMenu={blockInteraction}
@@ -146,7 +141,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                             className="w-full h-full border-none z-10"
                             title={title}
                             referrerPolicy="strict-origin-when-cross-origin"
-                            sandbox="allow-scripts allow-same-origin allow-presentation"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen={false}
                         />
