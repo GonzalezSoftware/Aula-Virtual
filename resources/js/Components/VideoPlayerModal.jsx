@@ -4,7 +4,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
     const playerContainerRef = useRef(null);
     const playerInstanceRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -80,7 +79,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                 events: {
                     onReady: (event) => {
                         setDuration(event.target.getDuration() || 0);
-                        setIsMuted(event.target.isMuted());
                         event.target.playVideo();
                     },
                     onStateChange: (event) => {
@@ -115,6 +113,17 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
         };
     }, [youtubeId]);
 
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(document.fullscreenElement === playerContainerRef.current);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, []);
+
     const togglePlay = () => {
         const player = playerInstanceRef.current;
         if (!player) return;
@@ -122,18 +131,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
             player.pauseVideo();
         } else {
             player.playVideo();
-        }
-    };
-
-    const toggleMute = () => {
-        const player = playerInstanceRef.current;
-        if (!player) return;
-        if (isMuted) {
-            player.unMute();
-            setIsMuted(false);
-        } else {
-            player.mute();
-            setIsMuted(true);
         }
     };
 
@@ -148,10 +145,8 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
         if (!container) return;
         if (!document.fullscreenElement) {
             await container.requestFullscreen?.();
-            setIsFullscreen(true);
         } else {
             await document.exitFullscreen?.();
-            setIsFullscreen(false);
         }
     };
 
@@ -243,14 +238,6 @@ export default function VideoPlayerModal({ videoUrl = '', title, onClose }) {
                             onChange={handleSeek}
                             className="flex-1 accent-[#0066FF] cursor-pointer"
                         />
-
-                        <button
-                            type="button"
-                            onClick={toggleMute}
-                            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold cursor-pointer shrink-0"
-                        >
-                            {isMuted ? 'Activar audio' : 'Silenciar'}
-                        </button>
 
                         <button
                             type="button"
