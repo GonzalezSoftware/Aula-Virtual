@@ -544,17 +544,21 @@ export default () => {
                                     </div>
                                 </div>
 
-                                {/* Contenedor con vídeo de YouTube */}
+                                {/* Contenedor con vídeo local */}
                                 <div className="lg:col-span-7">
                                     <div className="relative rounded-2xl sm:rounded-3xl bg-[#051C33] border-2 border-blue-100 shadow-2xl shadow-blue-900/10 overflow-hidden aspect-video">
-                                        <iframe
-                                            src="https://www.youtube.com/embed/76wN-o5zIwI?rel=0&modestbranding=1"
+                                        <video
+                                            src="/videos/video.mp4"
                                             title="Vídeo explicativo del Aula Virtual"
-                                            className="w-full h-full border-0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                            referrerPolicy="strict-origin-when-cross-origin"
-                                            allowFullScreen
-                                        />
+                                            controls
+                                            preload="metadata"
+                                            controlsList="nodownload"
+                                            disablePictureInPicture
+                                            onContextMenu={(e) => e.preventDefault()}
+                                            className="w-full h-full object-cover"
+                                        >
+                                            Tu navegador no soporta la reproducción de vídeo HTML5.
+                                        </video>
                                     </div>
                                 </div>
                             </div>
