@@ -55,7 +55,7 @@ class StudentAuthController extends Controller
                 "regex:{$gmailRegex}",
                 'unique:users,email',
             ],
-            'cedula_image' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'cedula_image' => ['required', 'image', 'mimes:jpeg,png,jpg'],
         ], [
             'name.required' => 'El campo nombres es obligatorio.',
             'name.max' => 'Los nombres no pueden tener más de 30 caracteres.',
