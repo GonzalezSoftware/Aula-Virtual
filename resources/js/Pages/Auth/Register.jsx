@@ -241,7 +241,7 @@ export default function Register({ status }) {
                                         
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Nombres</label>
+                                                <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Nombres completos</label>
                                                 <input
                                                     type="text"
                                                     maxLength={30}
@@ -253,7 +253,7 @@ export default function Register({ status }) {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Apellidos</label>
+                                                <label className="block text-xs sm:text-sm font-semibold text-[#0A2540] mb-1.5">Apellidos completos</label>
                                                 <input
                                                     type="text"
                                                     maxLength={30}
