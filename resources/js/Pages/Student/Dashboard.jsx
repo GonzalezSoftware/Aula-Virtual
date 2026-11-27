@@ -24,6 +24,21 @@ export default function StudentDashboard({ auth, courses = [] }) {
         }
     }, [flash?.error, errors?.error]);
 
+    const getEffectiveDates = (course) => {
+        const startDate = course.pivot?.enrolled_start_date || course.start_date || null;
+        const endDate = course.pivot?.enrolled_end_date || course.end_date || null;
+        return { startDate, endDate };
+    };
+
+    const isNotStartedYet = (startDate) => {
+        if (!startDate) return false;
+        const parsed = new Date(`${String(startDate).slice(0, 10)}T00:00:00`);
+        if (Number.isNaN(parsed.getTime())) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today < parsed;
+    };
+
     return (
         <>
             <Head title="Panel de Estudiante - Aula Virtual" />
@@ -62,42 +77,67 @@ export default function StudentDashboard({ auth, courses = [] }) {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                                {courses.map((course) => (
-                                    <div key={course.id} className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl overflow-hidden flex flex-col justify-between min-w-0">
-                                        <div>
-                                            {course.image ? (
-                                                <img src={`/storage/${course.image}`} alt={course.title} className="w-full h-44 sm:h-48 object-cover" />
-                                            ) : (
-                                                <div className="w-full h-44 sm:h-48 bg-gradient-to-tr from-[#051C33] to-[#0066FF] flex items-center justify-center text-white font-bold text-lg sm:text-xl px-4 text-center">{course.title}</div>
-                                            )}
-                                            <div className="p-4 sm:p-6 space-y-3">
-                                                <h3 className="text-base sm:text-lg font-extrabold text-[#051C33]">{course.title}</h3>
-                                                <p className="text-xs text-[#4A607A] line-clamp-3">{course.description}</p>
+                                {courses.map((course) => {
+                                    const { startDate, endDate } = getEffectiveDates(course);
+                                    const notStarted = isNotStartedYet(startDate);
 
-                                                <div className="flex flex-wrap gap-2 pt-1">
-                                                    <span className="text-[11px] bg-blue-50 text-[#0066FF] px-3 py-1 rounded-full font-semibold border border-blue-100">
-                                                        {course.modules?.length || 0} Módulos
-                                                    </span>
-                                                    {course.start_date && (
-                                                        <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
-                                                            Inicio: {course.start_date}
+                                    return (
+                                        <div key={course.id} className="bg-white rounded-2xl sm:rounded-3xl border border-blue-100 shadow-xl overflow-hidden flex flex-col justify-between min-w-0">
+                                            <div>
+                                                {course.image ? (
+                                                    <img src={`/storage/${course.image}`} alt={course.title} className="w-full h-44 sm:h-48 object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-44 sm:h-48 bg-gradient-to-tr from-[#051C33] to-[#0066FF] flex items-center justify-center text-white font-bold text-lg sm:text-xl px-4 text-center">{course.title}</div>
+                                                )}
+                                                <div className="p-4 sm:p-6 space-y-3">
+                                                    <h3 className="text-base sm:text-lg font-extrabold text-[#051C33]">{course.title}</h3>
+                                                    <p className="text-xs text-[#4A607A] line-clamp-3">{course.description}</p>
+
+                                                    <div className="flex flex-wrap gap-2 pt-1">
+                                                        <span className="text-[11px] bg-blue-50 text-[#0066FF] px-3 py-1 rounded-full font-semibold border border-blue-100">
+                                                            {course.modules?.length || 0} Módulos
                                                         </span>
-                                                    )}
-                                                    {course.end_date && (
-                                                        <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
-                                                            Cierre: {course.end_date}
-                                                        </span>
-                                                    )}
+                                                        {startDate && (
+                                                            <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                                                                Inicio: {startDate}
+                                                            </span>
+                                                        )}
+                                                        {endDate && (
+                                                            <span className="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                                                                Cierre: {endDate}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div className="p-4 sm:p-6 pt-0">
+                                                {notStarted ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            Swal.fire({
+                                                                icon: 'warning',
+                                                                title: 'Acceso Restringido por Fecha',
+                                                                text: `El curso "${course.title}" aún no ha iniciado. Fecha de inicio: ${startDate}.`,
+                                                                confirmButtonText: 'OK',
+                                                                confirmButtonColor: '#0066FF',
+                                                                allowOutsideClick: false,
+                                                                allowEscapeKey: false,
+                                                            })
+                                                        }
+                                                        className="w-full block text-center py-2.5 rounded-xl bg-slate-200 text-slate-600 text-xs font-semibold cursor-pointer"
+                                                    >
+                                                        Aún no inicia
+                                                    </button>
+                                                ) : (
+                                                    <Link href={`/student/courses/${course.id}`} className="w-full block text-center py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition">
+                                                        Ingresar al Curso
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="p-4 sm:p-6 pt-0">
-                                            <Link href={`/student/courses/${course.id}`} className="w-full block text-center py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-semibold transition">
-                                                Ingresar al Curso
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </main>

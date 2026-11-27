@@ -6,24 +6,51 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class StudentCourseController extends Controller
 {
+    private function currentDay(): Carbon
+    {
+        return Carbon::now(config('app.timezone'))->startOfDay();
+    }
+
+    private function parseDateStart(?string $date): ?Carbon
+    {
+        if (!$date) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($date, config('app.timezone'))->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function parseDateEnd(?string $date): ?Carbon
+    {
+        if (!$date) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($date, config('app.timezone'))->endOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     private function isCourseExpiredForStudent($course, Carbon $today): bool
     {
-        $pivotStatus = $course->pivot?->status;
-        if ($pivotStatus === 'completed') {
+        if ($course->pivot?->status === 'completed') {
             return true;
         }
 
         $effectiveEndDate = $course->pivot?->enrolled_end_date ?? $course->end_date;
-        if ($effectiveEndDate && $today->gt(Carbon::parse($effectiveEndDate)->endOfDay())) {
-            return true;
-        }
+        $endCarbon = $this->parseDateEnd($effectiveEndDate);
 
-        return false;
+        return $endCarbon !== null && $today->gt($endCarbon);
     }
 
     private function markEnrollmentCompletedIfExpired($student, $course, Carbon $today): void
@@ -33,10 +60,13 @@ class StudentCourseController extends Controller
         }
 
         $effectiveEndDate = $course->pivot->enrolled_end_date ?? $course->end_date;
-        if ($effectiveEndDate && $today->gt(Carbon::parse($effectiveEndDate)->endOfDay())) {
+        $endCarbon = $this->parseDateEnd($effectiveEndDate);
+
+        if ($endCarbon !== null && $today->gt($endCarbon)) {
+            $now = Carbon::now(config('app.timezone'));
             $student->courses()->updateExistingPivot($course->id, [
                 'status' => 'completed',
-                'completed_at' => $course->pivot->completed_at ?? Carbon::now(),
+                'completed_at' => $course->pivot->completed_at ?? $now,
             ]);
             $course->pivot->status = 'completed';
         }
@@ -50,7 +80,7 @@ class StudentCourseController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $today = Carbon::today();
+        $today = $this->currentDay();
         $allCourses = $student->courses()->with('modules')->get();
 
         $activeCourses = $allCourses->filter(function ($course) use ($student, $today) {
@@ -71,7 +101,7 @@ class StudentCourseController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $today = Carbon::today();
+        $today = $this->currentDay();
         $allCourses = $student->courses()->with('modules')->get();
 
         $completedCourses = $allCourses->filter(function ($course) use ($student, $today) {
@@ -103,20 +133,22 @@ class StudentCourseController extends Controller
                 ->with('error', 'No tienes acceso a este curso o no existe.');
         }
 
-        $today = Carbon::today();
+        $today = $this->currentDay();
         $this->markEnrollmentCompletedIfExpired($student, $course, $today);
 
         $effectiveStartDate = $course->pivot?->enrolled_start_date ?? $course->start_date;
         $effectiveEndDate = $course->pivot?->enrolled_end_date ?? $course->end_date;
 
-        if ($effectiveStartDate && $today->lt(Carbon::parse($effectiveStartDate)->startOfDay())) {
-            $formattedStart = Carbon::parse($effectiveStartDate)->format('d/m/Y');
+        $startCarbon = $this->parseDateStart($effectiveStartDate);
+        $endCarbon = $this->parseDateEnd($effectiveEndDate);
+
+        if ($startCarbon !== null && $today->lt($startCarbon)) {
             return redirect()->route('dashboard')
-                ->with('error', "El curso \"{$course->title}\" aún no ha iniciado. Fecha de inicio: {$formattedStart}.");
+                ->with('error', "El curso \"{$course->title}\" aún no ha iniciado. Fecha de inicio: {$startCarbon->format('d/m/Y')}.");
         }
 
-        if ($course->pivot?->status === 'completed' || ($effectiveEndDate && $today->gt(Carbon::parse($effectiveEndDate)->endOfDay()))) {
-            $formattedEnd = $effectiveEndDate ? Carbon::parse($effectiveEndDate)->format('d/m/Y') : 'finalizado';
+        if ($course->pivot?->status === 'completed' || ($endCarbon !== null && $today->gt($endCarbon))) {
+            $formattedEnd = $endCarbon ? $endCarbon->format('d/m/Y') : 'finalizado';
             return redirect()->route('student.courses.completed')
                 ->with('error', "El curso \"{$course->title}\" ya finalizó ({$formattedEnd}). Puedes revisar tus calificaciones en Mis Calificaciones.");
         }
@@ -143,7 +175,7 @@ class StudentCourseController extends Controller
                 ->with('error', 'El módulo solicitado no pertenece a este curso.');
         }
 
-        $today = Carbon::today();
+        $today = $this->currentDay();
         if ($enrolledCourse) {
             $this->markEnrollmentCompletedIfExpired($student, $enrolledCourse, $today);
         }
@@ -151,28 +183,31 @@ class StudentCourseController extends Controller
         $effectiveStartDate = $enrolledCourse?->pivot?->enrolled_start_date ?? $course->start_date;
         $effectiveEndDate = $enrolledCourse?->pivot?->enrolled_end_date ?? $course->end_date;
 
-        if ($effectiveStartDate && $today->lt(Carbon::parse($effectiveStartDate)->startOfDay())) {
-            $formattedStart = Carbon::parse($effectiveStartDate)->format('d/m/Y');
+        $courseStart = $this->parseDateStart($effectiveStartDate);
+        $courseEnd = $this->parseDateEnd($effectiveEndDate);
+
+        if ($courseStart !== null && $today->lt($courseStart)) {
             return redirect()->route('dashboard')
-                ->with('error', "El curso \"{$course->title}\" aún no ha iniciado. Fecha de inicio: {$formattedStart}.");
+                ->with('error', "El curso \"{$course->title}\" aún no ha iniciado. Fecha de inicio: {$courseStart->format('d/m/Y')}.");
         }
 
-        if (($enrolledCourse?->pivot?->status === 'completed') || ($effectiveEndDate && $today->gt(Carbon::parse($effectiveEndDate)->endOfDay()))) {
-            $formattedEnd = $effectiveEndDate ? Carbon::parse($effectiveEndDate)->format('d/m/Y') : 'finalizado';
+        if (($enrolledCourse?->pivot?->status === 'completed') || ($courseEnd !== null && $today->gt($courseEnd))) {
+            $formattedEnd = $courseEnd ? $courseEnd->format('d/m/Y') : 'finalizado';
             return redirect()->route('student.courses.completed')
                 ->with('error', "El curso \"{$course->title}\" ya finalizó ({$formattedEnd}).");
         }
 
-        if ($module->start_date && $today->lt(Carbon::parse($module->start_date)->startOfDay())) {
-            $formattedModStart = Carbon::parse($module->start_date)->format('d/m/Y');
+        $moduleStart = $this->parseDateStart($module->start_date);
+        $moduleEnd = $this->parseDateEnd($module->end_date);
+
+        if ($moduleStart !== null && $today->lt($moduleStart)) {
             return redirect()->route('student.courses.show', $course->id)
-                ->with('error', "El módulo \"{$module->title}\" aún no está disponible. Fecha de inicio: {$formattedModStart}.");
+                ->with('error', "El módulo \"{$module->title}\" aún no está disponible. Fecha de inicio: {$moduleStart->format('d/m/Y')}.");
         }
 
-        if ($module->end_date && $today->gt(Carbon::parse($module->end_date)->endOfDay())) {
-            $formattedModEnd = Carbon::parse($module->end_date)->format('d/m/Y');
+        if ($moduleEnd !== null && $today->gt($moduleEnd)) {
             return redirect()->route('student.courses.show', $course->id)
-                ->with('error', "El módulo \"{$module->title}\" ya cerró. Fecha de cierre: {$formattedModEnd}.");
+                ->with('error', "El módulo \"{$module->title}\" ya cerró. Fecha de cierre: {$moduleEnd->format('d/m/Y')}.");
         }
 
         $module->load(['contents', 'exams.options']);
